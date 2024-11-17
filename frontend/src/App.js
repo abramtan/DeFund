@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Web3 from 'web3';
 import { Menu } from 'lucide-react'
 
 const DeFundLogo = () => (
@@ -68,8 +69,26 @@ const Dialog = ({ isOpen, onClose, children }) =>
     </div>
   ) : null;
 
+const connectWallet = async () => {
+  if (typeof window.ethereum !== 'undefined') {
+    try {
+      // Request account access
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const web3 = new Web3(window.ethereum);
+      return accounts[0];
+    } catch (error) {
+      console.error("User denied account access");
+      return null;
+    }
+  } else {
+    alert("Please install MetaMask!");
+    return null;
+  }
+};
+
 const Home = () => {
   const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const [account, setAccount] = useState(null);
 
   const activeCampaigns = [
     {
@@ -98,6 +117,13 @@ const Home = () => {
     },
   ];
 
+  const handleConnectWallet = async () => {
+    const connectedAccount = await connectWallet();
+    if (connectedAccount) {
+      setAccount(connectedAccount);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="bg-white shadow-sm">
@@ -121,7 +147,9 @@ const Home = () => {
               </div>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:items-center">
-              <Button variant="outline">Connect Wallet</Button>
+              <Button variant="outline" onClick={handleConnectWallet}>
+                {account ? `${account.slice(0, 6)}...${account.slice(-4)}` : 'Connect Wallet'}
+              </Button>
             </div>
             <div className="flex items-center sm:hidden">
               <Button variant="ghost" size="icon">
