@@ -196,7 +196,7 @@
 				"inputs": [],
 				"name": "donate",
 				"outputs": [],
-				"stateMutability": "nonpayable",
+				"stateMutability": "payable",
 				"type": "function"
 			},
 			{
@@ -319,11 +319,11 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x3aec031a339610fc307bbf61d06a2d0cb71d67c4f8a20dfa7c91b810c3390bd7",
+			"keccak256": "0x7e1db7b06055c69e855dff0d678a1b42102a03ea5c0dccd4be52ffdd99ac51fa",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://0b149a9fbbf7969446b8930ab854ab578a9e88972ab1f55cf0ff26634b96c394",
-				"dweb:/ipfs/QmP6yn4REnovuz7esrgse4trR85BL1YSvcDtXPfJj4EWGg"
+				"bzz-raw://feb6e0c21a7c7261716f527e679881d525bd4cd9ea07e28f8ed5ebdb1f53442d",
+				"dweb:/ipfs/QmQC5NpiUA5P7qcj21xv5XRDWxfLagevKfFEFaEmWxWZZb"
 			]
 		}
 	},

@@ -33,7 +33,7 @@ contract Campaign {
         description = _description;
         fundingGoal = _fundingGoal;
         deadline = _deadline;
-        isActive = true; // Mark the campaign as active initially
+        isActive = true; // mark the campaign as active initially
     }
     
     // events
@@ -42,20 +42,70 @@ contract Campaign {
     event RefundIssued(address donor, uint amount, uint timestamp);
     event CampaignFinalized(bool success, uint totalFunds, uint timestamp); // if success is true, it means that the Campaign met its fundingGoal before its deadline
 
+    // modifiers
+    modifier isActiveCampaign() {
+        require(block.timestamp <= deadline, "The Camapign's deadline has passed!");
+        require(isActive, "The Campaign is not active!");
+        _;
+    }
+
+    modifier deadlineExceeded() {
+        require(block.timestamp > deadline, "The Camapign's deadline has not passed!");
+        _;
+    }
+
     // functions
     // allows donors to donate to the Campaign
-    function donate() public {}
+    function donate() public payable isActiveCampaign {
+        address donor = msg.sender;
+        uint amount = msg.value;
+        donations[donor] += amount;
+        totalFunds += amount;
+        emit DonationMade(donor, amount, block.timestamp);
+
+        // if the Campaign has been fully funded, then release all the funds to the beneficiary
+        if (totalFunds >= fundingGoal) {
+            releaseFunds();
+        }
+    }
 
     // releases the totalFunds to the beneficiary; called whenever the totalFunds exceed fundingGoal before or by the deadline
     // some sort of a helper function
-    function releaseFunds() private {}
+    function releaseFunds() internal {
+        isActive = false;
+        totalFunds = 0;
+
+        // transfer the totalFunds to beneficiary
+        (bool success,) = payable(beneficiary).call{value: totalFunds}("");
+        require(success, "Unable to release funds!");
+
+        emit FundsWithdrawn(totalFunds, block.timestamp);
+        emit CampaignFinalized(true, totalFunds, block.timestamp);
+    }
 
     // called when the Campaign's deadline has passed
     // it also handles he refund to all donors if the fundingGoal is not met
     // likely needs to be called from the frontend
-    function finalizeCampaign() public {}
+    function finalizeCampaign() public isActiveCampaign deadlineExceeded {
+        isActive = false;
+
+        if (totalFunds > fundingGoal) {
+            releaseFunds();
+        } else {
+            // refund totalFunds to all donors by calling the refund(0 for each donor
+            // TODO
+        }
+    }
 
     // refunds the donor's donation
     // some sort of a helper function
-    function refund(address donor) private {}
+    function refund(address donor) private {
+        uint donationAmount = donations[donor];
+        donations[donor] = 0;
+        
+        // refund to the donor
+        payable(donor).transfer(donationAmount);
+
+        emit RefundIssued(donor, donationAmount, block.timestamp);
+    }
 }
