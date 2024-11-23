@@ -33,9 +33,9 @@
 						"type": "string"
 					},
 					{
-						"internalType": "uint256",
+						"internalType": "uint32",
 						"name": "_fundingGoal",
-						"type": "uint256"
+						"type": "uint32"
 					},
 					{
 						"internalType": "uint256",
@@ -57,9 +57,9 @@
 					},
 					{
 						"indexed": false,
-						"internalType": "uint256",
+						"internalType": "uint32",
 						"name": "totalFunds",
-						"type": "uint256"
+						"type": "uint32"
 					},
 					{
 						"indexed": false,
@@ -82,9 +82,9 @@
 					},
 					{
 						"indexed": false,
-						"internalType": "uint256",
+						"internalType": "uint32",
 						"name": "amount",
-						"type": "uint256"
+						"type": "uint32"
 					},
 					{
 						"indexed": false,
@@ -101,9 +101,9 @@
 				"inputs": [
 					{
 						"indexed": false,
-						"internalType": "uint256",
+						"internalType": "uint32",
 						"name": "amount",
-						"type": "uint256"
+						"type": "uint32"
 					},
 					{
 						"indexed": false,
@@ -126,9 +126,9 @@
 					},
 					{
 						"indexed": false,
-						"internalType": "uint256",
+						"internalType": "uint32",
 						"name": "amount",
-						"type": "uint256"
+						"type": "uint32"
 					},
 					{
 						"indexed": false,
@@ -230,9 +230,9 @@
 				"name": "fundingGoal",
 				"outputs": [
 					{
-						"internalType": "uint256",
+						"internalType": "uint32",
 						"name": "",
-						"type": "uint256"
+						"type": "uint32"
 					}
 				],
 				"stateMutability": "view",
@@ -282,9 +282,9 @@
 				"name": "totalFunds",
 				"outputs": [
 					{
-						"internalType": "uint256",
+						"internalType": "uint32",
 						"name": "",
-						"type": "uint256"
+						"type": "uint32"
 					}
 				],
 				"stateMutability": "view",
@@ -319,11 +319,11 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x7e1db7b06055c69e855dff0d678a1b42102a03ea5c0dccd4be52ffdd99ac51fa",
+			"keccak256": "0x6e2dd6d8642e74f90a58f74a043dc056184dc78923f4a7879084e5f3fe5919b8",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://feb6e0c21a7c7261716f527e679881d525bd4cd9ea07e28f8ed5ebdb1f53442d",
-				"dweb:/ipfs/QmQC5NpiUA5P7qcj21xv5XRDWxfLagevKfFEFaEmWxWZZb"
+				"bzz-raw://562ed435fbdea817990afc33cd5e4b7e1b1ceb6f6d2f0bcdbe410fee6150d048",
+				"dweb:/ipfs/QmNubQ9KAtPkqhtht9StKBDocejjMEr7hs5NSJeDnprSFM"
 			]
 		}
 	},

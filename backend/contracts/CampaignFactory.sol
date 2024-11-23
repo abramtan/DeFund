@@ -8,16 +8,14 @@ contract CampaignFactory {
     // Creates and deploys a new Campaign smart contract whenever any beneficiary creates a campaign from the frontend
 
     // state variables
-    mapping(uint256 => address) public deployedCampaigns; // all the deployed and active Campaigns
-    uint private numOfCampaigns;
+    address[] public deployedCampaigns; // all the deployed and active Campaigns
     
     // events
     // logs the creation of a new Campaign
     event CampaignCreated(
         address campaignAddress,
         address beneficiary,
-        string name,
-        uint fundingGoal,
+        uint32 fundingGoal,
         uint deadline
     );
 
@@ -27,16 +25,14 @@ contract CampaignFactory {
         string memory _name,
         string memory _purpose,
         string memory _description,
-        uint _fundingGoal,
+        uint32 _fundingGoal,
         uint _deadline
-    ) public {
-        require(_fundingGoal > 0, "Funding goal must be greater than zero!");
-        require(_deadline > block.timestamp, "Deadline must be in the future!");
+    ) external {
         address beneficiary = msg.sender;
 
         // create a new campaign smart contract
         Campaign campaign = new Campaign(
-            numOfCampaigns,
+            deployedCampaigns.length,
             beneficiary,
             _name,
             _purpose,
@@ -47,19 +43,13 @@ contract CampaignFactory {
 
         // add campaign to deployed Campaigns
         address campaignAddress = address(campaign);
-        deployedCampaigns[numOfCampaigns] = campaignAddress;
-        numOfCampaigns++;
+        deployedCampaigns.push(campaignAddress);
 
-        emit CampaignCreated(campaignAddress, beneficiary, _name, _fundingGoal, _deadline);
+        emit CampaignCreated(campaignAddress, beneficiary, _fundingGoal, _deadline);
     }
 
     // returns the list of active deployed Campaigns to the frontend
-    function getDeployedCampaigns() public view returns (address[] memory) {
-        address[] memory campaigns = new address[](numOfCampaigns);
-        for (uint i = 0; i < numOfCampaigns; i++) {
-            campaigns[i] = deployedCampaigns[i];
-        }
-
-        return campaigns;
+    function getDeployedCampaigns() external view returns (address[] memory) {
+        return deployedCampaigns;
     }
 }

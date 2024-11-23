@@ -22,15 +22,9 @@
 					},
 					{
 						"indexed": false,
-						"internalType": "string",
-						"name": "name",
-						"type": "string"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
+						"internalType": "uint32",
 						"name": "fundingGoal",
-						"type": "uint256"
+						"type": "uint32"
 					},
 					{
 						"indexed": false,
@@ -60,9 +54,9 @@
 						"type": "string"
 					},
 					{
-						"internalType": "uint256",
+						"internalType": "uint32",
 						"name": "_fundingGoal",
-						"type": "uint256"
+						"type": "uint32"
 					},
 					{
 						"internalType": "uint256",
@@ -136,19 +130,19 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x8cce094608335ad3376dbd9963e4f06bee021191b51c0760d7c1f77dc333b056",
+			"keccak256": "0x7e1db7b06055c69e855dff0d678a1b42102a03ea5c0dccd4be52ffdd99ac51fa",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://c4c3f2924863b539bdffd453e59f8912afe5b55cf2c3e556945e4ed3748c9294",
-				"dweb:/ipfs/QmfDyv28ubADz1ep6JQvSH8RSsPEKZi4jXC12Sguw9tagJ"
+				"bzz-raw://feb6e0c21a7c7261716f527e679881d525bd4cd9ea07e28f8ed5ebdb1f53442d",
+				"dweb:/ipfs/QmQC5NpiUA5P7qcj21xv5XRDWxfLagevKfFEFaEmWxWZZb"
 			]
 		},
 		"backend/contracts/CampaignFactory.sol": {
-			"keccak256": "0xa3d470dedc5f7c7ba2fa5e8e68c95779e7f8649c181bc94ca9772466a0cdef06",
+			"keccak256": "0x8e82922511e4057ee37149d4ebf2658b25d85ccdf9478b523587c8d7afe84aac",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://7c68f6bd5344d7a16cefa211f5189f46f1be382bfbd595c2ebff115820405c00",
-				"dweb:/ipfs/QmdVC7g1TFhzJbAGmd4CVR8F8hApsLRrcnc2GbuAF4NtYV"
+				"bzz-raw://3a2bd04b9d9930af9a0c9fd1059110bced94345e6bb3c6699c814f08567f9d92",
+				"dweb:/ipfs/QmVbYiKiCbXWVHCr7K8ZaZ3tfAXJ2D1WQQ8nBvu6gkKgG7"
 			]
 		}
 	},

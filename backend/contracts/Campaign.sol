@@ -6,14 +6,14 @@ contract Campaign {
     // The smart contract for each created Campaign. It handles everything related to a specic Campaign that has been deployed
 
     // state variables
-    uint public campaignId;
-    address public beneficiary;
+    uint public immutable campaignId;
+    address public immutable beneficiary;
     string public name;
     string public purpose;
     string public description;
-    uint public fundingGoal;
-    uint public deadline;
-    uint public totalFunds; // the amount raised
+    uint32 public immutable fundingGoal;
+    uint public immutable deadline;
+    uint32 public totalFunds; // the amount raised
     bool public isActive; // if true, then the Campaign is ongoing, donations are allowed, and is not finalized; else, the Campaign has ended, and no further actions ar allowed
     mapping(address => uint) public donations;
 
@@ -23,7 +23,7 @@ contract Campaign {
         string memory _name,
         string memory _purpose,
         string memory _description,
-        uint _fundingGoal,
+        uint32 _fundingGoal,
         uint _deadline
     ) {
         campaignId = _campaignId;
@@ -37,10 +37,10 @@ contract Campaign {
     }
     
     // events
-    event DonationMade(address donor, uint amount, uint timestamp);
-    event FundsWithdrawn(uint amount, uint timestamp);
-    event RefundIssued(address donor, uint amount, uint timestamp);
-    event CampaignFinalized(bool success, uint totalFunds, uint timestamp); // if success is true, it means that the Campaign met its fundingGoal before its deadline
+    event DonationMade(address donor, uint32 amount, uint timestamp);
+    event FundsWithdrawn(uint32 amount, uint timestamp);
+    event RefundIssued(address donor, uint32 amount, uint timestamp);
+    event CampaignFinalized(bool success, uint32 totalFunds, uint timestamp); // if success is true, it means that the Campaign met its fundingGoal before its deadline
 
     // modifiers
     modifier isActiveCampaign() {
@@ -56,22 +56,25 @@ contract Campaign {
 
     // functions
     // allows donors to donate to the Campaign
-    function donate() public payable isActiveCampaign {
+    function donate() external payable isActiveCampaign {
         address donor = msg.sender;
-        uint amount = msg.value;
+        uint32 amount = uint32(msg.value);
         donations[donor] += amount;
-        totalFunds += amount;
+        
+        // store as a variable so that we don't keep reading from the state variable, totalFunds, to save on gas fees
+        uint32 newTotalFunds = totalFunds += amount;
+        totalFunds = newTotalFunds;
         emit DonationMade(donor, amount, block.timestamp);
 
         // if the Campaign has been fully funded, then release all the funds to the beneficiary
-        if (totalFunds >= fundingGoal) {
+        if (newTotalFunds >= fundingGoal) {
             releaseFunds();
         }
     }
 
     // releases the totalFunds to the beneficiary; called whenever the totalFunds exceed fundingGoal before or by the deadline
     // some sort of a helper function
-    function releaseFunds() internal {
+    function releaseFunds() private {
         isActive = false;
         totalFunds = 0;
 
@@ -86,7 +89,7 @@ contract Campaign {
     // called when the Campaign's deadline has passed
     // it also handles he refund to all donors if the fundingGoal is not met
     // likely needs to be called from the frontend
-    function finalizeCampaign() public isActiveCampaign deadlineExceeded {
+    function finalizeCampaign() external isActiveCampaign deadlineExceeded {
         isActive = false;
 
         if (totalFunds > fundingGoal) {
@@ -100,7 +103,7 @@ contract Campaign {
     // refunds the donor's donation
     // some sort of a helper function
     function refund(address donor) private {
-        uint donationAmount = donations[donor];
+        uint32 donationAmount = uint32(donations[donor]);
         donations[donor] = 0;
         
         // refund to the donor
