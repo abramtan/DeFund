@@ -89,7 +89,6 @@ contract Campaign {
     // called when the Campaign's deadline has passed
     // it also handles he refund to all donors if the fundingGoal is not met
     // likely needs to be called from the frontend
-    // TODO: implement the access control to ensure that only the admin can call this function @carina
     function finalizeCampaign() external isActiveCampaign deadlineExceeded {
         isActive = false;
 
@@ -97,7 +96,7 @@ contract Campaign {
             releaseFunds();
         } else {
             // refund totalFunds to all donors by calling the refund(0 for each donor
-            // TODO @sheng xiang to optimise the refund() function
+            // TODO
         }
     }
 
