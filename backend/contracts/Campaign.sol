@@ -8,10 +8,8 @@ pragma solidity >=0.8.2 <0.9.0;
  */
 contract Campaign {
     // state variables
-    uint public immutable campaignId;
     address public immutable beneficiary;
     string public name;
-    string public purpose;
     string public description;
     uint32 public immutable fundingGoal;
     uint public immutable deadline;
@@ -22,26 +20,20 @@ contract Campaign {
 
     /** 
      * @dev Creates the Campaign smart contract
-     * @param _campaignId The unique ID of the Campaign
      * @param _beneficiary The wallet address of the beneficiary that is creating this Campaign
-     * @param _purpose The purpose of this Campaign
      * @param _description The description of this Campaign
      * @param _fundingGoal Funding Goal for the Campaign in cryptocurrency (SepoliaETH)
      * @param _deadline Timestamp of when the Campaign should be fully funded before it becomes inactive
      */
     constructor(
-        uint _campaignId,
         address _beneficiary,
         string memory _name,
-        string memory _purpose,
         string memory _description,
         uint32 _fundingGoal,
         uint _deadline
     ) {
-        campaignId = _campaignId;
         beneficiary = _beneficiary;
         name = _name;
-        purpose = _purpose;
         description = _description;
         fundingGoal = _fundingGoal;
         deadline = _deadline;
@@ -75,8 +67,8 @@ contract Campaign {
         uint32 amount = uint32(msg.value);
         donations[donor] += amount;
         
-        // store as a variable so that we don't keep reading from the state variable, totalFunds, to save on gas fees
-        uint32 newTotalFunds = totalFunds += amount;
+        // store as a variable in memory so that we don't keep reading from the state variable, totalFunds, to save on gas fees
+        uint32 newTotalFunds = totalFunds + amount;
         totalFunds = newTotalFunds;
         emit DonationMade(donor, amount, block.timestamp);
 
@@ -93,14 +85,15 @@ contract Campaign {
      */
     function releaseFunds() private {
         isActive = false;
+        uint32 fundsToRelease = totalFunds;
         totalFunds = 0;
 
         // transfer the totalFunds to beneficiary
-        (bool success,) = payable(beneficiary).call{value: totalFunds}("");
+        (bool success,) = payable(beneficiary).call{value: fundsToRelease}("");
         require(success, "Unable to release funds!");
 
-        emit FundsWithdrawn(totalFunds, block.timestamp);
-        emit CampaignFinalized(true, totalFunds, block.timestamp);
+        emit FundsWithdrawn(fundsToRelease, block.timestamp);
+        emit CampaignFinalized(true, fundsToRelease, block.timestamp);
     }
 
     // TODO: implement the access control to ensure that only the admin can call this function @carina

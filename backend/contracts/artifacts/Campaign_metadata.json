@@ -8,11 +8,6 @@
 			{
 				"inputs": [
 					{
-						"internalType": "uint256",
-						"name": "_campaignId",
-						"type": "uint256"
-					},
-					{
 						"internalType": "address",
 						"name": "_beneficiary",
 						"type": "address"
@@ -20,11 +15,6 @@
 					{
 						"internalType": "string",
 						"name": "_name",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "_purpose",
 						"type": "string"
 					},
 					{
@@ -155,19 +145,6 @@
 			},
 			{
 				"inputs": [],
-				"name": "campaignId",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
 				"name": "deadline",
 				"outputs": [
 					{
@@ -266,19 +243,6 @@
 			},
 			{
 				"inputs": [],
-				"name": "purpose",
-				"outputs": [
-					{
-						"internalType": "string",
-						"name": "",
-						"type": "string"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
 				"name": "totalFunds",
 				"outputs": [
 					{
@@ -299,11 +263,9 @@
 					"details": "Creates the Campaign smart contract",
 					"params": {
 						"_beneficiary": "The wallet address of the beneficiary that is creating this Campaign",
-						"_campaignId": "The unique ID of the Campaign",
 						"_deadline": "Timestamp of when the Campaign should be fully funded before it becomes inactive",
 						"_description": "The description of this Campaign",
-						"_fundingGoal": "Funding Goal for the Campaign in cryptocurrency (SepoliaETH)",
-						"_purpose": "The purpose of this Campaign"
+						"_fundingGoal": "Funding Goal for the Campaign in cryptocurrency (SepoliaETH)"
 					}
 				},
 				"donate()": {
@@ -339,11 +301,11 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x133bcf65ff49e09d8c6d1800449a36a883a8f92cb7f8b745bb1e5ee99f9580c6",
+			"keccak256": "0x2f43be297aac5ed328edcaa2d1d543bf5b91e56ffe17094a26d0bbf941c066d4",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://27d0f5a72df7975b2f091f91a499a78ae955e2d6cf64fbc90e1843b58b0a7ce4",
-				"dweb:/ipfs/QmQsYWoGzJmcmNVJe9WzWTBrfoe4GzTyKDuPRqCQFTZVJh"
+				"bzz-raw://6b65f45c3310614ac60d8c9adea9a0a363cfe547760e188be4fc1444e334f361",
+				"dweb:/ipfs/QmezHVV4D2niawnGfT2sQjtjb4A5fLf2naMXMFLJDLhKGi"
 			]
 		}
 	},
