@@ -4,6 +4,10 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "backend/contracts/Campaign.sol";
 
+/** 
+ * @title CampaignFactory
+ * @dev Creates and deploy a new Campaign smart contract whenever any beneficiary creates a campaign
+ */
 contract CampaignFactory {
     // Creates and deploys a new Campaign smart contract whenever any beneficiary creates a campaign from the frontend
 
@@ -20,7 +24,14 @@ contract CampaignFactory {
     );
 
     // functions
-    // allows beneficiaries to create a Campaign with the required details
+    /** 
+     * @dev Allows beneficiaries to create a Campaign with the required details
+     * @param _name Name of the Campaign
+     * @param _purpose Purpose of the Campaign
+     * @param _description Description of the Campaign
+     * @param _fundingGoal Funding Goal for the Campaign in cryptocurrency (SepoliaETH)
+     * @param _deadline Timestamp of when the Campaign should be fully funded before it becomes inactive
+     */
     function createCampaign(
         string memory _name,
         string memory _purpose,
@@ -48,7 +59,9 @@ contract CampaignFactory {
         emit CampaignCreated(campaignAddress, beneficiary, _fundingGoal, _deadline);
     }
 
-    // returns the list of active deployed Campaigns to the frontend
+    /** 
+     * @dev Returns the list of active deployed Campaigns to the frontend
+     */
     function getDeployedCampaigns() external view returns (address[] memory) {
         return deployedCampaigns;
     }

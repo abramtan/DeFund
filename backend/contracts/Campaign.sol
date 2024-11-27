@@ -2,9 +2,11 @@
 
 pragma solidity >=0.8.2 <0.9.0;
 
+/** 
+ * @title Campaign
+ * @dev The smart contract for the created Campaign. It handles everything related to a specific Campaign that has been deployed
+ */
 contract Campaign {
-    // The smart contract for each created Campaign. It handles everything related to a specic Campaign that has been deployed
-
     // state variables
     uint public immutable campaignId;
     address public immutable beneficiary;
@@ -17,6 +19,16 @@ contract Campaign {
     bool public isActive; // if true, then the Campaign is ongoing, donations are allowed, and is not finalized; else, the Campaign has ended, and no further actions ar allowed
     mapping(address => uint) public donations;
 
+
+    /** 
+     * @dev Creates the Campaign smart contract
+     * @param _campaignId The unique ID of the Campaign
+     * @param _beneficiary The wallet address of the beneficiary that is creating this Campaign
+     * @param _purpose The purpose of this Campaign
+     * @param _description The description of this Campaign
+     * @param _fundingGoal Funding Goal for the Campaign in cryptocurrency (SepoliaETH)
+     * @param _deadline Timestamp of when the Campaign should be fully funded before it becomes inactive
+     */
     constructor(
         uint _campaignId,
         address _beneficiary,
@@ -55,7 +67,9 @@ contract Campaign {
     }
 
     // functions
-    // allows donors to donate to the Campaign
+    /** 
+     * @dev Allows donors to donate to the Campaign
+     */
     function donate() external payable isActiveCampaign {
         address donor = msg.sender;
         uint32 amount = uint32(msg.value);
@@ -72,8 +86,11 @@ contract Campaign {
         }
     }
 
-    // releases the totalFunds to the beneficiary; called whenever the totalFunds exceed fundingGoal before or by the deadline
-    // some sort of a helper function
+    /** 
+     * @dev Releases the totalFunds to the beneficiary
+     * @dev It is called whenever the totalFunds exceed the fundingGoal before or by the deadline
+     * @dev It is some sort of a helper function
+     */
     function releaseFunds() private {
         isActive = false;
         totalFunds = 0;
@@ -86,10 +103,11 @@ contract Campaign {
         emit CampaignFinalized(true, totalFunds, block.timestamp);
     }
 
-    // called when the Campaign's deadline has passed
-    // it also handles he refund to all donors if the fundingGoal is not met
-    // likely needs to be called from the frontend
     // TODO: implement the access control to ensure that only the admin can call this function @carina
+    /** 
+     * @dev Called when the Campaign's deadline has passed, and also handles the refund to all donors if the fundingGoal is not met by then
+     * @dev Likely needs to be called from the frontend
+     */
     function finalizeCampaign() external isActiveCampaign deadlineExceeded {
         isActive = false;
 
@@ -101,8 +119,11 @@ contract Campaign {
         }
     }
 
-    // refunds the donor's donation
-    // some sort of a helper function
+    /** 
+     * @dev Refunds the donor's donation
+     * @dev It is some sort of a helper function
+     * @param donor The donor wallet to refund the donation back to
+     */
     function refund(address donor) private {
         uint32 donationAmount = uint32(donations[donor]);
         donations[donor] = 0;

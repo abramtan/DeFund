@@ -103,8 +103,24 @@
 			}
 		],
 		"devdoc": {
+			"details": "Creates and deploy a new Campaign smart contract whenever any beneficiary creates a campaign",
 			"kind": "dev",
-			"methods": {},
+			"methods": {
+				"createCampaign(string,string,string,uint32,uint256)": {
+					"details": "Allows beneficiaries to create a Campaign with the required details",
+					"params": {
+						"_deadline": "Timestamp of when the Campaign should be fully funded before it becomes inactive",
+						"_description": "Description of the Campaign",
+						"_fundingGoal": "Funding Goal for the Campaign in cryptocurrency (SepoliaETH)",
+						"_name": "Name of the Campaign",
+						"_purpose": "Purpose of the Campaign"
+					}
+				},
+				"getDeployedCampaigns()": {
+					"details": "Returns the list of active deployed Campaigns to the frontend"
+				}
+			},
+			"title": "CampaignFactory",
 			"version": 1
 		},
 		"userdoc": {
@@ -130,19 +146,19 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x6e2dd6d8642e74f90a58f74a043dc056184dc78923f4a7879084e5f3fe5919b8",
+			"keccak256": "0x08b71306c78fd054c7d900a0bb1874e23c99684222b1c760ec9304bd1509d987",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://562ed435fbdea817990afc33cd5e4b7e1b1ceb6f6d2f0bcdbe410fee6150d048",
-				"dweb:/ipfs/QmNubQ9KAtPkqhtht9StKBDocejjMEr7hs5NSJeDnprSFM"
+				"bzz-raw://b2f7cce68d26590eab39caa4fb55fda5de8d9522c330096da4c332799c8eacdf",
+				"dweb:/ipfs/Qme9oVTzs2GdmRQuj6yP8Ppo3x4SfipKCgXaKngLNDnCHp"
 			]
 		},
 		"backend/contracts/CampaignFactory.sol": {
-			"keccak256": "0xed2db7e719ff4584e82990cb7984653fbf6e84d513c189a81b8587a6e98cabe6",
+			"keccak256": "0x03a4886a4c1f9b437a4297663a67005fad862274fc2d1180a858e3ab462147d6",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://f8adc6cdb9d92a8b005ad250ccb656b3d2048a6f028a0d3daedcece188da53ed",
-				"dweb:/ipfs/QmPu4fqmtotkceF1mX7cbMyfpfXynFUFPX32oJswkZT75K"
+				"bzz-raw://649fa437aaf793b855dd44bb81e074c5b9fbdaa56afb768df74e5f1abdb819a1",
+				"dweb:/ipfs/QmRxdBjYVFh67JCQNwUQbKkt1vzNoYuQpEikKNcWf9K899"
 			]
 		}
 	},

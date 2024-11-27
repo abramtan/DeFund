@@ -292,8 +292,28 @@
 			}
 		],
 		"devdoc": {
+			"details": "The smart contract for the created Campaign. It handles everything related to a specific Campaign that has been deployed",
 			"kind": "dev",
-			"methods": {},
+			"methods": {
+				"constructor": {
+					"details": "Creates the Campaign smart contract",
+					"params": {
+						"_beneficiary": "The wallet address of the beneficiary that is creating this Campaign",
+						"_campaignId": "The unique ID of the Campaign",
+						"_deadline": "Timestamp of when the Campaign should be fully funded before it becomes inactive",
+						"_description": "The description of this Campaign",
+						"_fundingGoal": "Funding Goal for the Campaign in cryptocurrency (SepoliaETH)",
+						"_purpose": "The purpose of this Campaign"
+					}
+				},
+				"donate()": {
+					"details": "Allows donors to donate to the Campaign"
+				},
+				"finalizeCampaign()": {
+					"details": "Called when the Campaign's deadline has passed, and also handles the refund to all donors if the fundingGoal is not met by thenLikely needs to be called from the frontend"
+				}
+			},
+			"title": "Campaign",
 			"version": 1
 		},
 		"userdoc": {
@@ -319,11 +339,11 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x08b71306c78fd054c7d900a0bb1874e23c99684222b1c760ec9304bd1509d987",
+			"keccak256": "0x133bcf65ff49e09d8c6d1800449a36a883a8f92cb7f8b745bb1e5ee99f9580c6",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://b2f7cce68d26590eab39caa4fb55fda5de8d9522c330096da4c332799c8eacdf",
-				"dweb:/ipfs/Qme9oVTzs2GdmRQuj6yP8Ppo3x4SfipKCgXaKngLNDnCHp"
+				"bzz-raw://27d0f5a72df7975b2f091f91a499a78ae955e2d6cf64fbc90e1843b58b0a7ce4",
+				"dweb:/ipfs/QmQsYWoGzJmcmNVJe9WzWTBrfoe4GzTyKDuPRqCQFTZVJh"
 			]
 		}
 	},
