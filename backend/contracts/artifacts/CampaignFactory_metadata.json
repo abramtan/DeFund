@@ -45,11 +45,6 @@
 					},
 					{
 						"internalType": "string",
-						"name": "_purpose",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
 						"name": "_description",
 						"type": "string"
 					},
@@ -68,56 +63,20 @@
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "deployedCampaigns",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "getDeployedCampaigns",
-				"outputs": [
-					{
-						"internalType": "address[]",
-						"name": "",
-						"type": "address[]"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
 			}
 		],
 		"devdoc": {
 			"details": "Creates and deploy a new Campaign smart contract whenever any beneficiary creates a campaign",
 			"kind": "dev",
 			"methods": {
-				"createCampaign(string,string,string,uint32,uint256)": {
+				"createCampaign(string,string,uint32,uint256)": {
 					"details": "Allows beneficiaries to create a Campaign with the required details",
 					"params": {
 						"_deadline": "Timestamp of when the Campaign should be fully funded before it becomes inactive",
 						"_description": "Description of the Campaign",
 						"_fundingGoal": "Funding Goal for the Campaign in cryptocurrency (SepoliaETH)",
-						"_name": "Name of the Campaign",
-						"_purpose": "Purpose of the Campaign"
+						"_name": "Name of the Campaign"
 					}
-				},
-				"getDeployedCampaigns()": {
-					"details": "Returns the list of active deployed Campaigns to the frontend"
 				}
 			},
 			"title": "CampaignFactory",
@@ -139,26 +98,26 @@
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": false,
+			"enabled": true,
 			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x08b71306c78fd054c7d900a0bb1874e23c99684222b1c760ec9304bd1509d987",
+			"keccak256": "0x9eeb865ad14613ff6579e4c728e07f1f24c1c56b5c72c9bba64ec4bc859dcacd",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://b2f7cce68d26590eab39caa4fb55fda5de8d9522c330096da4c332799c8eacdf",
-				"dweb:/ipfs/Qme9oVTzs2GdmRQuj6yP8Ppo3x4SfipKCgXaKngLNDnCHp"
+				"bzz-raw://b57b018b322a48bbddbf17c19aa0934351e2f4b48311fb387fc31a814d471345",
+				"dweb:/ipfs/Qmarjt7qgeqWoEXCsHHp7BEHHYGCfET5dK4bqt5ywCbVw8"
 			]
 		},
 		"backend/contracts/CampaignFactory.sol": {
-			"keccak256": "0x03a4886a4c1f9b437a4297663a67005fad862274fc2d1180a858e3ab462147d6",
+			"keccak256": "0xaeb0db221660de515dc13051d603f070fdd13f71c3cc29ab5931f66690a589b7",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://649fa437aaf793b855dd44bb81e074c5b9fbdaa56afb768df74e5f1abdb819a1",
-				"dweb:/ipfs/QmRxdBjYVFh67JCQNwUQbKkt1vzNoYuQpEikKNcWf9K899"
+				"bzz-raw://008cb3b7eb971d2c7a3bcb01605b7b73c8bf48e51b97c7fcc321c0d92ab8a17b",
+				"dweb:/ipfs/QmeFDMDxpUuuBxN3Ff1QSZeRkHZfJBqoHU2jrXPvCJX142"
 			]
 		}
 	},

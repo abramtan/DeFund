@@ -187,9 +187,9 @@
 				"name": "donations",
 				"outputs": [
 					{
-						"internalType": "uint256",
+						"internalType": "uint32",
 						"name": "",
-						"type": "uint256"
+						"type": "uint32"
 					}
 				],
 				"stateMutability": "view",
@@ -294,18 +294,18 @@
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": false,
+			"enabled": true,
 			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x2f43be297aac5ed328edcaa2d1d543bf5b91e56ffe17094a26d0bbf941c066d4",
+			"keccak256": "0x2f638d8b4b99fa170cb6616fb228ce8180919d097e53c8c9d2c94abb7502122b",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://6b65f45c3310614ac60d8c9adea9a0a363cfe547760e188be4fc1444e334f361",
-				"dweb:/ipfs/QmezHVV4D2niawnGfT2sQjtjb4A5fLf2naMXMFLJDLhKGi"
+				"bzz-raw://5f16852d2f6ccaf03f711215c6b77bd10bb5e292c0e421aaac3d807405afe887",
+				"dweb:/ipfs/QmUh8qL1Y2PrnzR8oVRCEVbr5zMmoV68rP11zeknYCTbSA"
 			]
 		}
 	},

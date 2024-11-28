@@ -11,12 +11,11 @@ contract Campaign {
     address public immutable beneficiary;
     string public name;
     string public description;
-    uint32 public immutable fundingGoal;
     uint public immutable deadline;
+    uint32 public immutable fundingGoal;
     uint32 public totalFunds; // the amount raised
     bool public isActive; // if true, then the Campaign is ongoing, donations are allowed, and is not finalized; else, the Campaign has ended, and no further actions ar allowed
-    mapping(address => uint) public donations;
-
+    mapping(address => uint32) public donations;
 
     /** 
      * @dev Creates the Campaign smart contract
@@ -76,6 +75,9 @@ contract Campaign {
         if (newTotalFunds >= fundingGoal) {
             releaseFunds();
         }
+
+        // free up unused variables
+        delete newTotalFunds;
     }
 
     /** 
@@ -94,6 +96,9 @@ contract Campaign {
 
         emit FundsWithdrawn(fundsToRelease, block.timestamp);
         emit CampaignFinalized(true, fundsToRelease, block.timestamp);
+
+        // free up unused variables
+        delete fundsToRelease;
     }
 
     // TODO: implement the access control to ensure that only the admin can call this function @carina
@@ -118,12 +123,15 @@ contract Campaign {
      * @param donor The donor wallet to refund the donation back to
      */
     function refund(address donor) private {
-        uint32 donationAmount = uint32(donations[donor]);
+        uint32 donationAmount = donations[donor];
         donations[donor] = 0;
         
         // refund to the donor
         payable(donor).transfer(donationAmount);
 
         emit RefundIssued(donor, donationAmount, block.timestamp);
+
+        // free up unused variables
+        delete donationAmount;
     }
 }

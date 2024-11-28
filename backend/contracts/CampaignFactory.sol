@@ -29,8 +29,8 @@ contract CampaignFactory {
      * @param _deadline Timestamp of when the Campaign should be fully funded before it becomes inactive
      */
     function createCampaign(
-        string memory _name,
-        string memory _description,
+        string calldata _name,
+        string calldata _description,
         uint32 _fundingGoal,
         uint _deadline
     ) external {
@@ -50,6 +50,9 @@ contract CampaignFactory {
 
         // emit CampaignCreated event to allow the frontend to retrieve the campaignAddress by filtering the logs for the CampaignCreated event
         emit CampaignCreated(campaignAddress, beneficiary, _fundingGoal, _deadline);
+
+        // free up unused variables
+        delete beneficiary;
     }
 
     // /** 
