@@ -139,9 +139,21 @@ contract Campaign {
             isActive = false; // Called here and not before if statement because releaseFunds() has isActive = False as well.
             
             // Refund totalFunds to all donors by calling the refund function for each donor
-            for (uint i = 0; i < donors.length; i++) {
+            uint totalDonors = donors.length; // Minimising gas used for repeatedly reading the array length inside the loop/
+            for (uint i = 0; i < totalDonors; i++) {
                 address donor = donors[i];
-                refund(donor);
+                uint32 donationAmount = donations[donor];
+                // Removed the use of `refund()` helper function to avoid gas costs associated with function jumps
+                // Directly handled refund logic inside the loop
+                if (donationAmount > 0) {
+                    donations[donor] = 0;
+                    payable(donor).transfer(donationAmount);
+                    emit RefundIssued(
+                        donor, 
+                        donationAmount
+                    );
+                }
+                
             }
             
             emit CampaignFinalized(
