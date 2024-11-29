@@ -40,6 +40,12 @@
 				"anonymous": false,
 				"inputs": [
 					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "campaignAddress",
+						"type": "address"
+					},
+					{
 						"indexed": false,
 						"internalType": "bool",
 						"name": "success",
@@ -50,12 +56,6 @@
 						"internalType": "uint32",
 						"name": "totalFunds",
 						"type": "uint32"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "timestamp",
-						"type": "uint256"
 					}
 				],
 				"name": "CampaignFinalized",
@@ -65,7 +65,7 @@
 				"anonymous": false,
 				"inputs": [
 					{
-						"indexed": false,
+						"indexed": true,
 						"internalType": "address",
 						"name": "donor",
 						"type": "address"
@@ -75,12 +75,6 @@
 						"internalType": "uint32",
 						"name": "amount",
 						"type": "uint32"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "timestamp",
-						"type": "uint256"
 					}
 				],
 				"name": "DonationMade",
@@ -90,16 +84,16 @@
 				"anonymous": false,
 				"inputs": [
 					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "beneficiary",
+						"type": "address"
+					},
+					{
 						"indexed": false,
 						"internalType": "uint32",
 						"name": "amount",
 						"type": "uint32"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "timestamp",
-						"type": "uint256"
 					}
 				],
 				"name": "FundsWithdrawn",
@@ -109,7 +103,7 @@
 				"anonymous": false,
 				"inputs": [
 					{
-						"indexed": false,
+						"indexed": true,
 						"internalType": "address",
 						"name": "donor",
 						"type": "address"
@@ -119,12 +113,6 @@
 						"internalType": "uint32",
 						"name": "amount",
 						"type": "uint32"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "timestamp",
-						"type": "uint256"
 					}
 				],
 				"name": "RefundIssued",
@@ -301,11 +289,11 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x2f638d8b4b99fa170cb6616fb228ce8180919d097e53c8c9d2c94abb7502122b",
+			"keccak256": "0x93793d020b2ca76362d1faa133db6efd9b50f3dbd3364f9a4122552607df0229",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://5f16852d2f6ccaf03f711215c6b77bd10bb5e292c0e421aaac3d807405afe887",
-				"dweb:/ipfs/QmUh8qL1Y2PrnzR8oVRCEVbr5zMmoV68rP11zeknYCTbSA"
+				"bzz-raw://a7628c948dc73f4ba015c3103a5777cd61ace236d93ce4d3a84873ca1ab2606c",
+				"dweb:/ipfs/QmXVF1oRqNaEpSYprytMbP47aqcAY7bbaQ6MjehBWjLjPS"
 			]
 		}
 	},

@@ -40,14 +40,26 @@ contract Campaign {
     }
     
     // events
-    event DonationMade(address donor, uint32 amount, uint timestamp);
-    event FundsWithdrawn(uint32 amount, uint timestamp);
-    event RefundIssued(address donor, uint32 amount, uint timestamp);
-    event CampaignFinalized(bool success, uint32 totalFunds, uint timestamp); // if success is true, it means that the Campaign met its fundingGoal before its deadline
+    event DonationMade(
+        address indexed donor, 
+        uint32 amount
+    );
+    event FundsWithdrawn(
+        address indexed beneficiary,
+        uint32 amount
+    );
+    event RefundIssued(
+        address indexed donor, 
+        uint32 amount
+    );
+    event CampaignFinalized(
+        address indexed campaignAddress, // to help the frontend identify the campaigns that have been finalized and those that have not when querying emitted events
+        bool success, 
+        uint32 totalFunds
+    ); // if success is true, it means that the Campaign met its fundingGoal before its deadline
 
     // modifiers
     modifier isActiveCampaign() {
-        require(block.timestamp <= deadline, "The Camapign's deadline has passed!");
         require(isActive, "The Campaign is not active!");
         _;
     }
@@ -58,6 +70,9 @@ contract Campaign {
     }
 
     // functions
+
+    // TODO: implement some kind of rate limiting here as donate() is vulnerable to DDoS attacks
+
     /** 
      * @dev Allows donors to donate to the Campaign
      */
@@ -69,15 +84,15 @@ contract Campaign {
         // store as a variable in memory so that we don't keep reading from the state variable, totalFunds, to save on gas fees
         uint32 newTotalFunds = totalFunds + amount;
         totalFunds = newTotalFunds;
-        emit DonationMade(donor, amount, block.timestamp);
+        emit DonationMade(
+            donor, 
+            amount
+        );
 
         // if the Campaign has been fully funded, then release all the funds to the beneficiary
         if (newTotalFunds >= fundingGoal) {
             releaseFunds();
         }
-
-        // free up unused variables
-        delete newTotalFunds;
     }
 
     /** 
@@ -86,19 +101,23 @@ contract Campaign {
      * @dev It is some sort of a helper function
      */
     function releaseFunds() private {
-        isActive = false;
         uint32 fundsToRelease = totalFunds;
-        totalFunds = 0;
+        delete totalFunds; // more gas efficient than totalFunds = 0
+        isActive = false;
 
         // transfer the totalFunds to beneficiary
         (bool success,) = payable(beneficiary).call{value: fundsToRelease}("");
         require(success, "Unable to release funds!");
 
-        emit FundsWithdrawn(fundsToRelease, block.timestamp);
-        emit CampaignFinalized(true, fundsToRelease, block.timestamp);
-
-        // free up unused variables
-        delete fundsToRelease;
+        emit FundsWithdrawn(
+            beneficiary,
+            fundsToRelease
+        );
+        emit CampaignFinalized(
+            address(this), 
+            true, 
+            fundsToRelease
+        );
     }
 
     // TODO: implement the access control to ensure that only the admin can call this function @carina
@@ -107,8 +126,6 @@ contract Campaign {
      * @dev Likely needs to be called from the frontend
      */
     function finalizeCampaign() external isActiveCampaign deadlineExceeded {
-        isActive = false;
-
         if (totalFunds > fundingGoal) {
             releaseFunds();
         } else {
@@ -124,14 +141,14 @@ contract Campaign {
      */
     function refund(address donor) private {
         uint32 donationAmount = donations[donor];
-        donations[donor] = 0;
+        delete donations[donor]; // more gas efficient than donations[donor] = 0
         
         // refund to the donor
         payable(donor).transfer(donationAmount);
 
-        emit RefundIssued(donor, donationAmount, block.timestamp);
-
-        // free up unused variables
-        delete donationAmount;
+        emit RefundIssued(
+            donor, 
+            donationAmount
+        );
     }
 }

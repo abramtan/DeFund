@@ -14,8 +14,7 @@ contract CampaignFactory {
     // events
     // logs the creation of a new Campaign
     event CampaignCreated(
-        address campaignAddress,
-        address beneficiary,
+        address indexed campaignAddress, // indexed for more efficient event filtering by frontend
         uint32 fundingGoal,
         uint deadline
     );
@@ -34,25 +33,21 @@ contract CampaignFactory {
         uint32 _fundingGoal,
         uint _deadline
     ) external {
-        address beneficiary = msg.sender;
-
         // create a new campaign smart contract
         Campaign campaign = new Campaign(
-            beneficiary,
+            msg.sender, // the beneficiary
             _name,
             _description,
             _fundingGoal,
             _deadline
         );
 
-        // add campaign to deployed Campaigns
-        address campaignAddress = address(campaign);
-
-        // emit CampaignCreated event to allow the frontend to retrieve the campaignAddress by filtering the logs for the CampaignCreated event
-        emit CampaignCreated(campaignAddress, beneficiary, _fundingGoal, _deadline);
-
-        // free up unused variables
-        delete beneficiary;
+        // emit CampaignCreated event to allow the frontend to retrieve the Campaign's address by filtering the logs for the CampaignCreated event
+        emit CampaignCreated(
+            address(campaign), 
+            _fundingGoal, 
+            _deadline
+        );
     }
 
     // /** 
