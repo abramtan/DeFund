@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.26+commit.8a97fa7a"
+		"version": "0.8.7+commit.e28d00a7"
 	},
 	"language": "Solidity",
 	"output": {
@@ -184,6 +184,25 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "donors",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "finalizeCampaign",
 				"outputs": [],
@@ -276,24 +295,24 @@
 		"compilationTarget": {
 			"backend/contracts/Campaign.sol": "Campaign"
 		},
-		"evmVersion": "cancun",
+		"evmVersion": "london",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": true,
+			"enabled": false,
 			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x93793d020b2ca76362d1faa133db6efd9b50f3dbd3364f9a4122552607df0229",
+			"keccak256": "0x54ac44029d33b74e0d866399436ed2e3d7776db95be51b40a2244a18bd2f3ad0",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://a7628c948dc73f4ba015c3103a5777cd61ace236d93ce4d3a84873ca1ab2606c",
-				"dweb:/ipfs/QmXVF1oRqNaEpSYprytMbP47aqcAY7bbaQ6MjehBWjLjPS"
+				"bzz-raw://64da6b397e89723d25462e8c3d13c63747e9f21091532d2fdaa48d612d35696e",
+				"dweb:/ipfs/QmaS3GPHDMpNmnUNb1nVrBrL2eR5477fLseJ42PhLefxi6"
 			]
 		}
 	},

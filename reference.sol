@@ -14,7 +14,7 @@ contract Campaign {
     uint public immutable deadline;
     uint32 public immutable fundingGoal;
     uint32 public totalFunds; // the amount raised
-    bool public isActive; // if true, then the Campaign is ongoing, donations are allowed, and is not finalized; else, the Campaign has ended, and no further actions ar allowed
+    bool public isActive; // if true, then the Campaign is ongoing, donations are allowed, and is not finalized; else, the Campaign has ended, and no further actions are allowed
     mapping(address => uint32) public donations;
     address[] public donors; // array to store donor addresses for refunds if needed.
 
@@ -66,7 +66,7 @@ contract Campaign {
     }
 
     modifier deadlineExceeded() {
-        require(block.timestamp > deadline, "The Camapign's deadline has not passed!");
+        require(block.timestamp > deadline, "The Campaign's deadline has not passed!");
         _;
     }
 
@@ -80,12 +80,12 @@ contract Campaign {
     function donate() external payable isActiveCampaign {
         address donor = msg.sender;
         uint32 amount = uint32(msg.value);
-        
+
         // Add donor to array if this is their first donation
         if (donations[donor] == 0) {
             donors.push(donor);
         }
-        
+
         donations[donor] += amount;
         
         // store as a variable in memory so that we don't keep reading from the state variable, totalFunds, to save on gas fees
@@ -133,23 +133,22 @@ contract Campaign {
      * @dev Likely needs to be called from the frontend
      */
     function finalizeCampaign() external isActiveCampaign deadlineExceeded {
-        if (totalFunds >= fundingGoal) { //SX: Changed > to >=
+        isActive = false; // Mark the campaign as inactive so no further donations can be made
+
+        if (totalFunds >= fundingGoal) { // If the funding goal was met, release the funds
             releaseFunds();
         } else {
-            isActive = false; // Called here and not before if statement because releaseFunds() has isActive = False as well.
-            
             // Refund totalFunds to all donors by calling the refund function for each donor
             for (uint i = 0; i < donors.length; i++) {
                 address donor = donors[i];
                 refund(donor);
             }
-            
+
             emit CampaignFinalized(
                 address(this), 
                 false, 
                 totalFunds
             );
-
         }
     }
 
@@ -171,3 +170,20 @@ contract Campaign {
         );
     }
 }
+
+/**
+ * Summary of Changes:
+ * 
+ * 1. **New State Variable Added**: `address[] public donors` was added to track donor addresses. This helps to maintain a list of all donors to facilitate refunds when the campaign fails.
+ * 
+ * 2. **Updated `donate()` Function**:
+ *    - Added logic to push the donor's address to the `donors` array if this is their **first donation** (i.e., if `donations[donor] == 0`).
+ *    - This ensures that every donor is recorded, allowing refunds to be processed correctly.
+ * 
+ * 3. **Modified `finalizeCampaign()` Function**:
+ *    - Updated to include logic for **looping through the `donors` array** and calling the `refund()` function for each donor if the campaign goal was **not met**.
+ *    - Marked `isActive = false` to stop further donations.
+ * 
+ * **Before**: The `finalizeCampaign()` function attempted to handle refunds but did not have a mechanism to loop through donors because it lacked a list of addresses.
+ * **After**: Now, it loops through the `donors` array to refund all participants individually.
+ */
