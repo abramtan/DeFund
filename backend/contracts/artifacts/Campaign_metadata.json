@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.7+commit.e28d00a7"
+		"version": "0.8.26+commit.8a97fa7a"
 	},
 	"language": "Solidity",
 	"output": {
@@ -46,6 +46,12 @@
 						"type": "address"
 					},
 					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "beneficiary",
+						"type": "address"
+					},
+					{
 						"indexed": false,
 						"internalType": "bool",
 						"name": "success",
@@ -67,7 +73,13 @@
 					{
 						"indexed": true,
 						"internalType": "address",
-						"name": "donor",
+						"name": "campaignAddress",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "beneficiary",
 						"type": "address"
 					},
 					{
@@ -83,6 +95,12 @@
 			{
 				"anonymous": false,
 				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "campaignAddress",
+						"type": "address"
+					},
 					{
 						"indexed": true,
 						"internalType": "address",
@@ -102,6 +120,12 @@
 			{
 				"anonymous": false,
 				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "campaignAddress",
+						"type": "address"
+					},
 					{
 						"indexed": true,
 						"internalType": "address",
@@ -224,6 +248,62 @@
 			},
 			{
 				"inputs": [],
+				"name": "getCampaignDetails",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "campaignBeneficiary",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "campaignName",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "campaignDescription",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "campaignDeadline",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint32",
+						"name": "campaignFundingGoal",
+						"type": "uint32"
+					},
+					{
+						"internalType": "uint32",
+						"name": "campaignTotalFunds",
+						"type": "uint32"
+					},
+					{
+						"internalType": "bool",
+						"name": "campaignIsActive",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getDonors",
+				"outputs": [
+					{
+						"internalType": "address[]",
+						"name": "",
+						"type": "address[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
 				"name": "isActive",
 				"outputs": [
 					{
@@ -280,6 +360,12 @@
 				},
 				"finalizeCampaign()": {
 					"details": "Called when the Campaign's deadline has passed, and also handles the refund to all donors if the fundingGoal is not met by thenLikely needs to be called from the frontend"
+				},
+				"getCampaignDetails()": {
+					"details": "Get all the Campaign details from its state variables"
+				},
+				"getDonors()": {
+					"details": "Get all the donors of this CampaignLikely to be used by the frontend to notify just donors on events such as FundsWithdrawn and CampaignFinalized"
 				}
 			},
 			"title": "Campaign",
@@ -295,24 +381,24 @@
 		"compilationTarget": {
 			"backend/contracts/Campaign.sol": "Campaign"
 		},
-		"evmVersion": "london",
+		"evmVersion": "cancun",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": false,
+			"enabled": true,
 			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x26bbe861fb52f727aa738401c9ab7f7010ed6ef049d28df9acef69d74c87c7d7",
+			"keccak256": "0xb4647b08355b0dc5dca9d7d48c76c109b11e794989dad1cbc181db1406b076bb",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://2e839a39de65abe5c497125452ca01f22120db8daff9ff583354fa2cbb8e7b93",
-				"dweb:/ipfs/QmUtNZND1VazP3Ku8xWe9Y9ZY1hHPDnmNZQTj3KEdLhGVA"
+				"bzz-raw://00db238d9a91f67f07cb160b3f851077458604c4c6c46249fa04e270c9c935b4",
+				"dweb:/ipfs/QmQfRETSet768Ytjtcf6cHiKJTbNVnNh37w7kHyVTKrreW"
 			]
 		}
 	},
