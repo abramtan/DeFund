@@ -15,8 +15,8 @@ contract Campaign {
     uint32 public immutable fundingGoal;
     uint32 public totalFunds; // the amount raised
     bool public isActive; // if true, then the Campaign is ongoing, donations are allowed, and is not finalized; else, the Campaign has ended, and no further actions ar allowed
-    mapping(address => uint32) public donations;
-    address[] public donors; // array to store donor addresses for refunds
+    mapping(address => uint32) private donations;
+    address[] private donors; // array to store donor addresses for refunds
     address public admin;
 
     /**
@@ -188,6 +188,15 @@ contract Campaign {
     function getDonors() external view returns (address[] memory) {
         return donors;
     }
+    /**
+    * @dev Get the total donation amount contributed by the caller to this Campaign
+    * @dev This function allows donors to privately check how much they have donated to the Campaign
+    * @return The total donation amount (in cryptocurrency) contributed by the caller
+    */
+    function getMyDonations() external view returns (uint32) {
+    return donations[msg.sender];
+    }
+
 
     /**
      * @dev Get all the Campaign details from its state variables

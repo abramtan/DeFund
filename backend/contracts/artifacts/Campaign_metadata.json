@@ -207,44 +207,6 @@
 				"type": "function"
 			},
 			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"name": "donations",
-				"outputs": [
-					{
-						"internalType": "uint32",
-						"name": "",
-						"type": "uint32"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "donors",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
 				"inputs": [],
 				"name": "finalizeCampaign",
 				"outputs": [],
@@ -322,6 +284,19 @@
 			},
 			{
 				"inputs": [],
+				"name": "getMyDonations",
+				"outputs": [
+					{
+						"internalType": "uint32",
+						"name": "",
+						"type": "uint32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
 				"name": "isActive",
 				"outputs": [
 					{
@@ -384,6 +359,12 @@
 				},
 				"getDonors()": {
 					"details": "Get all the donors of this CampaignLikely to be used by the frontend to notify just donors on events such as FundsWithdrawn and CampaignFinalized"
+				},
+				"getMyDonations()": {
+					"details": "Get the total donation amount contributed by the caller to this CampaignThis function allows donors to privately check how much they have donated to the Campaign",
+					"returns": {
+						"_0": "The total donation amount (in cryptocurrency) contributed by the caller"
+					}
 				}
 			},
 			"title": "Campaign",
@@ -412,11 +393,11 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0xb22fe56fdbdc1841ec1925d374447f217ad550f7bd3425f1404c755bac2e61cb",
+			"keccak256": "0x18f229a2fac99c4a2b8a4258b8769719c6857b77920571b146ab8ac6f377648c",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://3c66ab1fc7f692e65280e0cd96bd68544caa639324d8136cc4d216d3494b2907",
-				"dweb:/ipfs/QmShe57rR539r85sGy2mbghHX7b4wyvhZJDktAmj5MRPFM"
+				"bzz-raw://750354785c66fec41b353e7f1a96ed0510110d25d2839f92ec0c831d0c10f9f0",
+				"dweb:/ipfs/Qmcx6pmNVEVUwFvCqXykeRXue3YsRWWEmPd9SuQwcEwmZ3"
 			]
 		}
 	},
