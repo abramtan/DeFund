@@ -36,6 +36,7 @@ contract CampaignFactory {
         // create a new campaign smart contract
         Campaign campaign = new Campaign(
             msg.sender, // the beneficiary
+            msg.sender,
             _name,
             _description,
             _fundingGoal,
