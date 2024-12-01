@@ -1,76 +1,145 @@
-import Link from 'next/link';
+'use client';
 
-export default function Page() {
+import { useState } from 'react';
+import Web3 from 'web3';
+import { Header, Footer, Button, Progress, Card, Dialog } from './components';
+
+type Campaign = {
+  id: number;
+  title: string;
+  goal: number;
+  raised: number;
+  daysLeft: number;
+  description: string;
+};
+
+const connectWallet = async (): Promise<string | null> => {
+  if (typeof window.ethereum !== 'undefined') {
+    try {
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts',
+      });
+      const web3 = new Web3(window.ethereum);
+      return accounts[0];
+    } catch (error) {
+      console.error("User denied account access");
+      return null;
+    }
+  } else {
+    alert("Please install MetaMask!");
+    return null;
+  }
+};
+
+const Home = () => {
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [account, setAccount] = useState<string | null>(null);
+
+  const activeCampaigns = [
+    {
+      id: 1,
+      title: "Medical Treatment Fund",
+      goal: 5,
+      raised: 3.2,
+      daysLeft: 15,
+      description: "Help fund a life-saving medical treatment for John Doe.",
+    },
+    {
+      id: 2,
+      title: "Tech Startup Boost",
+      goal: 10,
+      raised: 7.5,
+      daysLeft: 7,
+      description: "Support our innovative tech startup in launching a groundbreaking product.",
+    },
+    {
+      id: 3,
+      title: "Community Garden Project",
+      goal: 2,
+      raised: 0.8,
+      daysLeft: 30,
+      description: "Help us create a beautiful community garden in the heart of our city.",
+    },
+  ];
+
+  const handleConnectWallet = async () => {
+    const connectedAccount = await connectWallet();
+    if (connectedAccount) {
+      setAccount(connectedAccount);
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-black">
-      <div className="w-screen h-screen flex flex-col justify-center items-center">
-        <svg
-          width="283"
-          height="64"
-          viewBox="0 0 283 64"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-36 h-36"
-          aria-label="Vercel logo"
-        >
-          <path
-            d="M141.04 16c-11.04 0-19 7.2-19 18s8.96 18 20 18c6.67 0 12.55-2.64 16.19-7.09l-7.65-4.42c-2.02 2.21-5.09 3.5-8.54 3.5-4.79 0-8.86-2.5-10.37-6.5h28.02c.22-1.12.35-2.28.35-3.5 0-10.79-7.96-17.99-19-17.99zm-9.46 14.5c1.25-3.99 4.67-6.5 9.45-6.5 4.79 0 8.21 2.51 9.45 6.5h-18.9zM248.72 16c-11.04 0-19 7.2-19 18s8.96 18 20 18c6.67 0 12.55-2.64 16.19-7.09l-7.65-4.42c-2.02 2.21-5.09 3.5-8.54 3.5-4.79 0-8.86-2.5-10.37-6.5h28.02c.22-1.12.35-2.28.35-3.5 0-10.79-7.96-17.99-19-17.99zm-9.45 14.5c1.25-3.99 4.67-6.5 9.45-6.5 4.79 0 8.21 2.51 9.45 6.5h-18.9zM200.24 34c0 6 3.92 10 10 10 4.12 0 7.21-1.87 8.8-4.92l7.68 4.43c-3.18 5.3-9.14 8.49-16.48 8.49-11.05 0-19-7.2-19-18s7.96-18 19-18c7.34 0 13.29 3.19 16.48 8.49l-7.68 4.43c-1.59-3.05-4.68-4.92-8.8-4.92-6.07 0-10 4-10 10zm82.48-29v46h-9V5h9zM36.95 0L73.9 64H0L36.95 0zm92.38 5l-27.71 48L73.91 5H84.3l17.32 30 17.32-30h10.39zm58.91 12v9.69c-1-.29-2.06-.49-3.2-.49-5.81 0-10 4-10 10V51h-9V17h9v9.2c0-5.08 5.91-9.2 13.2-9.2z"
-            fill="white"
-          />
-        </svg>
-        <div className="text-center max-w-screen-sm mb-10">
-          <h1 className="text-stone-200 font-bold text-2xl">
-            Next.js + Postgres Auth Starter
-          </h1>
-          <p className="text-stone-400 mt-5">
-            This is a{' '}
-            <a
-              href="https://nextjs.org/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-stone-400 underline hover:text-stone-200 transition-all"
-            >
-              Next.js
-            </a>{' '}
-            starter kit that uses{' '}
-            <a
-              href="https://next-auth.js.org/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-stone-400 underline hover:text-stone-200 transition-all"
-            >
-              NextAuth.js
-            </a>{' '}
-            for simple email + password login and a{' '}
-            <a
-              href="https://vercel.com/postgres"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-stone-400 underline hover:text-stone-200 transition-all"
-            >
-              Postgres
-            </a>{' '}
-            database to persist the data.
-          </p>
+    <div className="flex flex-col min-h-screen">
+      <Header account={account} onConnectWallet={handleConnectWallet} />
+
+      <main className="flex-grow">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          <div className="mb-8">
+            <div className="bg-indigo-700 rounded-lg shadow-xl overflow-hidden">
+              <div className="px-4 py-5 sm:p-6">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white sm:text-4xl">
+                  Welcome to DeFund
+                </h1>
+                <p className="mt-1 text-lg sm:text-xl text-indigo-200">
+                  Decentralized crowdfunding for a better future.
+                </p>
+                <div className="mt-8">
+                  <Button className="w-full sm:w-auto bg-white text-indigo-600 hover:bg-indigo-50">
+                    Start a Campaign
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+              Active Campaigns
+            </h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {activeCampaigns.map((campaign) => (
+                <div key={campaign.id}>
+                  <Card
+                    onClick={() => setSelectedCampaign(campaign)}
+                    className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                  >
+                    <h3 className="font-semibold">{campaign.title}</h3>
+                    <p className="text-sm text-gray-500">Goal: {campaign.goal} ETH</p>
+                    <p className="text-sm text-gray-500">Raised: {campaign.raised} ETH</p>
+                    <Progress
+                      value={(campaign.raised / campaign.goal) * 100}
+                      className="mt-2"
+                    />
+                    <span className="text-sm text-gray-500">
+                      {campaign.daysLeft} days left
+                    </span>
+                  </Card>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="flex space-x-3">
-          <Link
-            href="/protected"
-            className="text-stone-400 underline hover:text-stone-200 transition-all"
-          >
-            Protected Page
-          </Link>
-          <p className="text-white">·</p>
-          <a
-            href="https://vercel.com/templates/next.js/prisma-postgres-auth-starter"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-stone-400 underline hover:text-stone-200 transition-all"
-          >
-            Deploy to Vercel
-          </a>
-        </div>
-      </div>
+      </main>
+
+      <Footer />
+
+      <Dialog
+        isOpen={!!selectedCampaign}
+        onClose={() => setSelectedCampaign(null)}
+      >
+        {selectedCampaign && (
+          <div>
+            <h2 className="text-lg font-bold">{selectedCampaign.title}</h2>
+            <p>{selectedCampaign.description}</p>
+            <div className="mt-4">
+              <Button onClick={() => setSelectedCampaign(null)}>Close</Button>
+            </div>
+          </div>
+        )}
+      </Dialog>
     </div>
   );
-}
+};
+
+export default Home;
