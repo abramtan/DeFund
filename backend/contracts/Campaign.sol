@@ -25,6 +25,8 @@ contract Campaign {
      * @param _fundingGoal Funding Goal for the Campaign in cryptocurrency (SepoliaETH)
      * @param _deadline Timestamp of when the Campaign should be fully funded before it becomes inactive
      */
+
+    // Test git command lol -carina 
     constructor(
         address _beneficiary,
         string memory _name,
