@@ -13,6 +13,11 @@
 						"type": "address"
 					},
 					{
+						"internalType": "address",
+						"name": "_admin",
+						"type": "address"
+					},
+					{
 						"internalType": "string",
 						"name": "_name",
 						"type": "string"
@@ -141,6 +146,19 @@
 				],
 				"name": "RefundIssued",
 				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "admin",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
 			},
 			{
 				"inputs": [],
@@ -387,18 +405,18 @@
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": true,
+			"enabled": false,
 			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0xb4647b08355b0dc5dca9d7d48c76c109b11e794989dad1cbc181db1406b076bb",
+			"keccak256": "0xb22fe56fdbdc1841ec1925d374447f217ad550f7bd3425f1404c755bac2e61cb",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://00db238d9a91f67f07cb160b3f851077458604c4c6c46249fa04e270c9c935b4",
-				"dweb:/ipfs/QmQfRETSet768Ytjtcf6cHiKJTbNVnNh37w7kHyVTKrreW"
+				"bzz-raw://3c66ab1fc7f692e65280e0cd96bd68544caa639324d8136cc4d216d3494b2907",
+				"dweb:/ipfs/QmShe57rR539r85sGy2mbghHX7b4wyvhZJDktAmj5MRPFM"
 			]
 		}
 	},

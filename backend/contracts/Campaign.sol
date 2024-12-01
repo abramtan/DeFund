@@ -17,6 +17,7 @@ contract Campaign {
     bool public isActive; // if true, then the Campaign is ongoing, donations are allowed, and is not finalized; else, the Campaign has ended, and no further actions ar allowed
     mapping(address => uint32) public donations;
     address[] public donors; // array to store donor addresses for refunds
+    address public admin;
 
     /**
      * @dev Creates the Campaign smart contract
@@ -26,15 +27,16 @@ contract Campaign {
      * @param _deadline Timestamp of when the Campaign should be fully funded before it becomes inactive
      */
 
-    // Test git command lol -carina 
     constructor(
         address _beneficiary,
+        address _admin, // Admin address passed at deployment, @frontend to validate that _admin is not 0 when set
         string memory _name,
         string memory _description,
         uint32 _fundingGoal,
         uint256 _deadline
     ) {
         beneficiary = _beneficiary;
+        admin = _admin;
         name = _name;
         description = _description;
         fundingGoal = _fundingGoal;
@@ -73,6 +75,10 @@ contract Campaign {
     );
 
     // modifiers
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "Access restricted to admin!");
+        _;
+    }
     modifier isActiveCampaign() {
         require(isActive, "The Campaign is not active!");
         _;
@@ -81,7 +87,7 @@ contract Campaign {
     modifier deadlineExceeded() {
         require(
             block.timestamp > deadline,
-            "The Camapign's deadline has not passed!"
+            "The Campaign's deadline has not passed!"
         );
         _;
     }
@@ -141,7 +147,7 @@ contract Campaign {
      * @dev Called when the Campaign's deadline has passed, and also handles the refund to all donors if the fundingGoal is not met by then
      * @dev Likely needs to be called from the frontend
      */
-    function finalizeCampaign() external isActiveCampaign deadlineExceeded {
+    function finalizeCampaign() external isActiveCampaign deadlineExceeded onlyAdmin{
         if (totalFunds >= fundingGoal) {
             //SX: Changed > to >=
             releaseFunds();
