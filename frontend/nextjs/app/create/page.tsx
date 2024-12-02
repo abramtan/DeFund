@@ -26,6 +26,7 @@ const CreateCampaignPage = () => {
     setName("");
     setDescription("");
     setFundingGoal("");
+    setDeadline(null);
   };
 
   return (
