@@ -1,36 +1,36 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Header, Footer, Button } from '../components';
+import { useState } from "react";
+import { createCampaign } from "web3/functions";
+import { Button, Footer, Header } from "../components";
 
 const CreateCampaignPage = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [goal, setGoal] = useState<number | ''>('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [fundingGoal, setFundingGoal] = useState<number | "">("");
+  const [deadline, setDeadline] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!title || !description || !goal) {
-      alert('Please fill in all fields.');
+    if (!name || !description || !fundingGoal || !deadline) {
+      alert("Please fill in all fields.");
       return;
     }
 
     setIsSubmitting(true);
 
-    // Simulate campaign creation logic
-    setTimeout(() => {
-      alert('Campaign created successfully!');
-      setIsSubmitting(false);
-      setTitle('');
-      setDescription('');
-      setGoal('');
-    }, 1000);
+    await createCampaign(name, description, fundingGoal, deadline!);
+
+    alert("Campaign created successfully!");
+    setIsSubmitting(false);
+    setName("");
+    setDescription("");
+    setFundingGoal("");
   };
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header account={null} onConnectWallet={() => {}} />
-
+      <Header />
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
@@ -56,18 +56,18 @@ const CreateCampaignPage = () => {
             >
               <div>
                 <label
-                  htmlFor="title"
+                  htmlFor="name"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Campaign Title
+                  Campaign Name
                 </label>
                 <input
-                  id="title"
+                  id="name"
                   type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  placeholder="Enter campaign title"
+                  placeholder="Enter campaign name"
                   required
                 />
               </div>
@@ -92,20 +92,47 @@ const CreateCampaignPage = () => {
 
               <div>
                 <label
-                  htmlFor="goal"
+                  htmlFor="fundingGoal"
                   className="block text-sm font-medium text-gray-700"
                 >
                   Funding Goal (ETH)
                 </label>
                 <input
-                  id="goal"
+                  id="fundingGoal"
                   type="number"
-                  value={goal}
-                  onChange={(e) => setGoal(Number(e.target.value))}
+                  value={fundingGoal}
+                  onChange={(e) => setFundingGoal(Number(e.target.value))}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   placeholder="Enter funding goal in ETH"
                   min={0.01}
                   step={0.01}
+                  required
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="deadline"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Deadline
+                </label>
+                <input
+                  id="deadline"
+                  type="date"
+                  value={
+                    deadline === null
+                      ? ""
+                      : new Date(deadline).toISOString().split("T")[0]
+                  }
+                  onChange={(e) => {
+                    const deadlineTimestamp = new Date(
+                      e.target.value
+                    ).valueOf();
+                    setDeadline(deadlineTimestamp);
+                  }}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  placeholder="Enter funding deadline in mm/dd/yyyy"
                   required
                 />
               </div>
@@ -116,7 +143,7 @@ const CreateCampaignPage = () => {
                   className="bg-indigo-600 text-white hover:bg-indigo-700"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Creating...' : 'Create Campaign'}
+                  {isSubmitting ? "Creating..." : "Create Campaign"}
                 </Button>
               </div>
             </form>

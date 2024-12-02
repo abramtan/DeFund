@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Header, Footer, Card, Progress, Dialog, Button } from '../components';
+import { useState } from "react";
+import { Header, Footer, Card, Progress, Dialog, Button } from "../components";
 
 type Campaign = {
   id: number;
@@ -13,7 +13,9 @@ type Campaign = {
 };
 
 const CampaignsPage = () => {
-  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(
+    null
+  );
 
   const campaigns = [
     {
@@ -30,7 +32,8 @@ const CampaignsPage = () => {
       goal: 10,
       raised: 7.5,
       daysLeft: 7,
-      description: "Support our innovative tech startup in launching a groundbreaking product.",
+      description:
+        "Support our innovative tech startup in launching a groundbreaking product.",
     },
     {
       id: 3,
@@ -38,17 +41,20 @@ const CampaignsPage = () => {
       goal: 2,
       raised: 0.8,
       daysLeft: 30,
-      description: "Help us create a beautiful community garden in the heart of our city.",
+      description:
+        "Help us create a beautiful community garden in the heart of our city.",
     },
   ];
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header account={null} onConnectWallet={() => {}} />
+      <Header />
 
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Explore Campaigns</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">
+            Explore Campaigns
+          </h1>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {campaigns.map((campaign) => (
@@ -58,13 +64,19 @@ const CampaignsPage = () => {
                 onClick={() => setSelectedCampaign(campaign)}
               >
                 <h2 className="font-semibold text-lg">{campaign.title}</h2>
-                <p className="text-sm text-gray-500">Goal: {campaign.goal} ETH</p>
-                <p className="text-sm text-gray-500">Raised: {campaign.raised} ETH</p>
+                <p className="text-sm text-gray-500">
+                  Goal: {campaign.goal} ETH
+                </p>
+                <p className="text-sm text-gray-500">
+                  Raised: {campaign.raised} ETH
+                </p>
                 <Progress
                   value={(campaign.raised / campaign.goal) * 100}
                   className="mt-2"
                 />
-                <span className="text-sm text-gray-500">{campaign.daysLeft} days left</span>
+                <span className="text-sm text-gray-500">
+                  {campaign.daysLeft} days left
+                </span>
               </Card>
             ))}
           </div>

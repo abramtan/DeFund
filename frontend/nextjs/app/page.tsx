@@ -1,8 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Web3 from 'web3';
-import { Header, Footer, Button, Progress, Card, Dialog } from './components';
+import { useState } from "react";
+import { Button, Card, Dialog, Footer, Header, Progress } from "./components";
 
 type Campaign = {
   id: number;
@@ -13,27 +12,10 @@ type Campaign = {
   description: string;
 };
 
-const connectWallet = async (): Promise<string | null> => {
-  if (typeof window.ethereum !== 'undefined') {
-    try {
-      const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts',
-      });
-      const web3 = new Web3(window.ethereum);
-      return accounts[0];
-    } catch (error) {
-      console.error("User denied account access");
-      return null;
-    }
-  } else {
-    alert("Please install MetaMask!");
-    return null;
-  }
-};
-
 const Home = () => {
-  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
-  const [account, setAccount] = useState<string | null>(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(
+    null
+  );
 
   const activeCampaigns = [
     {
@@ -50,7 +32,8 @@ const Home = () => {
       goal: 10,
       raised: 7.5,
       daysLeft: 7,
-      description: "Support our innovative tech startup in launching a groundbreaking product.",
+      description:
+        "Support our innovative tech startup in launching a groundbreaking product.",
     },
     {
       id: 3,
@@ -58,20 +41,14 @@ const Home = () => {
       goal: 2,
       raised: 0.8,
       daysLeft: 30,
-      description: "Help us create a beautiful community garden in the heart of our city.",
+      description:
+        "Help us create a beautiful community garden in the heart of our city.",
     },
   ];
 
-  const handleConnectWallet = async () => {
-    const connectedAccount = await connectWallet();
-    if (connectedAccount) {
-      setAccount(connectedAccount);
-    }
-  };
-
   return (
     <div className="flex flex-col min-h-screen">
-      <Header account={account} onConnectWallet={handleConnectWallet} />
+      <Header />
 
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -105,8 +82,12 @@ const Home = () => {
                     className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
                   >
                     <h3 className="font-semibold">{campaign.title}</h3>
-                    <p className="text-sm text-gray-500">Goal: {campaign.goal} ETH</p>
-                    <p className="text-sm text-gray-500">Raised: {campaign.raised} ETH</p>
+                    <p className="text-sm text-gray-500">
+                      Goal: {campaign.goal} ETH
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Raised: {campaign.raised} ETH
+                    </p>
                     <Progress
                       value={(campaign.raised / campaign.goal) * 100}
                       className="mt-2"

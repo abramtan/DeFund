@@ -1,0 +1,4 @@
+import CONTRACT_ABI from "./contractAbi.json";
+const CONTRACT_ADDRESS = "0x9C7A041da26153aE8acd5A419273c4aC37C12Ad3";
+
+export { CONTRACT_ABI, CONTRACT_ADDRESS };
