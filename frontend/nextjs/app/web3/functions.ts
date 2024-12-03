@@ -35,7 +35,7 @@ export const createCampaign = async (
 };
 
 // Fetch active campaigns
-export const getActiveDeployedCampaigns = async (): Campaign[] => {
+export const getActiveDeployedCampaigns = async (): Promise<Campaign[]> => {
   const account = getAccount();
   const contract = getCampaignFactoryContract();
 
@@ -74,7 +74,7 @@ export const getActiveDeployedCampaigns = async (): Campaign[] => {
 };
 
 // Fetch all campaigns (active and inactive)
-export const getAllDeployedCampaigns = async (): Campaign[] => {
+export const getAllDeployedCampaigns = async (): Promise<Campaign[]> => {
   const account = getAccount();
   const contract = getCampaignFactoryContract();
 
