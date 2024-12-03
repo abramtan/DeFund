@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SetStateAction } from "react";
-import { Campaign } from "web3/campaign";
+import { Campaign } from "@/app/web3/campaign";
 import Web3 from "web3";
 import Button from "./Button";
 import Dialog from "./Dialog";

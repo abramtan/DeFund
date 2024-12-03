@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createCampaign } from "web3/functions";
+import { createCampaign } from "@/app/web3/functions";
 import { Button } from "../components";
 
 const CreateCampaignPage = () => {

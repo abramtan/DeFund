@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Campaign } from "web3/campaign";
-import { getActiveDeployedCampaigns, getAllDeployedCampaigns } from "web3/functions";
+import { Campaign } from "@/app/web3/campaign";
+import { getActiveDeployedCampaigns, getAllDeployedCampaigns } from "@/app/web3/functions";
 import Card from "./Card";
 import Progress from "./Progress";
 
