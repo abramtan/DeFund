@@ -1,3 +1,4 @@
+import { Footer, Header } from "./components";
 import "./globals.css";
 
 import { GeistSans } from "geist/font/sans";
@@ -23,7 +24,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={GeistSans.variable}>{children}</body>
+      <body className={GeistSans.variable}>
+        <Header />
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

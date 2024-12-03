@@ -1,4 +1,4 @@
-import { FC, ReactNode, MouseEvent } from 'react';
+import { FC, ReactNode, MouseEvent } from "react";
 
 interface DialogProps {
   isOpen: boolean;

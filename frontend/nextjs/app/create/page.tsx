@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createCampaign } from "web3/functions";
-import { Button, Footer, Header } from "../components";
+import { Button } from "../components";
 
 const CreateCampaignPage = () => {
   const [name, setName] = useState("");
@@ -17,21 +17,23 @@ const CreateCampaignPage = () => {
       return;
     }
 
-    setIsSubmitting(true);
-
-    await createCampaign(name, description, fundingGoal, deadline!);
-
-    alert("Campaign created successfully!");
-    setIsSubmitting(false);
-    setName("");
-    setDescription("");
-    setFundingGoal("");
-    setDeadline(null);
+    try {
+      setIsSubmitting(true);
+      await createCampaign(name, description, fundingGoal, deadline!);
+      alert("Campaign created successfully!");
+      setName("");
+      setDescription("");
+      setFundingGoal("");
+      setDeadline(null);
+    } catch (error) {
+      alert(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
@@ -128,7 +130,7 @@ const CreateCampaignPage = () => {
                   }
                   onChange={(e) => {
                     const deadlineTimestamp = new Date(
-                      e.target.value
+                      e.target.value,
                     ).valueOf();
                     setDeadline(deadlineTimestamp);
                   }}
@@ -151,8 +153,6 @@ const CreateCampaignPage = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

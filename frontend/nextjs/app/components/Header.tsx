@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button, DeFundLogo } from "./index";
@@ -9,7 +10,7 @@ const Header: React.FC = () => {
   const pathname = usePathname();
 
   const navItems = [
-    { name: "Home", href: "/" },
+    // { name: "Home", href: "/" },
     { name: "Campaigns", href: "/campaigns" },
     { name: "Create Campaign", href: "/create" },
   ];
@@ -65,13 +66,15 @@ const Header: React.FC = () => {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <DeFundLogo />
-            <span className="ml-2 text-2xl font-bold text-indigo-600">
-              DeFund
-            </span>
+            <Link href="/" className="flex">
+              <DeFundLogo />
+              <span className="ml-2 text-2xl font-bold text-indigo-600">
+                DeFund
+              </span>
+            </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
@@ -81,7 +84,7 @@ const Header: React.FC = () => {
                   }`}
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
             </div>
           </div>

@@ -26,10 +26,26 @@
   },
   {
     "inputs": [
-      { "internalType": "string", "name": "_name", "type": "string" },
-      { "internalType": "string", "name": "_description", "type": "string" },
-      { "internalType": "uint32", "name": "_fundingGoal", "type": "uint32" },
-      { "internalType": "uint256", "name": "_deadline", "type": "uint256" }
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_description",
+        "type": "string"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_fundingGoal",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_deadline",
+        "type": "uint256"
+      }
     ],
     "name": "createCampaign",
     "outputs": [],
