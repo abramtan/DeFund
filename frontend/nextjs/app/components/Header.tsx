@@ -11,8 +11,9 @@ const Header: React.FC = () => {
 
   const navItems = [
     // { name: "Home", href: "/" },
-    { name: "Campaigns", href: "/campaigns" },
+    { name: "Explore", href: "/explore" },
     { name: "Create Campaign", href: "/create" },
+    { name: "How To Use", href: "/howtouse" },
   ];
 
   const [account, setAccount] = useState<string | null>(null);

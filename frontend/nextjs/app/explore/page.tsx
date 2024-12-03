@@ -1,6 +1,6 @@
 "use client";
 
-import ActiveCampaigns from "../components/ActiveCampaigns";
+import ExploreCampaigns from "../components/ExploreCampaigns";
 
 const CampaignsPage = () => {
   return (
@@ -8,9 +8,9 @@ const CampaignsPage = () => {
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            Explore Active Campaigns
+            Explore Campaigns
           </h1>
-          <ActiveCampaigns />
+          <ExploreCampaigns />
         </div>
       </main>
     </div>

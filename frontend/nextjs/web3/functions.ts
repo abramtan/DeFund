@@ -7,6 +7,7 @@ import {
 } from "./const";
 import { Events } from "./events";
 
+// Create a new campaign
 export const createCampaign = async (
   name: string,
   description: string,
@@ -28,15 +29,17 @@ export const createCampaign = async (
 
     await method.send({ from: account! });
   } catch (error) {
+    console.error("Error during campaign creation:", error);
     throw new Error("User cancelled campaign creation!");
   }
 };
 
+// Fetch active campaigns
 export const getActiveDeployedCampaigns = async (): Campaign[] => {
   const account = getAccount();
   const contract = getCampaignFactoryContract();
 
-  // get all deployed Campaign addresses
+  // Get all deployed campaign addresses
   const events = await contract.getPastEvents(Events.CampaignCreated, {
     fromBlock: 0,
     toBlock: "latest",
@@ -45,41 +48,69 @@ export const getActiveDeployedCampaigns = async (): Campaign[] => {
     (event) => event.returnValues.campaignAddress,
   );
 
-  // get active Campaigns
+  // Get active campaigns
   const activeCampaigns: Campaign[] = await Promise.all(
     campaignAddresses.map(async (campaignAddress) => {
       const campaignContract = getCampaignContract(campaignAddress);
-      const {
-        campaignBeneficiary,
-        campaignName,
-        campaignDescription,
-        campaignDeadline,
-        campaignFundingGoal,
-        campaignTotalFunds,
-        campaignIsActive,
-      } = await campaignContract.methods
-        .getCampaignDetails()
-        .call({ from: account! });
+      const details = await campaignContract.methods.getCampaignDetails().call({ from: account! });
 
-      if (!campaignIsActive) return; // we do not want to display inactive Campaigns on the Campaigns and Home pages
+      if (!details.campaignIsActive) return null; // Filter out inactive campaigns
 
       return {
         address: campaignAddress,
-        beneficiary: campaignBeneficiary,
-        name: campaignName,
-        description: campaignDescription,
-        deadline: Number(campaignDeadline),
-        fundingGoal: Number(campaignFundingGoal),
-        totalFunds: Number(campaignTotalFunds),
-        isActive: campaignIsActive,
+        beneficiary: details.campaignBeneficiary,
+        name: details.campaignName,
+        description: details.campaignDescription,
+        deadline: Number(details.campaignDeadline),
+        fundingGoal: Number(details.campaignFundingGoal),
+        totalFunds: Number(details.campaignTotalFunds),
+        isActive: details.campaignIsActive,
+        contract: campaignContract,
       } as Campaign;
     }),
   );
 
-  return activeCampaigns;
+  return activeCampaigns.filter(Boolean); // Remove null values
 };
 
-// helper functions
+// Fetch all campaigns (active and inactive)
+export const getAllDeployedCampaigns = async (): Campaign[] => {
+  const account = getAccount();
+  const contract = getCampaignFactoryContract();
+
+  // Get all deployed campaign addresses
+  const events = await contract.getPastEvents(Events.CampaignCreated, {
+    fromBlock: 0,
+    toBlock: "latest",
+  });
+  const campaignAddresses = events.map(
+    (event) => event.returnValues.campaignAddress,
+  );
+
+  // Fetch details for all campaigns
+  const allCampaigns: Campaign[] = await Promise.all(
+    campaignAddresses.map(async (campaignAddress) => {
+      const campaignContract = getCampaignContract(campaignAddress);
+      const details = await campaignContract.methods.getCampaignDetails().call({ from: account! });
+
+      return {
+        address: campaignAddress,
+        beneficiary: details.campaignBeneficiary,
+        name: details.campaignName,
+        description: details.campaignDescription,
+        deadline: Number(details.campaignDeadline),
+        fundingGoal: Number(details.campaignFundingGoal),
+        totalFunds: Number(details.campaignTotalFunds),
+        isActive: details.campaignIsActive,
+        contract: campaignContract,
+      } as Campaign;
+    }),
+  );
+
+  return allCampaigns.filter(Boolean); // Remove null or undefined values
+};
+
+// Helper functions
 const getCampaignFactoryContract = () => {
   const web3 = new Web3(window.ethereum);
   return new web3.eth.Contract(CAMPAIGN_FACTORY_ABI, CAMPAIGN_FACTORY_ADDRESS);
@@ -91,7 +122,11 @@ const getCampaignContract = (campaignAddress: string) => {
 };
 
 const getAccount = () => {
-  return localStorage.getItem("account");
+  const account = localStorage.getItem("account");
+  if (!account) {
+    throw new Error("No account found. Please log in to your wallet.");
+  }
+  return account;
 };
 
 const getGasEstimate = async (method: any) => {

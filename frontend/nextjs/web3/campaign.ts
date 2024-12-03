@@ -7,4 +7,5 @@ export interface Campaign {
   fundingGoal: number;
   totalFunds: number;
   isActive: boolean;
+  contract: any;
 }
