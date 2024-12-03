@@ -22,7 +22,7 @@ const Home = () => {
                   <Link href="/create">
                     <Button className="w-full sm:w-auto bg-white text-indigo-600 hover:bg-indigo-50">
                       Start a Campaign
-                    </Button>{" "}
+                    </Button>
                   </Link>
                 </div>
               </div>

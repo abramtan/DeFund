@@ -23,6 +23,7 @@ const SelectedCampaignDialog = ({
             selectedCampaign.deadline,
           ).toDateString()}`}</p>
           <p className="mt-4">{`Beneficiary: ${selectedCampaign.beneficiary}`}</p>
+          <p className="mt-4">{`Campaign Address: ${selectedCampaign.address}`}</p>
           <div className="mt-6">
             <Button onClick={() => setSelectedCampaign(null)}>Close</Button>
           </div>
