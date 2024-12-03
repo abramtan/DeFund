@@ -72,6 +72,7 @@ export const getActiveDeployedCampaigns = async (): Campaign[] => {
         fundingGoal: Number(campaignFundingGoal),
         totalFunds: Number(campaignTotalFunds),
         isActive: campaignIsActive,
+        contract: campaignContract,
       } as Campaign;
     }),
   );
