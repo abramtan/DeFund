@@ -92,11 +92,19 @@ contract Campaign {
         _;
     }
 
+    modifier beforeDeadline() {
+        require(
+            block.timestamp <= deadline,
+            "The Campaign's deadline has already passed!"
+        );
+        _;
+    }
+
     // functions
     /**
      * @dev Allows donors to donate to the Campaign
      */
-    function donate() external payable isActiveCampaign {
+    function donate() external payable beforeDeadline isActiveCampaign {
         address donor = msg.sender;
         uint32 amount = uint32(msg.value);
 
@@ -147,7 +155,12 @@ contract Campaign {
      * @dev Called when the Campaign's deadline has passed, and also handles the refund to all donors if the fundingGoal is not met by then
      * @dev Likely needs to be called from the frontend
      */
-    function finalizeCampaign() external isActiveCampaign deadlineExceeded onlyAdmin{
+    function finalizeCampaign()
+        external
+        isActiveCampaign
+        deadlineExceeded
+        onlyAdmin
+    {
         if (totalFunds >= fundingGoal) {
             //SX: Changed > to >=
             releaseFunds();
@@ -188,15 +201,15 @@ contract Campaign {
     function getDonors() external view returns (address[] memory) {
         return donors;
     }
-    /**
-    * @dev Get the total donation amount contributed by the caller to this Campaign
-    * @dev This function allows donors to privately check how much they have donated to the Campaign
-    * @return The total donation amount (in cryptocurrency) contributed by the caller
-    */
-    function getMyDonations() external view returns (uint32) {
-    return donations[msg.sender];
-    }
 
+    /**
+     * @dev Get the total donation amount contributed by the caller to this Campaign
+     * @dev This function allows donors to privately check how much they have donated to the Campaign
+     * @return The total donation amount (in cryptocurrency) contributed by the caller
+     */
+    function getMyDonations() external view returns (uint32) {
+        return donations[msg.sender];
+    }
 
     /**
      * @dev Get all the Campaign details from its state variables
