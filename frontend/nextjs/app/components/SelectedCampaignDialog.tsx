@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { SetStateAction } from "react";
 import { Campaign } from "@/app/web3/campaign";
-import Web3 from "web3";
+import { SetStateAction, useState } from "react";
+import { donateToCampaign } from "../web3/functions";
 import Button from "./Button";
 import Dialog from "./Dialog";
+import { convertWeiToEth } from "../web3/utils";
 
 const SelectedCampaignDialog = ({
   selectedCampaign,
@@ -17,30 +17,15 @@ const SelectedCampaignDialog = ({
   const [donationAmount, setDonationAmount] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Get the user's Ethereum account
-  const getAccount = () => {
-    return localStorage.getItem("account");
-  };
-
   const handleDonate = async () => {
-    if (!selectedCampaign || !donationAmount) {
+    if (!selectedCampaign || !donationAmount || Number(donationAmount) <= 0) {
       alert("Please select a campaign and enter a valid donation amount.");
       return;
     }
 
     try {
       setIsLoading(true);
-
-      // Initialize Web3 instance
-      const web3 = new Web3(window.ethereum);
-
-      // Convert donation amount to Wei
-      const amountInWei = web3.utils.toWei(donationAmount, "ether");
-
-      // Send the transaction to the campaign's `donate` method
-      await selectedCampaign.contract.methods
-        .donate()
-        .send({ from: getAccount(), value: amountInWei });
+      await donateToCampaign(selectedCampaign.address, Number(donationAmount));
 
       alert("Donation successful!");
       setSelectedCampaign(null); // Close the dialog
@@ -85,7 +70,10 @@ const SelectedCampaignDialog = ({
             <Button onClick={handleDonate} disabled={isLoading}>
               {isLoading ? "Processing..." : "Donate"}
             </Button>
-            <Button onClick={() => setSelectedCampaign(null)} disabled={isLoading}>
+            <Button
+              onClick={() => setSelectedCampaign(null)}
+              disabled={isLoading}
+            >
               Close
             </Button>
           </div>

@@ -10,15 +10,15 @@
       },
       {
         "indexed": false,
-        "internalType": "uint32",
+        "internalType": "uint256",
         "name": "fundingGoal",
-        "type": "uint32"
+        "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "uint48",
         "name": "deadline",
-        "type": "uint256"
+        "type": "uint48"
       }
     ],
     "name": "CampaignCreated",
@@ -37,14 +37,14 @@
         "type": "string"
       },
       {
-        "internalType": "uint32",
+        "internalType": "uint256",
         "name": "_fundingGoal",
-        "type": "uint32"
+        "type": "uint256"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint48",
         "name": "_deadline",
-        "type": "uint256"
+        "type": "uint48"
       }
     ],
     "name": "createCampaign",
