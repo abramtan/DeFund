@@ -15,8 +15,8 @@ contract CampaignFactory {
     // logs the creation of a new Campaign
     event CampaignCreated(
         address indexed campaignAddress, // indexed for more efficient event filtering by frontend
-        uint32 fundingGoal,
-        uint256 deadline
+        uint256 fundingGoal,
+        uint48 deadline
     );
 
     // functions
@@ -30,8 +30,8 @@ contract CampaignFactory {
     function createCampaign(
         string calldata _name,
         string calldata _description,
-        uint32 _fundingGoal,
-        uint256 _deadline
+        uint256 _fundingGoal,
+        uint48 _deadline
     ) external {
         // create a new campaign smart contract
         Campaign campaign = new Campaign(

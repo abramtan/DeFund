@@ -11,11 +11,11 @@ contract Campaign {
     address public immutable beneficiary;
     string public name;
     string public description;
-    uint256 public immutable deadline;
-    uint32 public immutable fundingGoal;
-    uint32 public totalFunds; // the amount raised
-    bool public isActive; // if true, then the Campaign is ongoing, donations are allowed, and is not finalized; else, the Campaign has ended, and no further actions ar allowed
-    mapping(address => uint32) private donations;
+    uint48 public immutable deadline;
+    uint256 public immutable fundingGoal; // stored in wei
+    uint256 public totalFunds; // the amount raised in wei
+    bool public isActive; // if true, then the Campaign is ongoing, donations are allowed, and is not finalized; else, the Campaign has ended, and no further actions are allowed
+    mapping(address => uint256) private donations; // the value is stored in wei
     address[] private donors; // array to store donor addresses for refunds
     address public admin;
 
@@ -32,8 +32,8 @@ contract Campaign {
         address _admin, // Admin address passed at deployment, @frontend to validate that _admin is not 0 when set
         string memory _name,
         string memory _description,
-        uint32 _fundingGoal,
-        uint256 _deadline
+        uint256 _fundingGoal,
+        uint48 _deadline
     ) {
         beneficiary = _beneficiary;
         admin = _admin;
@@ -49,21 +49,21 @@ contract Campaign {
     event DonationMade(
         address indexed campaignAddress,
         address indexed beneficiary,
-        uint32 amount
+        uint256 amount
     );
 
     // to log fund withdrawals and notify the beneficiary and donors on the frontend that the fudns have been withdrawn from the Campaign
     event FundsWithdrawn(
         address indexed campaignAddress,
         address indexed beneficiary,
-        uint32 amount
+        uint256 amount
     );
 
     // to log refunds and notify the donors on the frontend that refunds have been issued to them
     event RefundIssued(
         address indexed campaignAddress,
         address indexed donor,
-        uint32 amount
+        uint256 amount
     );
 
     // to log the finalization of campaigns and notify the beneficiary and donors on the frontend of the Campaign's status; also notifies beneficiary of the refunds if the Campaign failed
@@ -71,7 +71,7 @@ contract Campaign {
         address indexed campaignAddress, // to help the frontend identify the campaigns that have been finalized and those that have not when querying emitted events
         address indexed beneficiary,
         bool success, // if success is true, it means that the Campaign met its fundingGoal before its deadline
-        uint32 totalFunds
+        uint256 totalFunds
     );
 
     // modifiers
@@ -106,7 +106,7 @@ contract Campaign {
      */
     function donate() external payable beforeDeadline isActiveCampaign {
         address donor = msg.sender;
-        uint32 amount = uint32(msg.value);
+        uint256 amount = uint256(msg.value);
 
         // Add donor to array if this is their first donation
         if (donations[donor] == 0) {
@@ -116,7 +116,7 @@ contract Campaign {
         donations[donor] += amount;
 
         // store as a variable in memory so that we don't keep reading from the state variable, totalFunds, to save on gas fees
-        uint32 newTotalFunds = totalFunds + amount;
+        uint256 newTotalFunds = totalFunds + amount;
         totalFunds = newTotalFunds;
 
         emit DonationMade(address(this), beneficiary, amount);
@@ -133,7 +133,7 @@ contract Campaign {
      * @dev It is some sort of a helper function
      */
     function releaseFunds() private {
-        uint32 fundsToRelease = totalFunds;
+        uint256 fundsToRelease = totalFunds;
         delete totalFunds; // more gas efficient than totalFunds = 0
         isActive = false;
 
@@ -172,7 +172,7 @@ contract Campaign {
 
             for (uint256 i = 0; i < totalDonors; i++) {
                 address donor = donors[i];
-                uint32 donationAmount = donations[donor];
+                uint256 donationAmount = donations[donor];
                 // Removed the use of `refund()` helper function to avoid gas costs associated with function jumps
                 // Directly handled refund logic inside the loop
                 if (donationAmount > 0) {
@@ -207,7 +207,7 @@ contract Campaign {
      * @dev This function allows donors to privately check how much they have donated to the Campaign
      * @return The total donation amount (in cryptocurrency) contributed by the caller
      */
-    function getMyDonations() external view returns (uint32) {
+    function getMyDonations() external view returns (uint256) {
         return donations[msg.sender];
     }
 
@@ -221,9 +221,9 @@ contract Campaign {
             address campaignBeneficiary,
             string memory campaignName,
             string memory campaignDescription,
-            uint256 campaignDeadline,
-            uint32 campaignFundingGoal,
-            uint32 campaignTotalFunds,
+            uint48 campaignDeadline,
+            uint256 campaignFundingGoal,
+            uint256 campaignTotalFunds,
             bool campaignIsActive
         )
     {
