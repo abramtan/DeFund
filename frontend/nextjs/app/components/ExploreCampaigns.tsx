@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Card from "./Card";
 import Progress from "./Progress";
 import SelectedCampaignDialog from "./SelectedCampaignDialog";
+import { convertWeiToEth } from "../web3/utils";
 
 const ExploreCampaigns = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -126,13 +127,17 @@ const ExploreCampaigns = () => {
             <h2 className="font-semibold text-lg">{campaign.name}</h2>
             <p className="text-sm text-gray-500">{campaign.description}</p>
             <p className="text-sm text-gray-500">
-              Goal: {campaign.fundingGoal} ETH
+              Goal: {convertWeiToEth(campaign.fundingGoal)} ETH
             </p>
             <p className="text-sm text-gray-500">
-              Raised: {campaign.totalFunds} ETH
+              Raised: {convertWeiToEth(campaign.totalFunds)} ETH
             </p>
             <Progress
-              value={(campaign.totalFunds / campaign.fundingGoal) * 100}
+              value={
+                (Number(convertWeiToEth(campaign.totalFunds)) /
+                  Number(convertWeiToEth(campaign.fundingGoal))) *
+                100
+              }
               className="mt-2"
             />
             <p className="text-sm text-gray-500">

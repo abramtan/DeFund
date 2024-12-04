@@ -3,6 +3,7 @@ import { SetStateAction, useState } from "react";
 import { donateToCampaign } from "../web3/functions";
 import Button from "./Button";
 import Dialog from "./Dialog";
+import { convertWeiToEth } from "../web3/utils";
 
 const SelectedCampaignDialog = ({
   selectedCampaign,
@@ -24,7 +25,7 @@ const SelectedCampaignDialog = ({
 
     try {
       setIsLoading(true);
-      await donateToCampaign(selectedCampaign.address, donationAmount);
+      await donateToCampaign(selectedCampaign.address, Number(donationAmount));
 
       alert("Donation successful!");
       setSelectedCampaign(null); // Close the dialog

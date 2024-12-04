@@ -1,4 +1,4 @@
-//@ts-nocheck
+// @ts-nocheck
 import Web3 from "web3";
 import { Campaign } from "./campaign";
 import {
@@ -7,6 +7,14 @@ import {
   CAMPAIGN_FACTORY_ADDRESS,
 } from "./const";
 import { Events } from "./events";
+import {
+  getWeb3,
+  getAccount,
+  getCampaignFactoryContract,
+  getGasEstimate,
+  getCampaignContract,
+  convertEthToWei,
+} from "./utils";
 
 // Create a new campaign
 export const createCampaign = async (
@@ -15,12 +23,14 @@ export const createCampaign = async (
   fundingGoal: number,
   deadline: number,
 ) => {
+  const web3 = getWeb3();
   const account = getAccount();
   const contract = getCampaignFactoryContract();
+  const fundingGoalInWei = web3.utils.toWei(fundingGoal, "ether");
   const method = contract.methods.createCampaign(
     name,
     description,
-    fundingGoal,
+    fundingGoalInWei,
     deadline,
   );
 
@@ -118,7 +128,7 @@ export const getAllDeployedCampaigns = async (): Promise<Campaign[]> => {
 // Donates to a specific campaign
 export const donateToCampaign = async (
   campaignAddress: string,
-  donationAmount: string,
+  donationAmount: number,
 ) => {
   const account = getAccount();
   const contract = getCampaignContract(campaignAddress);
@@ -130,7 +140,7 @@ export const donateToCampaign = async (
     alert(`Estimated gas: ${estimatedGas}`);
 
     // Convert donation amount to Wei
-    const amountInWei = web3.utils.toWei(donationAmount, "ether");
+    const amountInWei = convertEthToWei(donationAmount);
 
     // Send the transaction to the campaign's `donate` method
     await method.send({ from: account, value: amountInWei });
@@ -138,32 +148,4 @@ export const donateToCampaign = async (
     console.error("Error during campaign donation:", error);
     throw error;
   }
-};
-
-// Helper functions
-const getCampaignFactoryContract = () => {
-  const web3 = getWeb3();
-  return new web3.eth.Contract(CAMPAIGN_FACTORY_ABI, CAMPAIGN_FACTORY_ADDRESS);
-};
-
-const getCampaignContract = (campaignAddress: string) => {
-  const web3 = new Web3(window.ethereum);
-  return new web3.eth.Contract(CAMPAIGN_ABI, campaignAddress);
-};
-
-const getAccount = () => {
-  const account = localStorage.getItem("account");
-  if (!account) {
-    throw new Error("No account found. Please log in to your wallet.");
-  }
-  return account;
-};
-
-const getGasEstimate = async (method: any) => {
-  const account = getAccount();
-  return await method.estimateGas({ from: account! });
-};
-
-const getWeb3 = () => {
-  return new Web3(window.ethereum);
 };

@@ -107,8 +107,8 @@ const CreateCampaignPage = () => {
                   onChange={(e) => setFundingGoal(Number(e.target.value))}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   placeholder="Enter funding goal in ETH"
-                  min={0.01}
-                  step={0.01}
+                  min={0.00001}
+                  step={0.00001}
                   required
                 />
               </div>
