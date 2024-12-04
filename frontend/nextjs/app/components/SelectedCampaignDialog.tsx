@@ -17,7 +17,7 @@ const SelectedCampaignDialog = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleDonate = async () => {
-    if (!selectedCampaign || !donationAmount) {
+    if (!selectedCampaign || !donationAmount || Number(donationAmount) <= 0) {
       alert("Please select a campaign and enter a valid donation amount.");
       return;
     }
