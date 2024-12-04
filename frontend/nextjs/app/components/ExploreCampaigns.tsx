@@ -1,15 +1,23 @@
-import { useState, useEffect } from "react";
 import { Campaign } from "@/app/web3/campaign";
-import { getActiveDeployedCampaigns, getAllDeployedCampaigns } from "@/app/web3/functions";
+import { getAllDeployedCampaigns } from "@/app/web3/functions";
+import { useEffect, useState } from "react";
 import Card from "./Card";
 import Progress from "./Progress";
+import SelectedCampaignDialog from "./SelectedCampaignDialog";
 
 const ExploreCampaigns = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [filteredCampaigns, setFilteredCampaigns] = useState<Campaign[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortKey, setSortKey] = useState<"name" | "deadline" | "fundingGoal" | "totalFunds">("name");
-  const [filterActive, setFilterActive] = useState<"all" | "active" | "inactive">("all");
+  const [sortKey, setSortKey] = useState<
+    "name" | "deadline" | "fundingGoal" | "totalFunds"
+  >("name");
+  const [filterActive, setFilterActive] = useState<
+    "all" | "active" | "inactive"
+  >("all");
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(
+    null,
+  );
 
   // Fetch all campaigns on mount
   useEffect(() => {
@@ -37,7 +45,7 @@ const ExploreCampaigns = () => {
       filtered = filtered.filter(
         (campaign) =>
           campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          campaign.description.toLowerCase().includes(searchTerm.toLowerCase())
+          campaign.description.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -75,7 +83,9 @@ const ExploreCampaigns = () => {
         <div className="flex space-x-4">
           <select
             value={filterActive}
-            onChange={(e) => setFilterActive(e.target.value as "all" | "active" | "inactive")}
+            onChange={(e) =>
+              setFilterActive(e.target.value as "all" | "active" | "inactive")
+            }
             className="border border-gray-300 rounded p-2"
           >
             <option value="all">All Campaigns</option>
@@ -85,7 +95,13 @@ const ExploreCampaigns = () => {
           <select
             value={sortKey}
             onChange={(e) =>
-              setSortKey(e.target.value as "name" | "deadline" | "fundingGoal" | "totalFunds")
+              setSortKey(
+                e.target.value as
+                  | "name"
+                  | "deadline"
+                  | "fundingGoal"
+                  | "totalFunds",
+              )
             }
             className="border border-gray-300 rounded p-2"
           >
@@ -103,6 +119,9 @@ const ExploreCampaigns = () => {
           <Card
             key={campaign.address}
             className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+            onClick={() => {
+              if (campaign.isActive) setSelectedCampaign(campaign);
+            }}
           >
             <h2 className="font-semibold text-lg">{campaign.name}</h2>
             <p className="text-sm text-gray-500">{campaign.description}</p>
@@ -129,6 +148,11 @@ const ExploreCampaigns = () => {
           </Card>
         ))}
       </div>
+      <SelectedCampaignDialog
+        selectedCampaign={selectedCampaign}
+        setSelectedCampaign={setSelectedCampaign}
+        onDonationSuccess={() => {}}
+      />
     </div>
   );
 };

@@ -53,7 +53,9 @@ export const getActiveDeployedCampaigns = async (): Promise<Campaign[]> => {
   const activeCampaigns: Campaign[] = await Promise.all(
     campaignAddresses.map(async (campaignAddress) => {
       const campaignContract = getCampaignContract(campaignAddress);
-      const details = await campaignContract.methods.getCampaignDetails().call({ from: account! });
+      const details = await campaignContract.methods
+        .getCampaignDetails()
+        .call({ from: account! });
 
       if (!details.campaignIsActive) return null; // Filter out inactive campaigns
 
@@ -92,7 +94,9 @@ export const getAllDeployedCampaigns = async (): Promise<Campaign[]> => {
   const allCampaigns: Campaign[] = await Promise.all(
     campaignAddresses.map(async (campaignAddress) => {
       const campaignContract = getCampaignContract(campaignAddress);
-      const details = await campaignContract.methods.getCampaignDetails().call({ from: account! });
+      const details = await campaignContract.methods
+        .getCampaignDetails()
+        .call({ from: account! });
 
       return {
         address: campaignAddress,
@@ -111,9 +115,34 @@ export const getAllDeployedCampaigns = async (): Promise<Campaign[]> => {
   return allCampaigns.filter(Boolean); // Remove null or undefined values
 };
 
+// Donates to a specific campaign
+export const donateToCampaign = async (
+  campaignAddress: string,
+  donationAmount: string,
+) => {
+  const account = getAccount();
+  const contract = getCampaignContract(campaignAddress);
+  const method = contract.methods.donate();
+  const web3 = getWeb3();
+
+  try {
+    const estimatedGas = await getGasEstimate(method);
+    alert(`Estimated gas: ${estimatedGas}`);
+
+    // Convert donation amount to Wei
+    const amountInWei = web3.utils.toWei(donationAmount, "ether");
+
+    // Send the transaction to the campaign's `donate` method
+    await method.send({ from: account, value: amountInWei });
+  } catch (error) {
+    console.error("Error during campaign donation:", error);
+    throw error;
+  }
+};
+
 // Helper functions
 const getCampaignFactoryContract = () => {
-  const web3 = new Web3(window.ethereum);
+  const web3 = getWeb3();
   return new web3.eth.Contract(CAMPAIGN_FACTORY_ABI, CAMPAIGN_FACTORY_ADDRESS);
 };
 
@@ -133,4 +162,8 @@ const getAccount = () => {
 const getGasEstimate = async (method: any) => {
   const account = getAccount();
   return await method.estimateGas({ from: account! });
+};
+
+const getWeb3 = () => {
+  return new Web3(window.ethereum);
 };
