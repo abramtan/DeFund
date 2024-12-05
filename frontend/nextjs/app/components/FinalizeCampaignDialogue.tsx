@@ -4,27 +4,27 @@ import Button from "./Button";
 import Dialog from "./Dialog";
 
 const FinalizeCampaignDialog = ({
-  selectedCampaign,
-  setSelectedCampaign,
-  onFinalizeCampaign,
+  campaignToFinalize,
+  setCampaignToFinalize,
+  onCampaignToFinalize,
   isLoading,
 }: {
-  selectedCampaign: Campaign | null; // The campaign to finalize
-  setSelectedCampaign: (value: SetStateAction<Campaign | null>) => void; // Function to close the dialog
-  onFinalizeCampaign: () => void; // Callback to finalize the campaign
+  campaignToFinalize: Campaign | null; // The campaign to finalize
+  setCampaignToFinalize: (value: SetStateAction<Campaign | null>) => void; // Function to close the dialog
+  onCampaignToFinalize: () => void; // Callback to finalize the campaign
   isLoading: boolean; // Loading state for the finalize process
 }) => {
   return (
     <Dialog
-      isOpen={!!selectedCampaign}
-      onClose={() => setSelectedCampaign(null)}
+      isOpen={!!campaignToFinalize}
+      onClose={() => setCampaignToFinalize(null)}
     >
-      {selectedCampaign && (
+      {campaignToFinalize && (
         <div>
           {/* Campaign Name and Deadline Message */}
-          <h2 className="text-lg font-bold">{selectedCampaign.name}</h2>
+          <h2 className="text-lg font-bold">{campaignToFinalize.name}</h2>
           <p className="mt-4 text-gray-700">
-            <strong>{selectedCampaign.name}</strong> has reached the deadline.
+            <strong>{campaignToFinalize.name}</strong> has reached the deadline.
           </p>
 
           {/* Donations Information */}
@@ -34,7 +34,7 @@ const FinalizeCampaignDialog = ({
 
           {/* Outcome Information */}
           <p className="mt-4 text-gray-700">
-            {selectedCampaign.totalFunds >= selectedCampaign.fundingGoal ? (
+            {campaignToFinalize.totalFunds >= campaignToFinalize.fundingGoal ? (
               <span>
                 <strong>Outcome:</strong> You have reached your goal, and you
                 can withdraw the funds.
@@ -50,14 +50,14 @@ const FinalizeCampaignDialog = ({
           {/* Finalize and Close Buttons */}
           <div className="mt-6 flex space-x-4">
             <Button
-              onClick={onFinalizeCampaign}
+              onClick={onCampaignToFinalize}
               disabled={isLoading}
               className="bg-blue-500 text-white hover:bg-blue-600"
             >
               {isLoading ? "Processing..." : "Confirm"}
             </Button>
             <Button
-              onClick={() => setSelectedCampaign(null)}
+              onClick={() => setCampaignToFinalize(null)}
               disabled={isLoading}
               className="bg-gray-300 text-gray-700 hover:bg-gray-400"
             >

@@ -1,9 +1,15 @@
 import { Campaign } from "@/app/web3/campaign";
-import { getAllDeployedCampaigns, getMyCampaigns } from "@/app/web3/functions";
+import {
+  getAllDeployedCampaigns,
+  getMyCampaigns,
+  finalizeCampaign,
+  getBlockchainTime,
+} from "@/app/web3/functions";
 import { useEffect, useState } from "react";
 import Card from "./Card";
 import Progress from "./Progress";
 import DonateCampaignDialog from "./DonateCampaignDialog";
+import FinalizeCampaignDialog from "./FinalizeCampaignDialogue";
 import { convertWeiToEth } from "../web3/utils";
 
 const ExploreCampaigns = () => {
@@ -19,7 +25,13 @@ const ExploreCampaigns = () => {
   const [filterActive, setFilterActive] = useState<
     "all" | "active" | "inactive" | "myCampaigns"
   >("all");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const [donateCampaign, setDonateCampaign] = useState<Campaign | null>(null);
+  const [campaignToFinalize, setCampaignToFinalize] = useState<Campaign | null>(
+    null,
+  );
+
   // Utility function to check if the deadline has passed
   const isDeadlinePassed = (deadline: number): boolean => {
     return Date.now() >= deadline;
@@ -221,7 +233,10 @@ const ExploreCampaigns = () => {
                     ? " "
                     : "You can only finalize once the deadline is reached"
                 }
-                onClick={() => isDeadlinePassed(campaign.deadline)}
+                onClick={() =>
+                  isDeadlinePassed(campaign.deadline) &&
+                  setCampaignToFinalize(campaign)
+                }
               >
                 Finalize Campaign
               </button>
@@ -233,6 +248,31 @@ const ExploreCampaigns = () => {
         donateCampaign={donateCampaign}
         setDonateCampaign={setDonateCampaign}
         onDonationSuccess={() => {}}
+      />
+      <FinalizeCampaignDialog
+        campaignToFinalize={campaignToFinalize}
+        setCampaignToFinalize={setCampaignToFinalize}
+        onCampaignToFinalize={async () => {
+          if (!campaignToFinalize) return;
+
+          try {
+            console.log(
+              "Campaign Deadline:",
+              new Date(campaignToFinalize.deadline),
+            ); // Convert to human-readable format
+            console.log("System Time:", new Date(Date.now()));
+            setIsLoading(true); // Set loading state
+            await finalizeCampaign(campaignToFinalize.address); // Call the finalize function
+            alert("Campaign finalized successfully!");
+            setCampaignToFinalize(null); // Close the dialog after success
+          } catch (error) {
+            console.error("Error finalizing campaign:", error);
+            alert("Failed to finalize the campaign. Please try again.");
+          } finally {
+            setIsLoading(false); // Reset loading state
+          }
+        }}
+        isLoading={false} // Replace with real loading state
       />
     </div>
   );
