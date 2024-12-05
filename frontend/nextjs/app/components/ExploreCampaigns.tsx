@@ -1,5 +1,5 @@
 import { Campaign } from "@/app/web3/campaign";
-import { getAllDeployedCampaigns } from "@/app/web3/functions";
+import { getAllDeployedCampaigns, getMyCampaigns } from "@/app/web3/functions";
 import { useEffect, useState } from "react";
 import Card from "./Card";
 import Progress from "./Progress";
@@ -14,7 +14,7 @@ const ExploreCampaigns = () => {
     "name" | "deadline" | "fundingGoal" | "totalFunds"
   >("name");
   const [filterActive, setFilterActive] = useState<
-    "all" | "active" | "inactive"
+    "all" | "active" | "inactive" | "myCampaigns"
   >("all");
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(
     null,
@@ -26,9 +26,41 @@ const ExploreCampaigns = () => {
       const allCampaigns = await getAllDeployedCampaigns(); // Fetch both active and inactive campaigns
       setCampaigns(allCampaigns);
       setFilteredCampaigns(allCampaigns); // Initialize filtered campaigns
+      console.log("Fetched all campaigns:", allCampaigns); // Debugging
     };
     fetchCampaigns();
   }, []);
+
+  // Attempt 2
+  // Filter campaigns when filterActive changes
+  useEffect(() => {
+    const applyFilters = async () => {
+      let filtered = [...campaigns];
+      if (filterActive === "myCampaigns") {
+        try {
+          const myCampaigns = await getMyCampaigns(); // Fetch user's campaigns
+          filtered = myCampaigns;
+          console.log("Filtered my campaigns:", myCampaigns); // Debugging
+        } catch (error) {
+          console.error("Error fetching my campaigns:", error);
+        }
+      } else if (filterActive === "active") {
+        filtered = filtered.filter((campaign) => campaign.isActive);
+        console.log("Filtered active campaigns:", filtered); // Debugging
+      } else if (filterActive === "inactive") {
+        filtered = filtered.filter((campaign) => !campaign.isActive);
+        console.log("Filtered inactive campaigns:", filtered); // Debugging
+      } else if (filterActive === "all") {
+        filtered = [...campaigns]; // Show all campaigns
+        console.log("Filtered all campaigns:", filtered); // Debugging
+      }
+
+      setFilteredCampaigns(filtered); // Update the filtered campaigns
+      console.log("Updated filtered campaigns:", filtered); // Debugging
+    };
+
+    applyFilters();
+  }, [filterActive, campaigns]);
 
   // Filter and sort campaigns when search term, filter, or sort key changes
   useEffect(() => {
@@ -85,13 +117,16 @@ const ExploreCampaigns = () => {
           <select
             value={filterActive}
             onChange={(e) =>
-              setFilterActive(e.target.value as "all" | "active" | "inactive")
+              setFilterActive(
+                e.target.value as "all" | "active" | "inactive" | "myCampaigns",
+              )
             }
             className="border border-gray-300 rounded p-2"
           >
             <option value="all">All Campaigns</option>
             <option value="active">Active Campaigns</option>
             <option value="inactive">Inactive Campaigns</option>
+            <option value="myCampaigns">My Campaigns</option>
           </select>
           <select
             value={sortKey}

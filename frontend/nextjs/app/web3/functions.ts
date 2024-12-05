@@ -149,3 +149,49 @@ export const donateToCampaign = async (
     throw error;
   }
 };
+
+// Fetch campaigns created by the user (my campaigns)
+export const getMyCampaigns = async (): Promise<Campaign[]> => {
+  const account = getAccount(); // Get the user's wallet address
+  const contract = getCampaignFactoryContract();
+
+  // Get all deployed campaign addresses
+  const events = await contract.getPastEvents(Events.CampaignCreated, {
+    fromBlock: 0,
+    toBlock: "latest",
+  });
+  const campaignAddresses = events.map(
+    (event) => event.returnValues.campaignAddress,
+  );
+
+  // Fetch details for campaigns owned by the user
+  const myCampaigns: Campaign[] = await Promise.all(
+    campaignAddresses.map(async (campaignAddress) => {
+      const campaignContract = getCampaignContract(campaignAddress);
+      const details = await campaignContract.methods
+        .getCampaignDetails()
+        .call({ from: account! });
+
+      // Check if the beneficiary matches the user's address
+      if (
+        details.campaignBeneficiary.toLowerCase() !== account!.toLowerCase()
+      ) {
+        return null; // Skip campaigns not created by the user
+      }
+
+      return {
+        address: campaignAddress,
+        beneficiary: details.campaignBeneficiary,
+        name: details.campaignName,
+        description: details.campaignDescription,
+        deadline: Number(details.campaignDeadline),
+        fundingGoal: Number(details.campaignFundingGoal),
+        totalFunds: Number(details.campaignTotalFunds),
+        isActive: details.campaignIsActive,
+        contract: campaignContract,
+      } as Campaign;
+    }),
+  );
+
+  return myCampaigns.filter(Boolean); // Remove null values
+};
