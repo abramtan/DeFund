@@ -5,30 +5,30 @@ import Button from "./Button";
 import Dialog from "./Dialog";
 import { convertWeiToEth } from "../web3/utils";
 
-const SelectedCampaignDialog = ({
-  selectedCampaign,
-  setSelectedCampaign,
+const DonateCampaignDialog = ({
+  donateCampaign,
+  setDonateCampaign,
   onDonationSuccess,
 }: {
-  selectedCampaign: Campaign | null;
-  setSelectedCampaign: (value: SetStateAction<Campaign | null>) => void;
+  donateCampaign: Campaign | null;
+  setDonateCampaign: (value: SetStateAction<Campaign | null>) => void;
   onDonationSuccess: () => void; // Callback to refresh active campaigns after donation
 }) => {
   const [donationAmount, setDonationAmount] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleDonate = async () => {
-    if (!selectedCampaign || !donationAmount || Number(donationAmount) <= 0) {
+    if (!donateCampaign || !donationAmount || Number(donationAmount) <= 0) {
       alert("Please select a campaign and enter a valid donation amount.");
       return;
     }
 
     try {
       setIsLoading(true);
-      await donateToCampaign(selectedCampaign.address, Number(donationAmount));
+      await donateToCampaign(donateCampaign.address, Number(donationAmount));
 
       alert("Donation successful!");
-      setSelectedCampaign(null); // Close the dialog
+      setDonateCampaign(null); // Close the dialog
 
       // Trigger the refresh of active campaigns
       onDonationSuccess();
@@ -41,19 +41,16 @@ const SelectedCampaignDialog = ({
   };
 
   return (
-    <Dialog
-      isOpen={!!selectedCampaign}
-      onClose={() => setSelectedCampaign(null)}
-    >
-      {selectedCampaign && (
+    <Dialog isOpen={!!donateCampaign} onClose={() => setDonateCampaign(null)}>
+      {donateCampaign && (
         <div>
-          <h2 className="text-lg font-bold">{selectedCampaign.name}</h2>
-          <p className="mt-4">{selectedCampaign.description}</p>
+          <h2 className="text-lg font-bold">{donateCampaign.name}</h2>
+          <p className="mt-4">{donateCampaign.description}</p>
           <p className="mt-4">{`Deadline: ${new Date(
-            selectedCampaign.deadline,
+            donateCampaign.deadline,
           ).toDateString()}`}</p>
-          <p className="mt-4">{`Beneficiary: ${selectedCampaign.beneficiary}`}</p>
-          <p className="mt-4">{`Campaign Address: ${selectedCampaign.address}`}</p>
+          <p className="mt-4">{`Beneficiary: ${donateCampaign.beneficiary}`}</p>
+          <p className="mt-4">{`Campaign Address: ${donateCampaign.address}`}</p>
           <div className="mt-4">
             <input
               type="number"
@@ -71,7 +68,7 @@ const SelectedCampaignDialog = ({
               {isLoading ? "Processing..." : "Donate"}
             </Button>
             <Button
-              onClick={() => setSelectedCampaign(null)}
+              onClick={() => setDonateCampaign(null)}
               disabled={isLoading}
             >
               Close
@@ -83,4 +80,4 @@ const SelectedCampaignDialog = ({
   );
 };
 
-export default SelectedCampaignDialog;
+export default DonateCampaignDialog;

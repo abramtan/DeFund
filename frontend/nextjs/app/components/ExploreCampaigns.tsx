@@ -3,11 +3,14 @@ import { getAllDeployedCampaigns, getMyCampaigns } from "@/app/web3/functions";
 import { useEffect, useState } from "react";
 import Card from "./Card";
 import Progress from "./Progress";
-import SelectedCampaignDialog from "./SelectedCampaignDialog";
+import DonateCampaignDialog from "./DonateCampaignDialog";
 import { convertWeiToEth } from "../web3/utils";
 
 const ExploreCampaigns = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [myCampaignAddresses, setMyCampaignAddresses] = useState<Set<string>>(
+    new Set(),
+  );
   const [filteredCampaigns, setFilteredCampaigns] = useState<Campaign[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState<
@@ -16,22 +19,37 @@ const ExploreCampaigns = () => {
   const [filterActive, setFilterActive] = useState<
     "all" | "active" | "inactive" | "myCampaigns"
   >("all");
-  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(
-    null,
-  );
-
+  const [donateCampaign, setDonateCampaign] = useState<Campaign | null>(null);
+  // Utility function to check if the deadline has passed
+  const isDeadlinePassed = (deadline: number): boolean => {
+    return Date.now() >= deadline;
+  };
   // Fetch all campaigns on mount
+  // Fetch campaigns belonging to user
   useEffect(() => {
     const fetchCampaigns = async () => {
-      const allCampaigns = await getAllDeployedCampaigns(); // Fetch both active and inactive campaigns
-      setCampaigns(allCampaigns);
-      setFilteredCampaigns(allCampaigns); // Initialize filtered campaigns
-      console.log("Fetched all campaigns:", allCampaigns); // Debugging
+      try {
+        // Fetch all campaigns
+        const allCampaigns = await getAllDeployedCampaigns();
+
+        // Fetch campaigns owned by the user
+        const myCampaigns = await getMyCampaigns();
+
+        // Create a Set of campaign addresses owned by the user
+        const myCampaignAddresses = new Set(myCampaigns.map((c) => c.address));
+
+        // Save campaigns and ownership information to state
+        setCampaigns(allCampaigns); // All campaigns
+        setFilteredCampaigns(allCampaigns); // Initialize filtered campaigns
+        setMyCampaignAddresses(myCampaignAddresses); // Save ownership info
+      } catch (error) {
+        console.error("Error fetching campaigns:", error);
+      }
     };
+
     fetchCampaigns();
   }, []);
 
-  // Attempt 2
   // Filter campaigns when filterActive changes
   useEffect(() => {
     const applyFilters = async () => {
@@ -155,9 +173,6 @@ const ExploreCampaigns = () => {
           <Card
             key={campaign.address}
             className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
-            onClick={() => {
-              if (campaign.isActive) setSelectedCampaign(campaign);
-            }}
           >
             <h2 className="font-semibold text-lg">{campaign.name}</h2>
             <p className="text-sm text-gray-500">{campaign.description}</p>
@@ -185,12 +200,38 @@ const ExploreCampaigns = () => {
             >
               {campaign.isActive ? "Active" : "Inactive"}
             </p>
+            {campaign.isActive && (
+              <button
+                className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                onClick={() => setDonateCampaign(campaign)}
+              >
+                Donate
+              </button>
+            )}
+            {myCampaignAddresses.has(campaign.address) && (
+              <button
+                className={`mt-4 px-4 py-2 rounded ${
+                  isDeadlinePassed(campaign.deadline)
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+                disabled={!isDeadlinePassed(campaign.deadline)} // Disable button if the deadline hasn't passed
+                title={
+                  isDeadlinePassed(campaign.deadline)
+                    ? " "
+                    : "You can only finalize once the deadline is reached"
+                }
+                onClick={() => isDeadlinePassed(campaign.deadline)}
+              >
+                Finalize Campaign
+              </button>
+            )}
           </Card>
         ))}
       </div>
-      <SelectedCampaignDialog
-        selectedCampaign={selectedCampaign}
-        setSelectedCampaign={setSelectedCampaign}
+      <DonateCampaignDialog
+        donateCampaign={donateCampaign}
+        setDonateCampaign={setDonateCampaign}
         onDonationSuccess={() => {}}
       />
     </div>

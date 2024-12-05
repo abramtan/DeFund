@@ -3,13 +3,11 @@ import { Campaign } from "@/app/web3/campaign";
 import { getActiveDeployedCampaigns } from "@/app/web3/functions";
 import Card from "./Card";
 import Progress from "./Progress";
-import SelectedCampaignDialog from "./SelectedCampaignDialog";
+import DonateCampaignDialog from "./DonateCampaignDialog";
 import { convertWeiToEth } from "../web3/utils";
 
 const ActiveCampaigns = () => {
-  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(
-    null,
-  );
+  const [donateCampaign, setDonateCampaign] = useState<Campaign | null>(null);
   const [activeCampaigns, setActiveCampaigns] = useState<Campaign[]>([]);
 
   // Fetch active campaigns
@@ -53,7 +51,7 @@ const ActiveCampaigns = () => {
                   <Card
                     key={campaign.address}
                     className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
-                    onClick={() => setSelectedCampaign(campaign)}
+                    onClick={() => setDonateCampaign(campaign)}
                   >
                     <h2 className="font-semibold text-lg">{campaign.name}</h2>
                     <p className="text-sm text-gray-500">
@@ -79,10 +77,10 @@ const ActiveCampaigns = () => {
           </div>
         </div>
       </main>
-      <SelectedCampaignDialog
-        selectedCampaign={selectedCampaign}
-        setSelectedCampaign={setSelectedCampaign}
-        onDonationSuccess={handleDonationSuccess} // Trigger refresh on donation success
+      <DonateCampaignDialog
+        donateCampaign={donateCampaign}
+        setDonateCampaign={setDonateCampaign}
+        onDonationSuccess={() => {}}
       />
     </div>
   );
