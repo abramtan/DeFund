@@ -229,21 +229,9 @@ export const finalizeCampaign = async (campaignAddress: string) => {
   const contract = getCampaignContract(campaignAddress); // Get the campaign contract instance
 
   try {
-    // Fetch the campaign's deadline using the generated getter
-    const campaignDeadline = await contract.methods.deadline().call();
-    console.log("Backend Raw Campaign Deadline:", campaignDeadline);
-    console.log("Backend Campaign Deadline Type:", typeof campaignDeadline);
-    console.log(
-      "Backend Campaign Deadline (Readable):",
-      new Date(Number(campaignDeadline) * 1000),
-    );
-
-    // Fetch the current blockchain time
-    const blockchainTime = await getBlockchainTime();
-    console.log("Blockchain Time (UNIX):", blockchainTime);
-    console.log("Blockchain Time (Readable):", new Date(blockchainTime * 1000));
-
     // Check if the campaign can be finalized
+    const blockchainTime = await getBlockchainTime();
+    const campaignDeadline = await contract.methods.deadline().call();
     if (BigInt(blockchainTime) <= BigInt(campaignDeadline)) {
       alert("The campaign deadline has not passed yet!");
       return;
@@ -251,10 +239,69 @@ export const finalizeCampaign = async (campaignAddress: string) => {
 
     // Estimate gas and send the transaction
     const method = contract.methods.finalizeCampaign();
+    console.log("Estimating gas...");
     const estimatedGas = await getGasEstimate(method);
     console.log(`Estimated Gas: ${estimatedGas}`);
-    await method.send({ from: account });
+    const receipt = await method.send({ from: account });
+    console.log(`Transaction Receipt for finalize campagin function:`, receipt);
     alert("Campaign finalized successfully!");
+
+    // Check for events
+    console.log("Checking for CampaignFinalized event...");
+
+    // Handle CampaignFinalized Event
+    const campaignFinalizedEvent = receipt.events.CampaignFinalized;
+    if (campaignFinalizedEvent) {
+      console.log("CampaignFinalized event detected:", campaignFinalizedEvent);
+      const { finalizedSuccessfully, totalFunds } =
+        campaignFinalizedEvent.returnValues;
+      if (finalizedSuccessfully) {
+        alert(
+          `Campaign finalized successfully! Total Funds Released: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
+        );
+      } else {
+        alert(
+          `Campaign did not meet the funding goal. Refunds have been issued to all donors.`,
+        );
+      }
+    }
+
+    // Handle RefundIssued Events
+    console.log("Checking for RefundIssued event...");
+    const refundIssuedEvent = receipt.events.RefundIssued;
+
+    if (refundIssuedEvent) {
+      if (Array.isArray(refundIssuedEvent)) {
+        console.log("RefundIssued event detected:", refundIssuedEvent);
+
+        // Multiple RefundIssued events
+        refundIssuedEvent.forEach((event) => {
+          const { campaignAddress, donor, donationAmount } = event.returnValues;
+          alert(
+            `Refund issued to ${donor} amounting to ${Web3.utils.fromWei(amount, "ether")} ETH.`,
+          );
+        });
+      } else {
+        // Single RefundIssued event
+        console.log("Single RefundIssued event detected:", refundIssuedEvent);
+        const { campaignAddress, donor, amount } =
+          refundIssuedEvent.returnValues;
+        alert(
+          `Refund issued to ${donor} amounting to ${Web3.utils.fromWei(amount, "ether")} ETH.`,
+        );
+      }
+    }
+
+    // Handle FundsWithdrawn event
+    const fundsWithdrawnEvent = receipt.events.FundsWithdrawn;
+    if (fundsWithdrawnEvent) {
+      const { beneficiary, fundsToRelease } = fundsWithdrawnEvent.returnValues;
+      alert(
+        `Funds have been withdrawn to ${beneficiary} amounting to ${Web3.utils.fromWei(fundsToRelease, "ether")} ETH.`,
+      );
+    } else {
+      alert("Campaign finalized, but no funds were released.");
+    }
   } catch (error) {
     console.error("Error during campaign finalization:", error);
 
