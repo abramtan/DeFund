@@ -203,7 +203,7 @@ const ExploreCampaigns = () => {
               className="mt-2"
             />
             <p className="text-sm text-gray-500">
-              Deadline: {new Date(campaign.deadline).toDateString()}
+              Deadline: {new Date(campaign.deadline * 1000).toDateString()}
             </p>
             <p
               className={`text-sm font-semibold mt-2 ${

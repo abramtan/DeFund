@@ -27,10 +27,10 @@ const ActiveCampaigns = () => {
   // Helper function to calculate days left
   const getNumOfDaysLeft = (timestamp: number): number => {
     const today = new Date();
-    const todayTimestamp = today.setHours(0, 0, 0, 0);
-    const differenceInMilliseconds = Math.abs(timestamp - todayTimestamp);
+    const todayTimestamp = today.setHours(0, 0, 0, 0) / 1000;
+    const differenceInSeconds = Math.abs(timestamp - todayTimestamp);
     const differenceInDays = Math.floor(
-      differenceInMilliseconds / (1000 * 60 * 60 * 24),
+      differenceInSeconds / (60 * 60 * 24),
     );
     return differenceInDays;
   };

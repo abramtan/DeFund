@@ -47,7 +47,7 @@ const DonateCampaignDialog = ({
           <h2 className="text-lg font-bold">{donateCampaign.name}</h2>
           <p className="mt-4">{donateCampaign.description}</p>
           <p className="mt-4">{`Deadline: ${new Date(
-            donateCampaign.deadline,
+            donateCampaign.deadline * 1000,
           ).toDateString()}`}</p>
           <p className="mt-4">{`Beneficiary: ${donateCampaign.beneficiary}`}</p>
           <p className="mt-4">{`Campaign Address: ${donateCampaign.address}`}</p>
