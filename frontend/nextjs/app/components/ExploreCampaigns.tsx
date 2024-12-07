@@ -220,6 +220,7 @@ const ExploreCampaigns = () => {
                 Donate
               </button>
             )}
+
             {myCampaignAddresses.has(campaign.address) && (
               <button
                 className={`mt-4 px-4 py-2 rounded ${
@@ -228,20 +229,20 @@ const ExploreCampaigns = () => {
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
-                disabled={
-                  !campaign.isActive &&
-                  !isDeadlinePassed(campaign.deadline * 1000)
-                } // Disable button if the deadline hasn't passed
                 title={
-                  campaign.isActive
-                    ? isDeadlinePassed(campaign.deadline * 1000)
-                      ? "You can only finalize once the deadline is reached "
-                      : " "
-                    : "Campaign is not active"
+                  !campaign.isActive
+                    ? "You can't finalize as the campaign is not active."
+                    : !isDeadlinePassed(campaign.deadline * 1000)
+                      ? "You can't finalize as the campaign's deadline has not passed."
+                      : "Ready to finalize the campaign."
                 }
+                disabled={
+                  !campaign.isActive ||
+                  !isDeadlinePassed(campaign.deadline * 1000)
+                } // Disable button if the campaign is inactive or deadline hasn't passed
                 onClick={() => {
                   if (
-                    !isDeadlinePassed(campaign.deadline * 1000) &&
+                    isDeadlinePassed(campaign.deadline * 1000) &&
                     campaign.isActive
                   ) {
                     setCampaignToFinalize(campaign);
