@@ -256,10 +256,15 @@ const ExploreCampaigns = () => {
           if (!campaignToFinalize) return;
 
           try {
+            //console.log(
+            //  "Campaign Deadline:",
+            //  new Date(campaignToFinalize.deadline),
+            //); // Convert to human-readable format
+            console.log("Frontend Raw Deadline:", campaignToFinalize.deadline);
             console.log(
-              "Campaign Deadline:",
-              new Date(campaignToFinalize.deadline),
-            ); // Convert to human-readable format
+              "Frontend Deadline Type:",
+              typeof campaignToFinalize.deadline,
+            );
             console.log("System Time:", new Date(Date.now()));
             setIsLoading(true); // Set loading state
             await finalizeCampaign(campaignToFinalize.address); // Call the finalize function

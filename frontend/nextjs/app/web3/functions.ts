@@ -27,6 +27,8 @@ export const createCampaign = async (
   const account = getAccount();
   const contract = getCampaignFactoryContract();
   const fundingGoalInWei = web3.utils.toWei(fundingGoal, "ether");
+  console.log("Deadline received by createCampaign (seconds):", deadline);
+
   const method = contract.methods.createCampaign(
     name,
     description,
@@ -196,48 +198,70 @@ export const getMyCampaigns = async (): Promise<Campaign[]> => {
   return myCampaigns.filter(Boolean); // Remove null values
 };
 
-// Finalizes a specific campaign
-export const finalizeCampaign = async (campaignAddress: string) => {
-  const account = getAccount(); // Get the user's wallet address
-  const contract = getCampaignContract(campaignAddress); // Get the campaign contract instance
-  const method = contract.methods.finalizeCampaign(); // Get the finalizeCampaign method
-
-  try {
-    // Estimate the gas cost for the transaction
-    const estimatedGas = await getGasEstimate(method);
-    alert(`Estimated gas: ${estimatedGas}`);
-
-    // Send the transaction to the campaign's `finalizeCampaign` method
-    await method.send({ from: account }); // The admin (beneficiary) must call this
-    alert("Campaign finalized successfully!");
-  } catch (error) {
-    console.error("Error during campaign finalization:", error);
-
-    // Handle specific error scenarios
-    if (error.message.includes("isActiveCampaign")) {
-      alert("Campaign is not active, so it cannot be finalized.");
-    } else if (error.message.includes("deadlineExceeded")) {
-      alert("The campaign deadline has not been reached yet.");
-    } else if (error.message.includes("onlyAdmin")) {
-      alert(
-        "Only the campaign admin (beneficiary) can finalize this campaign.",
-      );
-    } else {
-      throw error; // Re-throw any unexpected errors
-    }
-  }
-};
-
-// New function to get the current blockchain time
+// Fetch the current blockchain time
 export const getBlockchainTime = async (): Promise<number> => {
   try {
     const web3 = getWeb3(); // Initialize Web3 instance
     const latestBlock = await web3.eth.getBlock("latest"); // Fetch the latest block
-    const blockchainTime = latestBlock.timestamp; // Get the block's timestamp
-    console.log("Current blockchain time:", new Date(blockchainTime * 1000)); // Log as human-readable time
+
+    if (!latestBlock || !latestBlock.timestamp) {
+      throw new Error("Failed to fetch the latest block or its timestamp.");
+    }
+
+    // Convert the BigInt timestamp to a Number
+    const blockchainTime = Number(latestBlock.timestamp); // Explicit conversion
+
+    console.log("Current Blockchain Time (UNIX):", blockchainTime);
+    console.log(
+      "Current Blockchain Time (Readable):",
+      new Date(blockchainTime * 1000), // Convert UNIX timestamp to milliseconds for Date
+    );
+
     return blockchainTime; // Return the timestamp in seconds
   } catch (error) {
     console.error("Error fetching blockchain time:", error);
     throw new Error("Failed to fetch blockchain time.");
+  }
+};
+
+export const finalizeCampaign = async (campaignAddress: string) => {
+  const account = getAccount(); // Get the user's wallet address
+  const contract = getCampaignContract(campaignAddress); // Get the campaign contract instance
+
+  try {
+    // Fetch the campaign's deadline using the generated getter
+    const campaignDeadline = await contract.methods.deadline().call();
+    console.log("Backend Raw Campaign Deadline:", campaignDeadline);
+    console.log("Backend Campaign Deadline Type:", typeof campaignDeadline);
+    console.log(
+      "Backend Campaign Deadline (Readable):",
+      new Date(Number(campaignDeadline) * 1000),
+    );
+
+    // Fetch the current blockchain time
+    const blockchainTime = await getBlockchainTime();
+    console.log("Blockchain Time (UNIX):", blockchainTime);
+    console.log("Blockchain Time (Readable):", new Date(blockchainTime * 1000));
+
+    // Check if the campaign can be finalized
+    if (BigInt(blockchainTime) <= BigInt(campaignDeadline)) {
+      alert("The campaign deadline has not passed yet!");
+      return;
+    }
+
+    // Estimate gas and send the transaction
+    const method = contract.methods.finalizeCampaign();
+    const estimatedGas = await getGasEstimate(method);
+    console.log(`Estimated Gas: ${estimatedGas}`);
+    await method.send({ from: account });
+    alert("Campaign finalized successfully!");
+  } catch (error) {
+    console.error("Error during campaign finalization:", error);
+
+    if (error.message.includes("The Campaign's deadline has not passed!")) {
+      alert("The Campaign's deadline has not been reached yet.");
+    } else {
+      alert("An unexpected error occurred.");
+    }
   }
 };

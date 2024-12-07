@@ -18,6 +18,7 @@ const CreateCampaignPage = () => {
     }
 
     try {
+      console.log("Deadline being sent to createCampaign (seconds):", deadline); // Debug log
       setIsSubmitting(true);
       await createCampaign(name, description, fundingGoal, deadline!);
       alert("Campaign created successfully!");
@@ -126,13 +127,17 @@ const CreateCampaignPage = () => {
                   value={
                     deadline === null
                       ? ""
-                      : new Date(deadline).toISOString().split("T")[0]
+                      : new Date(deadline * 1000).toISOString().split("T")[0]
                   }
                   onChange={(e) => {
-                    const deadlineTimestamp = new Date(
-                      e.target.value,
-                    ).valueOf();
-                    setDeadline(deadlineTimestamp);
+                    const deadlineTimestampInSeconds = Math.floor(
+                      new Date(e.target.value).valueOf() / 1000, // Convert milliseconds to seconds
+                    );
+                    setDeadline(deadlineTimestampInSeconds); // Store the deadline in seconds
+                    console.log(
+                      "Set deadline in seconds is: ",
+                      deadlineTimestampInSeconds,
+                    );
                   }}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   placeholder="Enter funding deadline in mm/dd/yyyy"
