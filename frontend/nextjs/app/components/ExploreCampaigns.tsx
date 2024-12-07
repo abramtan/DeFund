@@ -223,20 +223,30 @@ const ExploreCampaigns = () => {
             {myCampaignAddresses.has(campaign.address) && (
               <button
                 className={`mt-4 px-4 py-2 rounded ${
-                  isDeadlinePassed(campaign.deadline)
+                  isDeadlinePassed(campaign.deadline * 1000) &&
+                  campaign.isActive
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
-                disabled={!isDeadlinePassed(campaign.deadline)} // Disable button if the deadline hasn't passed
+                disabled={
+                  !campaign.isActive &&
+                  !isDeadlinePassed(campaign.deadline * 1000)
+                } // Disable button if the deadline hasn't passed
                 title={
-                  isDeadlinePassed(campaign.deadline)
-                    ? " "
-                    : "You can only finalize once the deadline is reached"
+                  campaign.isActive
+                    ? isDeadlinePassed(campaign.deadline * 1000)
+                      ? "You can only finalize once the deadline is reached "
+                      : " "
+                    : "Campaign is not active"
                 }
-                onClick={() =>
-                  isDeadlinePassed(campaign.deadline) &&
-                  setCampaignToFinalize(campaign)
-                }
+                onClick={() => {
+                  if (
+                    !isDeadlinePassed(campaign.deadline * 1000) &&
+                    campaign.isActive
+                  ) {
+                    setCampaignToFinalize(campaign);
+                  }
+                }}
               >
                 Finalize Campaign
               </button>
@@ -256,10 +266,6 @@ const ExploreCampaigns = () => {
           if (!campaignToFinalize) return;
 
           try {
-            //console.log(
-            //  "Campaign Deadline:",
-            //  new Date(campaignToFinalize.deadline),
-            //); // Convert to human-readable format
             console.log("Frontend Raw Deadline:", campaignToFinalize.deadline);
             console.log(
               "Frontend Deadline Type:",
