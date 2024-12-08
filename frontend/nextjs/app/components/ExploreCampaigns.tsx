@@ -1,16 +1,15 @@
 import { Campaign } from "@/app/web3/campaign";
 import {
+  finalizeCampaign,
   getAllDeployedCampaigns,
   getMyCampaigns,
-  finalizeCampaign,
-  getBlockchainTime,
 } from "@/app/web3/functions";
 import { useEffect, useState } from "react";
+import { convertWeiToEth } from "../web3/utils";
 import Card from "./Card";
-import Progress from "./Progress";
 import DonateCampaignDialog from "./DonateCampaignDialog";
 import FinalizeCampaignDialog from "./FinalizeCampaignDialogue";
-import { convertWeiToEth } from "../web3/utils";
+import Progress from "./Progress";
 
 const ExploreCampaigns = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);

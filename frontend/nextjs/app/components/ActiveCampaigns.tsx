@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
 import { Campaign } from "@/app/web3/campaign";
 import { getActiveDeployedCampaigns } from "@/app/web3/functions";
-import Card from "./Card";
-import Progress from "./Progress";
-import DonateCampaignDialog from "./DonateCampaignDialog";
+import { useEffect, useState } from "react";
 import { convertWeiToEth } from "../web3/utils";
+import Card from "./Card";
+import DonateCampaignDialog from "./DonateCampaignDialog";
+import Progress from "./Progress";
 
 const ActiveCampaigns = () => {
   const [donateCampaign, setDonateCampaign] = useState<Campaign | null>(null);
@@ -29,9 +29,7 @@ const ActiveCampaigns = () => {
     const today = new Date();
     const todayTimestamp = today.setHours(0, 0, 0, 0) / 1000;
     const differenceInSeconds = Math.abs(timestamp - todayTimestamp);
-    const differenceInDays = Math.floor(
-      differenceInSeconds / (60 * 60 * 24),
-    );
+    const differenceInDays = Math.floor(differenceInSeconds / (60 * 60 * 24));
     return differenceInDays;
   };
 

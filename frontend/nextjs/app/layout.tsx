@@ -1,7 +1,9 @@
+import { Toaster } from "react-hot-toast";
 import { Footer, Header } from "./components";
 import "./globals.css";
 
 import { GeistSans } from "geist/font/sans";
+import { DonationMadePollingProvider } from "./context/DonationMadePollingContext";
 
 let title = "DeFund: Decentralized Crowdfunding";
 let description = "The decentralized crowdfunding platform.";
@@ -25,9 +27,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={GeistSans.variable}>
-        <Header />
-        {children}
-        <Footer />
+        <DonationMadePollingProvider>
+          <Header />
+          <Toaster position="bottom-right" />
+          {children}
+          <Footer />
+        </DonationMadePollingProvider>
       </body>
     </html>
   );
