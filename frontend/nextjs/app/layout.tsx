@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { GeistSans } from "geist/font/sans";
 import { DonationMadePollingProvider } from "./context/DonationMadePollingContext";
+import { CampaignFinalizedPollingProvider } from "./context/CampaignFinalizedPollingContext";
 
 let title = "DeFund: Decentralized Crowdfunding";
 let description = "The decentralized crowdfunding platform.";
@@ -28,10 +29,15 @@ export default function RootLayout({
     <html lang="en">
       <body className={GeistSans.variable}>
         <DonationMadePollingProvider>
-          <Header />
-          <Toaster position="bottom-right" />
-          {children}
-          <Footer />
+          <CampaignFinalizedPollingProvider>
+            <Header />
+            <Toaster
+              position="bottom-right"
+              toastOptions={{ duration: 2000 }}
+            />
+            {children}
+            <Footer />
+          </CampaignFinalizedPollingProvider>
         </DonationMadePollingProvider>
       </body>
     </html>

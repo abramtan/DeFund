@@ -134,6 +134,48 @@ export const getMyActiveCampaigns = async (): Promise<Campaign[]> => {
   return myActiveCampaigns;
 };
 
+// Fetch all inactive campaigns
+export const getInactiveCampaigns = async (): Promise<Campaign[]> => {
+  const account = getAccount();
+  const contract = getCampaignFactoryContract();
+
+  // Get all deployed campaign addresses
+  const events = await contract.getPastEvents(Events.CampaignCreated, {
+    fromBlock: 0,
+    toBlock: "latest",
+  });
+  const campaignAddresses = events.map(
+    (event) => event.returnValues.campaignAddress,
+  );
+
+  // Fetch details for all campaigns
+  const inactiveCampaigns: Campaign[] = await Promise.all(
+    campaignAddresses.map(async (campaignAddress) => {
+      const campaignContract = getCampaignContract(campaignAddress);
+      const details = await campaignContract.methods
+        .getCampaignDetails()
+        .call({ from: account! });
+
+      // Filter out active campaigns, and only return inactive ones
+      if (details.isActive) return null; // Only select inactive campaigns
+
+      return {
+        address: campaignAddress,
+        beneficiary: details.campaignBeneficiary,
+        name: details.campaignName,
+        description: details.campaignDescription,
+        deadline: Number(details.campaignDeadline),
+        fundingGoal: Number(details.campaignFundingGoal),
+        totalFunds: Number(details.campaignTotalFunds),
+        isActive: details.isActive,
+        contract: campaignContract,
+      } as Campaign;
+    }),
+  );
+
+  return inactiveCampaigns.filter(Boolean); // Remove null values (active campaigns)
+};
+
 // Donates to a specific campaign
 export const donateToCampaign = async (
   campaignAddress: string,
@@ -154,65 +196,9 @@ export const donateToCampaign = async (
 
     // Send the transaction to the campaign's `donate` method
     await method.send({ from: account, value: amountInWei });
-
-    // After the donation, listen for the `DonationMade` event to trigger notifications
-    contract.events.DonationMade(
-      { fromBlock: "latest" }, // Start listening from the latest block
-      (error, event) => {
-        if (!error) {
-          const { campaignAddress, beneficiary, amount } = event.returnValues;
-
-          console.log(`Donation made to campaign: ${campaignAddress}`);
-          console.log(
-            `Amount donated: ${Web3.utils.fromWei(amount, "ether")} ETH`,
-          );
-          console.log(`Beneficiary: ${beneficiary}`);
-
-          // Use account as the donor address
-          const donor = account;
-          console.log(`Donor: ${donor}`);
-
-          // Prepare notification for the beneficiary (store in localStorage if they are offline)
-          if (beneficiary !== donor) {
-            // Check if the current user is the beneficiary, and if so, store the notification
-            prepareDonationNotification(beneficiary, donor, amount);
-          }
-        }
-      },
-    );
   } catch (error) {
     console.error("Error during campaign donation:", error);
     throw error;
-  }
-};
-
-// Function to store donation notifications for the beneficiary
-const prepareDonationNotification = (beneficiary, donor, amount) => {
-  // Store the notification in localStorage for the beneficiary
-  const donationNotifications =
-    JSON.parse(localStorage.getItem("donationNotifications")) || [];
-  donationNotifications.push({
-    donor,
-    amount: Web3.utils.fromWei(amount, "ether"), // Convert donation amount from Wei to Ether
-  });
-  localStorage.setItem(
-    "donationNotifications",
-    JSON.stringify(donationNotifications),
-  );
-};
-
-// Function to check and show notifications when the beneficiary logs in
-const checkForDonationNotifications = () => {
-  const donationNotifications =
-    JSON.parse(localStorage.getItem("donationNotifications")) || [];
-  if (donationNotifications.length > 0) {
-    donationNotifications.forEach((notification) => {
-      alert(
-        `You received a donation of ${notification.amount} ETH from ${notification.donor}`,
-      );
-    });
-    // After displaying notifications, clear them from localStorage
-    localStorage.removeItem("donationNotifications");
   }
 };
 
@@ -257,9 +243,6 @@ export const getMyCampaigns = async (): Promise<Campaign[]> => {
       } as Campaign;
     }),
   );
-
-  // Call checkForDonationNotifications after campaigns are retrieved
-  checkForDonationNotifications();
 
   return myCampaigns.filter(Boolean); // Remove null values
 };
@@ -310,7 +293,6 @@ export const finalizeCampaign = async (campaignAddress: string) => {
     console.log(`Estimated Gas: ${estimatedGas}`);
     const receipt = await method.send({ from: account });
     console.log(`Transaction Receipt for finalize campagin function:`, receipt);
-    alert("Campaign finalized successfully!");
 
     // Check for events
     console.log("Checking for CampaignFinalized event...");
@@ -364,7 +346,7 @@ export const finalizeCampaign = async (campaignAddress: string) => {
         `Funds have been withdrawn to ${beneficiary} amounting to ${Web3.utils.fromWei(fundsToRelease, "ether")} ETH.`,
       );
     } else {
-      alert("Campaign finalized, but no funds were released.");
+      alert("Campaign finalized, but no funds were released to beneficiary.");
     }
   } catch (error) {
     console.error("Error during campaign finalization:", error);
@@ -394,6 +376,7 @@ export const pollDonationMadeEvents = async (
   >,
 ): Promise<number> => {
   try {
+    ``;
     const web3 = getWeb3(); // Initialize web3 instance
     const campaignContract = getCampaignContract(campaignAddress); // Get the campaign contract instance
     const currentBlock = Number(await web3.eth.getBlockNumber()); // Get the current block number
@@ -443,6 +426,94 @@ export const pollDonationMadeEvents = async (
     return currentBlock; // Return the updated block number
   } catch (error) {
     console.error("Error polling DonationMade events:", error);
+    return latestBlock; // Return the previous block number if an error occurs
+  }
+};
+
+/**
+ * Polls CampaignFinalized events for a given campaign contract and updates the state.
+ * @param campaignAddress - The contract address of the campaign to poll.
+ * @param latestBlock - The latest block number already processed.
+ * @param setCampaignFinalized - Function to update the campaign finalization state.
+ * @returns The latest block number processed.
+ */
+export const pollCampaignFinalizedEvents = async (
+  campaignAddress: string,
+  latestBlock: number,
+  setCampaignFinalized: React.Dispatch<React.SetStateAction<any[]>>,
+): Promise<number> => {
+  try {
+    const web3 = getWeb3(); // Initialize web3 instance
+    const account = getAccount();
+    const campaignContract = getCampaignContract(campaignAddress); // Get the campaign contract instance
+    const currentBlock = Number(await web3.eth.getBlockNumber()); // Get the current block number
+
+    // Fetch events from the blockchain starting from the latest processed block
+    const events = await campaignContract.getPastEvents(
+      Events.CampaignFinalized,
+      {
+        fromBlock: latestBlock + 1,
+        toBlock: "latest",
+      },
+    );
+
+    const details = await campaignContract.methods
+      .getCampaignDetails()
+      .call({ from: account! });
+
+    // Dismiss all toasts before polling new events
+    toast.dismiss();
+
+    if (events.length > 0) {
+      // Process each event and trigger notifications
+      events.forEach(async (event) => {
+        const { beneficiary, success, totalFunds } = event.returnValues;
+
+        // Notify the beneficiary about the outcome
+        if (success) {
+          toast.success(
+            `Campaign ${details.campaignName} successfully hit its funding goal and is finalized! Total Funds Released: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
+          );
+        } else {
+          toast.error(
+            `Campaign ${details.campaignName} did not meet its funding goal and has been finalised.`,
+          );
+        }
+
+        // Fetch the donor list dynamically
+        const donors = await campaignContract.methods.getDonors().call();
+
+        // Notify only the current user (donor)
+        donors.forEach((donor: string) => {
+          if (donor.toLowerCase() === account.toLowerCase()) {
+            if (success) {
+              toast.success(
+                `Your donation to the campaign at ${beneficiary} has been finalized!`,
+              );
+            } else {
+              toast.error(
+                `Your donation to the campaign at ${beneficiary} did not meet its funding goal.`,
+              );
+            }
+          }
+        });
+
+        // Update the state with finalized campaign events
+        setCampaignFinalized((prevState) => [
+          ...prevState,
+          {
+            campaignAddress,
+            beneficiary,
+            success,
+            totalFunds: Web3.utils.fromWei(totalFunds, "ether"),
+          },
+        ]);
+      });
+    }
+
+    return currentBlock; // Return the updated block number
+  } catch (error) {
+    console.error("Error polling CampaignFinalized events:", error);
     return latestBlock; // Return the previous block number if an error occurs
   }
 };
