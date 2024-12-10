@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createCampaign } from "../web3/functions";
-import { getAccount } from "../web3/utils";
 import Button from "./Button";
 
 const CreateCampaign = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [fundingGoal, setFundingGoal] = useState<number | "">("");
-  const [deadline, setDeadline] = useState<number | null>(null);
+  const [deadline, setDeadline] = useState<number | null>(null); // In seconds
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -17,6 +16,10 @@ const CreateCampaign = () => {
     }
 
     try {
+      if (deadline <= new Date().getTime() / 1000) {
+        throw new Error("The deadline has passed! Please set one that is in the future.")
+      }
+
       console.log("Deadline being sent to createCampaign (seconds):", deadline); // Debug log
       setIsSubmitting(true);
       await createCampaign(name, description, fundingGoal, deadline!);
@@ -107,6 +110,7 @@ const CreateCampaign = () => {
           <input
             id="deadline"
             type="datetime-local"
+            min={new Date().toISOString().slice(0, -8)}
             value={
               deadline === null
                 ? ""
