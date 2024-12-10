@@ -13,11 +13,6 @@
 						"type": "address"
 					},
 					{
-						"internalType": "address",
-						"name": "_admin",
-						"type": "address"
-					},
-					{
 						"internalType": "string",
 						"name": "_name",
 						"type": "string"
@@ -47,12 +42,6 @@
 					{
 						"indexed": true,
 						"internalType": "address",
-						"name": "campaignAddress",
-						"type": "address"
-					},
-					{
-						"indexed": true,
-						"internalType": "address",
 						"name": "beneficiary",
 						"type": "address"
 					},
@@ -76,18 +65,6 @@
 				"anonymous": false,
 				"inputs": [
 					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "campaignAddress",
-						"type": "address"
-					},
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "beneficiary",
-						"type": "address"
-					},
-					{
 						"indexed": false,
 						"internalType": "uint256",
 						"name": "amount",
@@ -99,38 +76,13 @@
 			},
 			{
 				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "campaignAddress",
-						"type": "address"
-					},
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "beneficiary",
-						"type": "address"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
-					}
-				],
-				"name": "FundsWithdrawn",
+				"inputs": [],
+				"name": "FundingGoalMet",
 				"type": "event"
 			},
 			{
 				"anonymous": false,
 				"inputs": [
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "campaignAddress",
-						"type": "address"
-					},
 					{
 						"indexed": true,
 						"internalType": "address",
@@ -146,19 +98,6 @@
 				],
 				"name": "RefundIssued",
 				"type": "event"
-			},
-			{
-				"inputs": [],
-				"name": "admin",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
 			},
 			{
 				"inputs": [],
@@ -322,6 +261,24 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "start",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "end",
+						"type": "uint256"
+					}
+				],
+				"name": "processRefundsBatch",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "totalFunds",
 				"outputs": [
@@ -365,6 +322,9 @@
 					"returns": {
 						"_0": "The total donation amount (in cryptocurrency) contributed by the caller"
 					}
+				},
+				"processRefundsBatch(uint256,uint256)": {
+					"details": "Called by the beneficiary from the frontend when the Campaign is finalized but did not meet its fundingGoalRefunds all the donors in batches"
 				}
 			},
 			"title": "Campaign",
@@ -393,11 +353,11 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x5bc47105ce1e5769172016743c3932cc4b65a337ad9ea7e7faff1a8bb885f1a0",
+			"keccak256": "0x8432d3a05ed952c915e93f0985476c1612ea4f2d5252184f3bea86c95667e00e",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://ae4a6e03a6bffef4f5b5539832204e529cbb36f6e1ef428c59d4969b45256f46",
-				"dweb:/ipfs/QmfC7ofXguvXrVcpmSioYkTvi9TKvaFDdphvDSDDDZS3Bb"
+				"bzz-raw://c424c53dcfcb22f1e4cc2ce0675712601123b79710be86ef1b3fecf11205cfac",
+				"dweb:/ipfs/QmRfmgDsWJDc1DWyoJaS2bdoMab2Mm7BYihHZUGsLEp9D5"
 			]
 		}
 	},

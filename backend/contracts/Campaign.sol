@@ -17,7 +17,6 @@ contract Campaign {
     bool public isActive; // if true, then the Campaign is ongoing, donations are allowed, and is not finalized; else, the Campaign has ended, and no further actions are allowed
     mapping(address => uint256) private donations; // the value is stored in wei
     address[] private donors; // array to store donor addresses for refunds
-    address public admin;
 
     /**
      * @dev Creates the Campaign smart contract
@@ -26,17 +25,14 @@ contract Campaign {
      * @param _fundingGoal Funding Goal for the Campaign in cryptocurrency (SepoliaETH)
      * @param _deadline Timestamp of when the Campaign should be fully funded before it becomes inactive
      */
-
     constructor(
         address _beneficiary,
-        address _admin, // Admin address passed at deployment, @frontend to validate that _admin is not 0 when set
         string memory _name,
         string memory _description,
         uint256 _fundingGoal,
         uint48 _deadline
     ) {
         beneficiary = _beneficiary;
-        admin = _admin;
         name = _name;
         description = _description;
         fundingGoal = _fundingGoal;
@@ -45,58 +41,42 @@ contract Campaign {
     }
 
     // events
-    // to log donations and notify the beneficiary and the donor on the frontend that the donation has been successfully made
-    event DonationMade(
-        address indexed campaignAddress,
-        address indexed beneficiary,
-        uint256 amount
-    );
-
-    // to log fund withdrawals and notify the beneficiary and donors on the frontend that the fudns have been withdrawn from the Campaign
-    event FundsWithdrawn(
-        address indexed campaignAddress,
-        address indexed beneficiary,
-        uint256 amount
-    );
+    // to log donations and notify the beneficiary on the frontend that the donation has been successfully made
+    // this event is triggered when a donor donates to this Campaign, so no need to put donor address
+    // since frontend is already querying the CampaignCreated events (in CampaignFactory) for the Campaigns that belong to the beneficiary, there is no need to put beneficiary address
+    event DonationMade(uint256 amount);
 
     // to log refunds and notify the donors on the frontend that refunds have been issued to them
-    event RefundIssued(
-        address indexed campaignAddress,
-        address indexed donor,
-        uint256 amount
-    );
+    event RefundIssued(address indexed donor, uint256 amount);
 
     // to log the finalization of campaigns and notify the beneficiary and donors on the frontend of the Campaign's status; also notifies beneficiary of the refunds if the Campaign failed
     event CampaignFinalized(
-        address indexed campaignAddress, // to help the frontend identify the campaigns that have been finalized and those that have not when querying emitted events
         address indexed beneficiary,
         bool success, // if success is true, it means that the Campaign met its fundingGoal before its deadline
         uint256 totalFunds
     );
 
+    // to log the meeting of the fundingGoal by the totalFunds and notify the beneficiary on the frontend to release the funds
+    event FundingGoalMet();
+
     // modifiers
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Access restricted to admin!");
+    modifier onlyBeneficiary() {
+        require(msg.sender == beneficiary, "Beneficiary only");
         _;
     }
+
     modifier isActiveCampaign() {
-        require(isActive, "The Campaign is not active!");
+        require(isActive, "Inactive Campaign");
         _;
     }
 
     modifier deadlineExceeded() {
-        require(
-            block.timestamp > deadline,
-            "The Campaign's deadline has not passed!"
-        );
+        require(block.timestamp > deadline, "Deadline not exceeded");
         _;
     }
 
     modifier beforeDeadline() {
-        require(
-            block.timestamp <= deadline,
-            "The Campaign's deadline has already passed!"
-        );
+        require(block.timestamp <= deadline, "Deadline exceeded");
         _;
     }
 
@@ -119,38 +99,14 @@ contract Campaign {
         uint256 newTotalFunds = totalFunds + amount;
         totalFunds = newTotalFunds;
 
-        emit DonationMade(address(this), beneficiary, amount);
+        emit DonationMade(amount);
 
-        // if the Campaign has been fully funded, then release all the funds to the beneficiary
+        // if the Campaign has been fully funded, notify the benefiary to release the funds, so that they incur the gas fees to do so, instead of making the donors unknowingly spend gas fees releasing funds to the beneficiary
         if (newTotalFunds >= fundingGoal) {
-            releaseFunds();
+            emit FundingGoalMet();
         }
     }
 
-    /**
-     * @dev Releases the totalFunds to the beneficiary
-     * @dev It is called whenever the totalFunds exceed the fundingGoal before or by the deadline
-     * @dev It is some sort of a helper function
-     */
-    function releaseFunds() private {
-        uint256 fundsToRelease = totalFunds;
-        delete totalFunds; // more gas efficient than totalFunds = 0
-        isActive = false;
-
-        // transfer the totalFunds to beneficiary
-        (bool success, ) = payable(beneficiary).call{value: fundsToRelease}("");
-        require(success, "Unable to release funds!");
-
-        emit FundsWithdrawn(address(this), beneficiary, fundsToRelease);
-        emit CampaignFinalized(
-            address(this),
-            beneficiary,
-            true,
-            fundsToRelease
-        );
-    }
-
-    // TODO: implement the access control to ensure that only the admin can call this function @carina
     /**
      * @dev Called when the Campaign's deadline has passed, and also handles the refund to all donors if the fundingGoal is not met by then
      * @dev Likely needs to be called from the frontend
@@ -159,36 +115,50 @@ contract Campaign {
         external
         isActiveCampaign
         deadlineExceeded
-        onlyAdmin
+        onlyBeneficiary
     {
         if (totalFunds >= fundingGoal) {
-            //SX: Changed > to >=
             releaseFunds();
         } else {
             isActive = false; // Called here and not before if statement because releaseFunds() has isActive = False as well.
+            emit CampaignFinalized(beneficiary, false, totalFunds);
+        }
+    }
 
-            // Refund totalFunds to all donors by calling the refund function for each donor
-            uint256 totalDonors = donors.length; // Minimising gas used for repeatedly reading the array length inside the loop
+    /**
+     * @dev Releases the totalFunds to the beneficiary
+     * @dev It is called whenever the beneficiary releases the funds (to themselves) from the frontend, only if the totalFunds exceed the fundingGoal, or if they trigger the finalizeCampaign() from the frontend due to the deadline being met
+     * @dev It is some sort of a helper function
+     */
+    function releaseFunds() private {
+        uint256 fundsToRelease = totalFunds;
+        delete totalFunds; // more gas efficient than totalFunds = 0
+        isActive = false;
 
-            for (uint256 i = 0; i < totalDonors; i++) {
-                address donor = donors[i];
-                uint256 donationAmount = donations[donor];
-                // Removed the use of `refund()` helper function to avoid gas costs associated with function jumps
-                // Directly handled refund logic inside the loop
-                if (donationAmount > 0) {
-                    donations[donor] = 0;
-                    payable(donor).transfer(donationAmount);
+        // transfer the totalFunds to beneficiary
+        payable(beneficiary).transfer(fundsToRelease);
 
-                    emit RefundIssued(address(this), donor, donationAmount);
-                }
+        emit CampaignFinalized(beneficiary, true, fundsToRelease);
+    }
+
+    /**
+     * @dev Called by the beneficiary from the frontend when the Campaign is finalized but did not meet its fundingGoal
+     * @dev Refunds all the donors in batches
+     */
+    function processRefundsBatch(uint256 start, uint256 end)
+        external
+        onlyBeneficiary
+    {
+        for (uint256 i = start; i < end; i++) {
+            address donor = donors[i];
+            uint256 donationAmount = donations[donor];
+
+            if (donationAmount > 0) {
+                donations[donor] = 0; // Reset the donation amount
+                payable(donor).transfer(donationAmount);
+
+                emit RefundIssued(donor, donationAmount);
             }
-
-            emit CampaignFinalized(
-                address(this),
-                beneficiary,
-                false,
-                totalFunds
-            );
         }
     }
 
@@ -233,22 +203,4 @@ contract Campaign {
         campaignTotalFunds = totalFunds;
         campaignIsActive = isActive;
     }
-
-    // /**
-    //  * @dev Refunds the donor's donation
-    //  * @dev It is some sort of a helper function
-    //  * @param donor The donor wallet to refund the donation back to
-    //  */
-    // function refund(address donor) private {
-    //     uint32 donationAmount = donations[donor];
-    //     delete donations[donor]; // more gas efficient than donations[donor] = 0
-
-    //     // refund to the donor
-    //     payable(donor).transfer(donationAmount);
-
-    //     emit RefundIssued(
-    //         donor,
-    //         donationAmount
-    //     );
-    // }
 }

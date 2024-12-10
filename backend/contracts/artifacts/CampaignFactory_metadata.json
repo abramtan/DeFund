@@ -13,18 +13,6 @@
 						"internalType": "address",
 						"name": "campaignAddress",
 						"type": "address"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "fundingGoal",
-						"type": "uint256"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint48",
-						"name": "deadline",
-						"type": "uint48"
 					}
 				],
 				"name": "CampaignCreated",
@@ -107,11 +95,11 @@
 			]
 		},
 		"backend/contracts/CampaignFactory.sol": {
-			"keccak256": "0x7fb13a368a673f63a6f76157388c7430324216085a5948e1c759e855b3f2d312",
+			"keccak256": "0x862837c62770a7e6b2f3a4e9a37b7105be893ab7f40c53bc611c814e824961aa",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://9b62a97becbc404ce478efd344025380abbfdca2b3213cea890a6c4568f84973",
-				"dweb:/ipfs/QmbthurqtXbcqW8WeThvaSRSiGdTuzyH529vsBiz6SyczF"
+				"bzz-raw://45e29460e5c43e3c4e1b6bddaf3618977b08fd79c95b0aeccfc256e23b7a613d",
+				"dweb:/ipfs/QmQx7UTYsJgab2ptaEZtSjtNwCqFiAnXbnVHLdChjFAYFv"
 			]
 		}
 	},
