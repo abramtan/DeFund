@@ -55,6 +55,6 @@ export enum LocalStorageKeys {
   DonationMade = "donationMade_latestBlock",
   CampaignFinalized = "campaignFinalized_latestBlock",
   RefundIssued = "refundIssued_latestBlock",
-  FundsWithdrawn = "fundsWithdrawn_latestBlock",
+  FundingGoalMet = "fundingGoalMet_latestBlock",
   Account = "account",
 }

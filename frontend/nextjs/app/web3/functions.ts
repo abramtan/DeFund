@@ -13,6 +13,7 @@ import {
   getWeb3,
   LocalStorageKeys,
 } from "./utils";
+import { REFUND_BATCH_SIZE } from "./const";
 
 // Create a new campaign
 export const createCampaign = async (
@@ -301,61 +302,6 @@ export const finalizeCampaign = async (campaignAddress: string) => {
     console.log(`Estimated Gas: ${estimatedGas}`);
     const receipt = await method.send({ from: account });
     console.log(`Transaction Receipt for finalize campagin function:`, receipt);
-
-    // // Check for events
-    // console.log("Checking for CampaignFinalized event...");
-
-    // // Handle CampaignFinalized Event
-    // const campaignFinalizedEvent = receipt.events.CampaignFinalized;
-    // if (campaignFinalizedEvent) {
-    //   console.log("CampaignFinalized event detected:", campaignFinalizedEvent);
-    //   const { finalizedSuccessfully, totalFunds } =
-    //     campaignFinalizedEvent.returnValues;
-    //   if (finalizedSuccessfully) {
-    //     alert(
-    //       `Campaign finalized successfully! Total Funds Released: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
-    //     );
-    //   } else {
-    //     alert(
-    //       `Campaign did not meet the funding goal. Refunds have been issued to all donors.`,
-    //     );
-    //   }
-    // }
-
-    // // Handle RefundIssued Events
-    // console.log("Checking for RefundIssued event...");
-    // const refundIssuedEvent = receipt.events.RefundIssued;
-
-    // if (refundIssuedEvent) {
-    //   if (Array.isArray(refundIssuedEvent)) {
-    //     console.log("RefundIssued event detected:", refundIssuedEvent); // Multiple RefundIssued events
-    //     refundIssuedEvent.forEach((event) => {
-    //       const { campaignAddress, donor, donationAmount } = event.returnValues;
-    //       alert(
-    //         `Refund issued to ${donor} amounting to ${Web3.utils.fromWei(amount, "ether")} ETH.`,
-    //       );
-    //     });
-    //   } else {
-    //     // Single RefundIssued event
-    //     console.log("Single RefundIssued event detected:", refundIssuedEvent);
-    //     const { campaignAddress, donor, amount } =
-    //       refundIssuedEvent.returnValues;
-    //     alert(
-    //       `Refund issued to ${donor} amounting to ${Web3.utils.fromWei(amount, "ether")} ETH.`,
-    //     );
-    //   }
-    // }
-
-    // // Handle FundsWithdrawn event
-    // const fundsWithdrawnEvent = receipt.events.FundsWithdrawn;
-    // if (fundsWithdrawnEvent) {
-    //   const { beneficiary, fundsToRelease } = fundsWithdrawnEvent.returnValues;
-    //   alert(
-    //     `Funds have been withdrawn to ${beneficiary} amounting to ${Web3.utils.fromWei(fundsToRelease, "ether")} ETH.`,
-    //   );
-    // } else {
-    //   alert("Campaign finalized, but no funds were released to beneficiary.");
-    // }
   } catch (error) {
     console.error("Error during campaign finalization:", error);
 
@@ -413,13 +359,13 @@ export const pollDonationMadeEvents = async (
       // Process each new event and update the donations state
       events.forEach((event) => {
         //@ts-ignore
-        const { campaignAddress, amount } = event.returnValues;
+        const { amount } = event.returnValues;
         const donationAmount = web3.utils.fromWei(amount, "ether"); // Convert donation amount from Wei to Ether
 
         // Create a toast to notify the beneficiary that a donor has donated to their campaign
         toast.success(
           //@ts-ignore
-          `Donation of ${donationAmount} ETH made to your campaign named: ${details.campaignName}`,
+          `Bneneficiary: Donation of ${donationAmount} ETH made to your Campaign "${details.campaignName}"`,
         );
 
         setDonations((prevDonations) => [
@@ -484,35 +430,40 @@ export const pollCampaignFinalizedEvents = async (
       // Process each event and trigger notifications
       events.forEach(async (event, index) => {
         const { beneficiary, success, totalFunds } = event.returnValues;
-
-        if (beneficiary.toLowerCase() === account) {
-          // Notify the beneficiary about the outcome
-          if (success) {
-            toast.success(
-              `Campaign ${details.campaignName} successfully hit its funding goal and is finalized! Total Funds Released: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
-            );
-          } else {
-            toast.error(
-              `Campaign ${details.campaignName} did not meet its funding goal and has been finalised.`,
-            );
-          }
-        }
-
         // Fetch the donor list dynamically
         const donors = await campaignContract.methods
           .getDonors()
           .call({ from: account! });
 
-        // Notify only the current user (donor)
+        // This is what is executed by the beneficiary only
+        if (beneficiary.toLowerCase() === account) {
+          // Notify the beneficiary about the outcome
+          if (success) {
+            toast.success(
+              `Beneficiary: Campaign "${details.campaignName}" is successful and finalized! Total Funds Released to you: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
+            );
+          } else {
+            await processRefundsInBatches(
+              campaignContract,
+              donors.length,
+              REFUND_BATCH_SIZE,
+            );
+            toast.error(
+              `Beneficiary: Campaign "${details.campaignName}" is unsuccessful and all donors have been refunded.`,
+            );
+          }
+        }
+
+        // Notify the donors
         donors.forEach((donor: string) => {
           if (donor.toLowerCase() === account) {
             if (success) {
               toast.success(
-                `The campaign "${details.campaignName}" has been finalized and has met its funding goal!`,
+                `Donor: Campaign "${details.campaignName}" is successful and finalized!`,
               );
             } else {
               toast.error(
-                `The campaign "${details.campaignName}" has been finalized and did not meet its funding goal.`,
+                `Donor: Campaign "${details.campaignName}" is unsuccessful. Refund in progress.`,
               );
             }
           }
@@ -537,3 +488,17 @@ export const pollCampaignFinalizedEvents = async (
     return latestBlock; // Return the previous block number if an error occurs
   }
 };
+
+async function processRefundsInBatches(
+  campaignContract,
+  totalDonors,
+  batchSize,
+) {
+  for (let start = 0; start < totalDonors; start += batchSize) {
+    const end = Math.min(start + batchSize, totalDonors);
+    await campaignContract.methods
+      .processRefundsBatch(start, end)
+      .send({ from: getAccount()! });
+    console.log(`Processed refunds for donors ${start} to ${end}`);
+  }
+}
