@@ -16,15 +16,15 @@
 					},
 					{
 						"indexed": false,
-						"internalType": "uint32",
+						"internalType": "uint256",
 						"name": "fundingGoal",
-						"type": "uint32"
+						"type": "uint256"
 					},
 					{
 						"indexed": false,
-						"internalType": "uint256",
+						"internalType": "uint48",
 						"name": "deadline",
-						"type": "uint256"
+						"type": "uint48"
 					}
 				],
 				"name": "CampaignCreated",
@@ -43,14 +43,14 @@
 						"type": "string"
 					},
 					{
-						"internalType": "uint32",
+						"internalType": "uint256",
 						"name": "_fundingGoal",
-						"type": "uint32"
+						"type": "uint256"
 					},
 					{
-						"internalType": "uint256",
+						"internalType": "uint48",
 						"name": "_deadline",
-						"type": "uint256"
+						"type": "uint48"
 					}
 				],
 				"name": "createCampaign",
@@ -63,7 +63,7 @@
 			"details": "Creates and deploy a new Campaign smart contract whenever any beneficiary creates a campaign",
 			"kind": "dev",
 			"methods": {
-				"createCampaign(string,string,uint32,uint256)": {
+				"createCampaign(string,string,uint256,uint48)": {
 					"details": "Allows beneficiaries to create a Campaign with the required details",
 					"params": {
 						"_deadline": "Timestamp of when the Campaign should be fully funded before it becomes inactive",
@@ -99,19 +99,19 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x73030089ecd7b1c375ee26c5bb79416cfd4ec8cbc837ca544dd757dcb7bcfbd9",
+			"keccak256": "0x5bc47105ce1e5769172016743c3932cc4b65a337ad9ea7e7faff1a8bb885f1a0",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://3b475fe1312b160eed0809edddaca2d7e6c1fae99ad0d48424b5fbd50bc3478f",
-				"dweb:/ipfs/Qmb7jYdXL8jgawRoDhx2M6fkK4wV9VFR7SNmybDxB65Yqe"
+				"bzz-raw://ae4a6e03a6bffef4f5b5539832204e529cbb36f6e1ef428c59d4969b45256f46",
+				"dweb:/ipfs/QmfC7ofXguvXrVcpmSioYkTvi9TKvaFDdphvDSDDDZS3Bb"
 			]
 		},
 		"backend/contracts/CampaignFactory.sol": {
-			"keccak256": "0x01a0307cdb048ce017381b47dec24f93a094bc820068fd052e2c02073b6aa76d",
+			"keccak256": "0x7fb13a368a673f63a6f76157388c7430324216085a5948e1c759e855b3f2d312",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://1f47f39c4c0b9307c65842a7a7e70d32313a269a5a0e26f342f442fcb3efe234",
-				"dweb:/ipfs/QmPrkwyfVPSXMjpKBrkHR9cAyCGhYw4eM34cypYtRKpx7t"
+				"bzz-raw://9b62a97becbc404ce478efd344025380abbfdca2b3213cea890a6c4568f84973",
+				"dweb:/ipfs/QmbthurqtXbcqW8WeThvaSRSiGdTuzyH529vsBiz6SyczF"
 			]
 		}
 	},

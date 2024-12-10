@@ -393,11 +393,11 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0xaec62c896c7061761c4dc8f480bd949955321b15c808da004a8458aa04b52b39",
+			"keccak256": "0x5bc47105ce1e5769172016743c3932cc4b65a337ad9ea7e7faff1a8bb885f1a0",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://7aadd9fb3aa52b925111af85c8c9ba048469012ab970b8dab02fd465c82e7e70",
-				"dweb:/ipfs/QmPpy4wSEQZSxASza8x9kSnefDsqGj4NnxUmk9McsWtA5m"
+				"bzz-raw://ae4a6e03a6bffef4f5b5539832204e529cbb36f6e1ef428c59d4969b45256f46",
+				"dweb:/ipfs/QmfC7ofXguvXrVcpmSioYkTvi9TKvaFDdphvDSDDDZS3Bb"
 			]
 		}
 	},
