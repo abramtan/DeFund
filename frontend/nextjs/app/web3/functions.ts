@@ -294,60 +294,60 @@ export const finalizeCampaign = async (campaignAddress: string) => {
     const receipt = await method.send({ from: account });
     console.log(`Transaction Receipt for finalize campagin function:`, receipt);
 
-    // Check for events
-    console.log("Checking for CampaignFinalized event...");
+    // // Check for events
+    // console.log("Checking for CampaignFinalized event...");
 
-    // Handle CampaignFinalized Event
-    const campaignFinalizedEvent = receipt.events.CampaignFinalized;
-    if (campaignFinalizedEvent) {
-      console.log("CampaignFinalized event detected:", campaignFinalizedEvent);
-      const { finalizedSuccessfully, totalFunds } =
-        campaignFinalizedEvent.returnValues;
-      if (finalizedSuccessfully) {
-        alert(
-          `Campaign finalized successfully! Total Funds Released: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
-        );
-      } else {
-        alert(
-          `Campaign did not meet the funding goal. Refunds have been issued to all donors.`,
-        );
-      }
-    }
+    // // Handle CampaignFinalized Event
+    // const campaignFinalizedEvent = receipt.events.CampaignFinalized;
+    // if (campaignFinalizedEvent) {
+    //   console.log("CampaignFinalized event detected:", campaignFinalizedEvent);
+    //   const { finalizedSuccessfully, totalFunds } =
+    //     campaignFinalizedEvent.returnValues;
+    //   if (finalizedSuccessfully) {
+    //     alert(
+    //       `Campaign finalized successfully! Total Funds Released: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
+    //     );
+    //   } else {
+    //     alert(
+    //       `Campaign did not meet the funding goal. Refunds have been issued to all donors.`,
+    //     );
+    //   }
+    // }
 
-    // Handle RefundIssued Events
-    console.log("Checking for RefundIssued event...");
-    const refundIssuedEvent = receipt.events.RefundIssued;
+    // // Handle RefundIssued Events
+    // console.log("Checking for RefundIssued event...");
+    // const refundIssuedEvent = receipt.events.RefundIssued;
 
-    if (refundIssuedEvent) {
-      if (Array.isArray(refundIssuedEvent)) {
-        console.log("RefundIssued event detected:", refundIssuedEvent); // Multiple RefundIssued events
-        refundIssuedEvent.forEach((event) => {
-          const { campaignAddress, donor, donationAmount } = event.returnValues;
-          alert(
-            `Refund issued to ${donor} amounting to ${Web3.utils.fromWei(amount, "ether")} ETH.`,
-          );
-        });
-      } else {
-        // Single RefundIssued event
-        console.log("Single RefundIssued event detected:", refundIssuedEvent);
-        const { campaignAddress, donor, amount } =
-          refundIssuedEvent.returnValues;
-        alert(
-          `Refund issued to ${donor} amounting to ${Web3.utils.fromWei(amount, "ether")} ETH.`,
-        );
-      }
-    }
+    // if (refundIssuedEvent) {
+    //   if (Array.isArray(refundIssuedEvent)) {
+    //     console.log("RefundIssued event detected:", refundIssuedEvent); // Multiple RefundIssued events
+    //     refundIssuedEvent.forEach((event) => {
+    //       const { campaignAddress, donor, donationAmount } = event.returnValues;
+    //       alert(
+    //         `Refund issued to ${donor} amounting to ${Web3.utils.fromWei(amount, "ether")} ETH.`,
+    //       );
+    //     });
+    //   } else {
+    //     // Single RefundIssued event
+    //     console.log("Single RefundIssued event detected:", refundIssuedEvent);
+    //     const { campaignAddress, donor, amount } =
+    //       refundIssuedEvent.returnValues;
+    //     alert(
+    //       `Refund issued to ${donor} amounting to ${Web3.utils.fromWei(amount, "ether")} ETH.`,
+    //     );
+    //   }
+    // }
 
-    // Handle FundsWithdrawn event
-    const fundsWithdrawnEvent = receipt.events.FundsWithdrawn;
-    if (fundsWithdrawnEvent) {
-      const { beneficiary, fundsToRelease } = fundsWithdrawnEvent.returnValues;
-      alert(
-        `Funds have been withdrawn to ${beneficiary} amounting to ${Web3.utils.fromWei(fundsToRelease, "ether")} ETH.`,
-      );
-    } else {
-      alert("Campaign finalized, but no funds were released to beneficiary.");
-    }
+    // // Handle FundsWithdrawn event
+    // const fundsWithdrawnEvent = receipt.events.FundsWithdrawn;
+    // if (fundsWithdrawnEvent) {
+    //   const { beneficiary, fundsToRelease } = fundsWithdrawnEvent.returnValues;
+    //   alert(
+    //     `Funds have been withdrawn to ${beneficiary} amounting to ${Web3.utils.fromWei(fundsToRelease, "ether")} ETH.`,
+    //   );
+    // } else {
+    //   alert("Campaign finalized, but no funds were released to beneficiary.");
+    // }
   } catch (error) {
     console.error("Error during campaign finalization:", error);
 
@@ -474,7 +474,7 @@ export const pollCampaignFinalizedEvents = async (
       events.forEach(async (event, index) => {
         const { beneficiary, success, totalFunds } = event.returnValues;
 
-        if (beneficiary === account.toLowerCase()) {
+        if (beneficiary.toLowerCase() === account) {
           // Notify the beneficiary about the outcome
           if (success) {
             toast.success(

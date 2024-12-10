@@ -33,7 +33,7 @@ export default function RootLayout({
             <Header />
             <Toaster
               position="bottom-right"
-              toastOptions={{ duration: 2000 }}
+              toastOptions={{ duration: 10000 }}
             />
             {children}
             <Footer />
