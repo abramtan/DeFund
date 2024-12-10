@@ -14,6 +14,7 @@ const Header: React.FC = () => {
     { name: "Explore", href: "/explore" },
     { name: "Create Campaign", href: "/create" },
     { name: "How To Use", href: "/howtouse" },
+    { name: "My Campaigns", href: "/mycampaigns" },
   ];
 
   const [account, setAccount] = useState<string | null>(null);
