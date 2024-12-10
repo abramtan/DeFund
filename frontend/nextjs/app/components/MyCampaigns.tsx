@@ -1,9 +1,8 @@
-import React from "react";
-import { CampaignGrid } from "./CampaignGrid";
-import { useEffect, useState } from "react";
-import { getMyCampaigns } from "@/app/web3/functions";
 import { Campaign } from "@/app/web3/campaign";
+import { getMyCampaigns } from "@/app/web3/functions";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { CampaignGrid } from "./CampaignGrid";
 
 const MyCampaigns = () => {
   const [myCampaignAddresses, setMyCampaignAddresses] = useState<Set<string>>(

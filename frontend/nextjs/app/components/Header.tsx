@@ -5,44 +5,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button, DeFundLogo } from "./index";
+import WalletButton from "./WalletButton";
 
 const Header: React.FC = () => {
   const pathname = usePathname();
 
   const navItems = [
-    // { name: "Home", href: "/" },
     { name: "Explore", href: "/explore" },
     { name: "Create Campaign", href: "/create" },
-    { name: "How To Use", href: "/howtouse" },
     { name: "My Campaigns", href: "/mycampaigns" },
+    { name: "How To Use", href: "/howtouse" },
   ];
 
   const [account, setAccount] = useState<string | null>(null);
-
-  const connectWallet = async (): Promise<string | null> => {
-    if (typeof window.ethereum !== "undefined") {
-      try {
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        return accounts[0];
-      } catch (error) {
-        console.error("User denied account access");
-        return null;
-      }
-    } else {
-      alert("Please install MetaMask!");
-      return null;
-    }
-  };
-
-  const handleConnectWallet = async () => {
-    const connectedAccount = await connectWallet();
-    if (connectedAccount) {
-      setAccount(connectedAccount);
-      localStorage.setItem("account", connectedAccount);
-    }
-  };
 
   useEffect(() => {
     // Restore the connected account from localStorage on initial render
@@ -90,13 +65,7 @@ const Header: React.FC = () => {
               ))}
             </div>
           </div>
-          <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <Button variant="outline" onClick={handleConnectWallet}>
-              {account
-                ? `${account.slice(0, 6)}...${account.slice(-4)}`
-                : "Connect Wallet"}
-            </Button>
-          </div>
+          <WalletButton account={account} setAccount={setAccount} />
           <div className="flex items-center sm:hidden">
             <Button variant="ghost">
               <Menu className="h-6 w-6" />

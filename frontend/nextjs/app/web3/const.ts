@@ -1,13 +1,17 @@
-import CAMPAIGN_ABI from "./Campaign.json";
-import CAMPAIGN_FACTORY_ABI from "./CampaignFactory.json";
-const CAMPAIGN_FACTORY_ADDRESS = "0xDE529209048b00d18d1F0c2BA9E640A98Ebe722E";
+import CAMPAIGN_ABI from "./abi/Campaign.json";
+import CAMPAIGN_FACTORY_ABI from "./abi/CampaignFactory.json";
+
 const DEFAULT_CAMPAIGN_ADDRESS = "0x18964273CA201F71Ac2a3Aa8eE807B652419E345";
-const EVENT_POLLING_INTERVAL = 2000; // in miliseconds
+const CAMPAIGN_FACTORY_ADDRESS = "0xDE529209048b00d18d1F0c2BA9E640A98Ebe722E";
+
+const EVENT_POLLING_INTERVAL = 2000; // In miliseconds
+const CAMPAIGN_FACTORY_BLOCK_NUMBER = 7248762; // The block number of the block in which the CampaignFactory contract is deployed
 
 export {
   CAMPAIGN_ABI,
   CAMPAIGN_FACTORY_ABI,
   CAMPAIGN_FACTORY_ADDRESS,
+  CAMPAIGN_FACTORY_BLOCK_NUMBER,
   DEFAULT_CAMPAIGN_ADDRESS,
   EVENT_POLLING_INTERVAL,
 };

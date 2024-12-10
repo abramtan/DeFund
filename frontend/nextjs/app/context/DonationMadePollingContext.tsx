@@ -1,11 +1,15 @@
 "use client";
 
 import React, { createContext, useEffect, useState } from "react";
-import { EVENT_POLLING_INTERVAL } from "../web3/const";
+import {
+  CAMPAIGN_FACTORY_BLOCK_NUMBER,
+  EVENT_POLLING_INTERVAL,
+} from "../web3/const";
 import {
   getMyActiveCampaigns,
   pollDonationMadeEvents,
 } from "../web3/functions";
+import { getAccount } from "../web3/utils";
 
 // Define the context type for storing donation data
 interface DonationMadeContextType {
@@ -29,14 +33,21 @@ export const DonationMadePollingProvider: React.FC<{
 
   // Fetch the list of active campaigns for the user
   useEffect(() => {
-    const doGetMyActiveCampaigns = async () => {
-      const myActiveCampaigns = await getMyActiveCampaigns(); // Fetch active campaigns
-      const addresses = myActiveCampaigns.map(
-        (myActiveCampaign) => myActiveCampaign.address,
-      );
-      setMyActiveCampaignAddresses(addresses); // Update state with campaign addresses
-    };
-    doGetMyActiveCampaigns();
+    // If user has not connected their Metamask, then do not start the polling
+    try {
+      const account = getAccount();
+
+      if (account) {
+        const doGetMyActiveCampaigns = async () => {
+          const myActiveCampaigns = await getMyActiveCampaigns(); // Fetch active campaigns
+          const addresses = myActiveCampaigns.map(
+            (myActiveCampaign) => myActiveCampaign.address,
+          );
+          setMyActiveCampaignAddresses(addresses); // Update state with campaign addresses
+        };
+        doGetMyActiveCampaigns();
+      }
+    } catch (error) {}
   }, []);
 
   // Set up polling for each campaign in the list of active campaigns
@@ -47,7 +58,7 @@ export const DonationMadePollingProvider: React.FC<{
       let latestBlock = Number(
         localStorage.getItem(
           `donationMade_latestBlock_${myActiveCampaignAddress}`,
-        ) || 0,
+        ) || CAMPAIGN_FACTORY_BLOCK_NUMBER,
       ); // Get the latest processed block from localStorage
 
       const setupPolling = async () => {

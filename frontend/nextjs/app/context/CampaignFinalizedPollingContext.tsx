@@ -1,10 +1,15 @@
 "use client";
 
 import React, { createContext, useEffect, useState } from "react";
-import { pollCampaignFinalizedEvents } from "../web3/functions";
-import { EVENT_POLLING_INTERVAL } from "../web3/const";
-import { toast } from "react-hot-toast";
-import { getInactiveCampaigns } from "../web3/functions"; // Import the new function
+import {
+  CAMPAIGN_FACTORY_BLOCK_NUMBER,
+  EVENT_POLLING_INTERVAL,
+} from "../web3/const";
+import {
+  getInactiveCampaigns,
+  pollCampaignFinalizedEvents,
+} from "../web3/functions";
+import { getAccount } from "../web3/utils";
 
 // Define the context type for storing finalized campaign data
 interface CampaignFinalizedContextType {
@@ -38,14 +43,21 @@ export const CampaignFinalizedPollingProvider: React.FC<{
 
   // Fetch the list of all inactive campaigns
   useEffect(() => {
-    const doGetInactiveCampaigns = async () => {
-      const inactiveCampaigns = await getInactiveCampaigns(); // Fetch inactive campaigns
-      const addresses = inactiveCampaigns.map(
-        (inactiveCampaign) => inactiveCampaign.address,
-      );
-      setInactiveCampaignAddress(addresses);
-    };
-    doGetInactiveCampaigns();
+    // If user has not connected their Metamask, then do not start the polling
+    try {
+      const account = getAccount();
+
+      if (account) {
+        const doGetInactiveCampaigns = async () => {
+          const inactiveCampaigns = await getInactiveCampaigns(); // Fetch inactive campaigns
+          const addresses = inactiveCampaigns.map(
+            (inactiveCampaign) => inactiveCampaign.address,
+          );
+          setInactiveCampaignAddress(addresses);
+        };
+        doGetInactiveCampaigns();
+      }
+    } catch (error) {}
   }, []);
 
   // Set up polling for each campaign in the list of inactive campaigns
@@ -56,7 +68,7 @@ export const CampaignFinalizedPollingProvider: React.FC<{
       let latestBlock = Number(
         localStorage.getItem(
           `campaignFinalized_latestBlock_${inactiveCampaignAddress}`,
-        ) || 0,
+        ) || CAMPAIGN_FACTORY_BLOCK_NUMBER,
       ); // Get the latest processed block from localStorage
 
       const setupPolling = async () => {
@@ -80,39 +92,6 @@ export const CampaignFinalizedPollingProvider: React.FC<{
       intervals.forEach((interval) => clearInterval(interval)); // Clear all intervals on cleanup
     };
   }, [inactiveCampaignAddresses]);
-
-  // // Poll for CampaignFinalized events at regular intervals
-  // useEffect(() => {
-  //   const intervals: NodeJS.Timeout[] = []; // Array to store interval IDs
-
-  //   const setupPolling = async () => {
-  //     const inactiveCampaignAddresses = await getInactiveCampaigns(); // Fetch dynamic inactive campaigns
-
-  //     inactiveCampaignAddresses.forEach((campaignAddress) => {
-  //       let latestBlock = Number(
-  //         localStorage.getItem(`latestBlock_${campaignAddress}`) || 0,
-  //       ); // Get latest processed block
-
-  //       const polling = async () => {
-  //         latestBlock = await pollCampaignFinalizedEvents(
-  //           campaignAddress.address, // Use the address of the inactive campaign
-  //           latestBlock,
-  //           setCampaignFinalized,
-  //         );
-  //       };
-
-  //       polling(); // Trigger an immediate poll
-  //       const interval = setInterval(polling, EVENT_POLLING_INTERVAL); // Poll every 10 seconds (you can adjust this)
-  //       intervals.push(interval); // Store the interval ID for cleanup
-  //     });
-  //   };
-
-  //   setupPolling(); // Start polling for finalized campaigns
-
-  //   return () => {
-  //     intervals.forEach((interval) => clearInterval(interval)); // Clean up intervals on unmount
-  //   };
-  // }, []); // Ensure the effect runs once when the component mounts
 
   return (
     <CampaignFinalizedContext.Provider value={{ campaignFinalized }}>

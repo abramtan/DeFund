@@ -1,14 +1,14 @@
-import { Toaster } from "react-hot-toast";
 import { Footer, Header } from "./components";
 import "./globals.css";
 
 import { GeistSans } from "geist/font/sans";
-import { DonationMadePollingProvider } from "./context/DonationMadePollingContext";
+import { Toaster } from "react-hot-toast";
 import { CampaignFinalizedPollingProvider } from "./context/CampaignFinalizedPollingContext";
+import { DonationMadePollingProvider } from "./context/DonationMadePollingContext";
 
 let title = "DeFund: Decentralized Crowdfunding";
 let description = "The decentralized crowdfunding platform.";
-const toastDuration = 5000;
+const toastDuration = 5000; // In milliseconds
 
 export const metadata = {
   title,

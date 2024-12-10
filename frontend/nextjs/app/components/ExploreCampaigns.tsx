@@ -1,9 +1,5 @@
 import { Campaign } from "@/app/web3/campaign";
-import {
-  getAllDeployedCampaigns,
-  getMyCampaigns,
-  finalizeCampaign,
-} from "@/app/web3/functions";
+import { getAllDeployedCampaigns, getMyCampaigns } from "@/app/web3/functions";
 import { useEffect, useState } from "react";
 import { CampaignGrid } from "./CampaignGrid";
 
@@ -20,8 +16,6 @@ const ExploreCampaigns = () => {
   const [filterActive, setFilterActive] = useState<
     "all" | "active" | "inactive" | "myCampaigns"
   >("all");
-
-  const [isLoading, setIsLoading] = useState(false);
 
   // Utility function to check if the deadline has passed
   const isDeadlinePassed = (deadline: number): boolean => {
