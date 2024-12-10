@@ -376,7 +376,6 @@ export const pollDonationMadeEvents = async (
   >,
 ): Promise<number> => {
   try {
-    ``;
     const web3 = getWeb3(); // Initialize web3 instance
     const campaignContract = getCampaignContract(campaignAddress); // Get the campaign contract instance
     const currentBlock = Number(await web3.eth.getBlockNumber()); // Get the current block number
@@ -396,7 +395,7 @@ export const pollDonationMadeEvents = async (
     if (events.length > 0) {
       // Update the latest block number in localStorage
       localStorage.setItem(
-        `latestBlock_${campaignAddress}`,
+        `donationMade_latestBlock_${campaignAddress}`,
         String(currentBlock),
       );
 
@@ -462,37 +461,47 @@ export const pollCampaignFinalizedEvents = async (
       .call({ from: account! });
 
     // Dismiss all toasts before polling new events
-    toast.dismiss();
+    // toast.dismiss();
 
     if (events.length > 0) {
+      // Update the latest block number in localStorage
+      localStorage.setItem(
+        `campaignFinalized_latestBlock_${campaignAddress}`,
+        String(currentBlock),
+      );
+
       // Process each event and trigger notifications
-      events.forEach(async (event) => {
+      events.forEach(async (event, index) => {
         const { beneficiary, success, totalFunds } = event.returnValues;
 
-        // Notify the beneficiary about the outcome
-        if (success) {
-          toast.success(
-            `Campaign ${details.campaignName} successfully hit its funding goal and is finalized! Total Funds Released: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
-          );
-        } else {
-          toast.error(
-            `Campaign ${details.campaignName} did not meet its funding goal and has been finalised.`,
-          );
+        if (beneficiary === account.toLowerCase()) {
+          // Notify the beneficiary about the outcome
+          if (success) {
+            toast.success(
+              `Campaign ${details.campaignName} successfully hit its funding goal and is finalized! Total Funds Released: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
+            );
+          } else {
+            toast.error(
+              `Campaign ${details.campaignName} did not meet its funding goal and has been finalised.`,
+            );
+          }
         }
 
         // Fetch the donor list dynamically
-        const donors = await campaignContract.methods.getDonors().call();
+        const donors = await campaignContract.methods
+          .getDonors()
+          .call({ from: account! });
 
         // Notify only the current user (donor)
         donors.forEach((donor: string) => {
           if (donor.toLowerCase() === account.toLowerCase()) {
             if (success) {
               toast.success(
-                `Your donation to the campaign at ${beneficiary} has been finalized!`,
+                `Your donation to the campaign at "${details.campaignName}" has been finalized!`,
               );
             } else {
               toast.error(
-                `Your donation to the campaign at ${beneficiary} did not meet its funding goal.`,
+                `Your donation to the campaign at "${detials.campaignName}" did not meet its funding goal.`,
               );
             }
           }
