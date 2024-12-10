@@ -61,6 +61,9 @@ export const getActiveDeployedCampaigns = async (): Promise<Campaign[]> => {
   const activeCampaigns: Campaign[] = await Promise.all(
     campaignAddresses.map(async (campaignAddress) => {
       const campaignContract = getCampaignContract(campaignAddress);
+      console.log("Contract Address:", campaignContract.options.address);
+      console.log("ABI Used:", campaignContract.options.jsonInterface);
+
       const details = await campaignContract.methods
         .getCampaignDetails()
         .call({ from: account! });
@@ -152,6 +155,9 @@ export const getInactiveCampaigns = async (): Promise<Campaign[]> => {
   const inactiveCampaigns: Campaign[] = await Promise.all(
     campaignAddresses.map(async (campaignAddress) => {
       const campaignContract = getCampaignContract(campaignAddress);
+      console.log("Contract Address:", campaignContract.options.address);
+      console.log("ABI Used:", campaignContract.options.jsonInterface);
+
       const details = await campaignContract.methods
         .getCampaignDetails()
         .call({ from: account! });
@@ -460,9 +466,6 @@ export const pollCampaignFinalizedEvents = async (
       .getCampaignDetails()
       .call({ from: account! });
 
-    // Dismiss all toasts before polling new events
-    // toast.dismiss();
-
     if (events.length > 0) {
       // Update the latest block number in localStorage
       localStorage.setItem(
@@ -494,14 +497,14 @@ export const pollCampaignFinalizedEvents = async (
 
         // Notify only the current user (donor)
         donors.forEach((donor: string) => {
-          if (donor.toLowerCase() === account.toLowerCase()) {
+          if (donor.toLowerCase() === account) {
             if (success) {
               toast.success(
-                `Your donation to the campaign at "${details.campaignName}" has been finalized!`,
+                `The campaign "${details.campaignName}" has been finalized and has met its funding goal!`,
               );
             } else {
               toast.error(
-                `Your donation to the campaign at "${detials.campaignName}" did not meet its funding goal.`,
+                `The campaign "${details.campaignName}" has been finalized and did not meet its funding goal.`,
               );
             }
           }
