@@ -5,47 +5,24 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button, DeFundLogo } from "./index";
+import WalletButton from "./WalletButton";
+import { LocalStorageKeys } from "../web3/utils";
 
 const Header: React.FC = () => {
   const pathname = usePathname();
 
   const navItems = [
-    // { name: "Home", href: "/" },
     { name: "Explore", href: "/explore" },
     { name: "Create Campaign", href: "/create" },
+    { name: "My Campaigns", href: "/mycampaigns" },
     { name: "How To Use", href: "/howtouse" },
   ];
 
   const [account, setAccount] = useState<string | null>(null);
 
-  const connectWallet = async (): Promise<string | null> => {
-    if (typeof window.ethereum !== "undefined") {
-      try {
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        return accounts[0];
-      } catch (error) {
-        console.error("User denied account access");
-        return null;
-      }
-    } else {
-      alert("Please install MetaMask!");
-      return null;
-    }
-  };
-
-  const handleConnectWallet = async () => {
-    const connectedAccount = await connectWallet();
-    if (connectedAccount) {
-      setAccount(connectedAccount);
-      localStorage.setItem("account", connectedAccount);
-    }
-  };
-
   useEffect(() => {
     // Restore the connected account from localStorage on initial render
-    const savedAccount = localStorage.getItem("account");
+    const savedAccount = localStorage.getItem(LocalStorageKeys.Account);
     if (savedAccount) setAccount(savedAccount);
 
     if (typeof window.ethereum !== "undefined") {
@@ -53,10 +30,10 @@ const Header: React.FC = () => {
       window.ethereum.on("accountsChanged", (accounts: string[]) => {
         if (accounts.length > 0) {
           setAccount(accounts[0]);
-          localStorage.setItem("account", accounts[0]);
+          localStorage.setItem(LocalStorageKeys.Account, accounts[0]);
         } else {
           setAccount(null);
-          localStorage.removeItem("account");
+          localStorage.removeItem(LocalStorageKeys.Account);
         }
       });
     }
@@ -89,13 +66,7 @@ const Header: React.FC = () => {
               ))}
             </div>
           </div>
-          <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <Button variant="outline" onClick={handleConnectWallet}>
-              {account
-                ? `${account.slice(0, 6)}...${account.slice(-4)}`
-                : "Connect Wallet"}
-            </Button>
-          </div>
+          <WalletButton account={account} setAccount={setAccount} />
           <div className="flex items-center sm:hidden">
             <Button variant="ghost">
               <Menu className="h-6 w-6" />

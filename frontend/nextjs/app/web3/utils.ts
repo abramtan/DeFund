@@ -17,7 +17,7 @@ export const getCampaignContract = (campaignAddress: string) => {
 };
 
 export const getAccount = () => {
-  const account = localStorage.getItem("account");
+  const account = localStorage.getItem(LocalStorageKeys.Account);
   if (!account) {
     throw new Error("No account found. Please log in to your wallet.");
   }
@@ -42,3 +42,19 @@ export const convertWeiToEth = (amountInWei: number) => {
   const web3 = getWeb3();
   return Number(web3.utils.fromWei(amountInWei, "ether"));
 };
+
+export const convertToLocalStorageKey = (
+  key: LocalStorageKeys,
+  campaignAddress: string,
+) => {
+  return `${key}_${campaignAddress}`;
+};
+
+// Enum for localStorage keys for accounts and polling (notificaitons)
+export enum LocalStorageKeys {
+  DonationMade = "donationMade_latestBlock",
+  CampaignFinalized = "campaignFinalized_latestBlock",
+  RefundIssued = "refundIssued_latestBlock",
+  FundsWithdrawn = "fundsWithdrawn_latestBlock",
+  Account = "account",
+}

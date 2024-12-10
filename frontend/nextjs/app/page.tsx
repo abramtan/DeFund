@@ -1,10 +1,32 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
 import { Button } from "./components";
 import ActiveCampaigns from "./components/ActiveCampaigns";
 
+import { Campaign } from "@/app/web3/campaign";
+
+import { getActiveDeployedCampaigns } from "./web3/functions";
+
 const Home = () => {
+  const [activeCampaigns, setActiveCampaigns] = useState<Campaign[]>([]);
+
+  // Fetch active campaigns
+  const fetchActiveCampaigns = async () => {
+    try {
+      const campaigns = await getActiveDeployedCampaigns();
+      setActiveCampaigns(campaigns.filter(Boolean)); // Filter out invalid or null campaigns
+    } catch (error) {
+      console.error("Failed to fetch active campaigns:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchActiveCampaigns();
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow">
@@ -19,16 +41,21 @@ const Home = () => {
                   Decentralized crowdfunding for a better future.
                 </p>
                 <div className="mt-8">
-                  <Link href="/create">
-                    <Button className="w-full sm:w-auto bg-white text-indigo-600 hover:bg-indigo-50">
-                      Start a Campaign
-                    </Button>
-                  </Link>
+                  {activeCampaigns.length > 0 && (
+                    <Link href="/create">
+                      <Button className="w-full sm:w-auto bg-white text-indigo-600 hover:bg-indigo-50">
+                        Start a Campaign
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-          <ActiveCampaigns />
+          <ActiveCampaigns
+            activeCampaigns={activeCampaigns}
+            fetchActiveCampaigns={fetchActiveCampaigns}
+          />
         </div>
       </main>
     </div>

@@ -5,11 +5,13 @@ import { Campaign } from "./campaign";
 import { Events } from "./events";
 import {
   convertEthToWei,
+  convertToLocalStorageKey,
   getAccount,
   getCampaignContract,
   getCampaignFactoryContract,
   getGasEstimate,
   getWeb3,
+  LocalStorageKeys,
 } from "./utils";
 
 // Create a new campaign
@@ -401,7 +403,10 @@ export const pollDonationMadeEvents = async (
     if (events.length > 0) {
       // Update the latest block number in localStorage
       localStorage.setItem(
-        `donationMade_latestBlock_${campaignAddress}`,
+        convertToLocalStorageKey(
+          LocalStorageKeys.DonationMade,
+          campaignAddress,
+        ),
         String(currentBlock),
       );
 
@@ -469,7 +474,10 @@ export const pollCampaignFinalizedEvents = async (
     if (events.length > 0) {
       // Update the latest block number in localStorage
       localStorage.setItem(
-        `campaignFinalized_latestBlock_${campaignAddress}`,
+        convertToLocalStorageKey(
+          LocalStorageKeys.CampaignFinalized,
+          campaignAddress,
+        ),
         String(currentBlock),
       );
 
