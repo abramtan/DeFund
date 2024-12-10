@@ -1,34 +1,95 @@
 import { Campaign } from "@/app/web3/campaign";
-import { getAllDeployedCampaigns } from "@/app/web3/functions";
+import {
+  finalizeCampaign,
+  getAllDeployedCampaigns,
+  getMyCampaigns,
+} from "@/app/web3/functions";
 import { useEffect, useState } from "react";
-import Card from "./Card";
-import Progress from "./Progress";
-import SelectedCampaignDialog from "./SelectedCampaignDialog";
 import { convertWeiToEth } from "../web3/utils";
+import Card from "./Card";
+import DonateCampaignDialog from "./DonateCampaignDialog";
+import FinalizeCampaignDialog from "./FinalizeCampaignDialogue";
+import Progress from "./Progress";
 
 const ExploreCampaigns = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [myCampaignAddresses, setMyCampaignAddresses] = useState<Set<string>>(
+    new Set(),
+  );
   const [filteredCampaigns, setFilteredCampaigns] = useState<Campaign[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState<
     "name" | "deadline" | "fundingGoal" | "totalFunds"
   >("name");
   const [filterActive, setFilterActive] = useState<
-    "all" | "active" | "inactive"
+    "all" | "active" | "inactive" | "myCampaigns"
   >("all");
-  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [donateCampaign, setDonateCampaign] = useState<Campaign | null>(null);
+  const [campaignToFinalize, setCampaignToFinalize] = useState<Campaign | null>(
     null,
   );
 
+  // Utility function to check if the deadline has passed
+  const isDeadlinePassed = (deadline: number): boolean => {
+    return Date.now() >= deadline;
+  };
   // Fetch all campaigns on mount
+  // Fetch campaigns belonging to user
   useEffect(() => {
     const fetchCampaigns = async () => {
-      const allCampaigns = await getAllDeployedCampaigns(); // Fetch both active and inactive campaigns
-      setCampaigns(allCampaigns);
-      setFilteredCampaigns(allCampaigns); // Initialize filtered campaigns
+      try {
+        // Fetch all campaigns
+        const allCampaigns = await getAllDeployedCampaigns();
+
+        // Fetch campaigns owned by the user
+        const myCampaigns = await getMyCampaigns();
+
+        // Create a Set of campaign addresses owned by the user
+        const myCampaignAddresses = new Set(myCampaigns.map((c) => c.address));
+
+        // Save campaigns and ownership information to state
+        setCampaigns(allCampaigns); // All campaigns
+        setFilteredCampaigns(allCampaigns); // Initialize filtered campaigns
+        setMyCampaignAddresses(myCampaignAddresses); // Save ownership info
+      } catch (error) {
+        console.error("Error fetching campaigns:", error);
+      }
     };
+
     fetchCampaigns();
   }, []);
+
+  // Filter campaigns when filterActive changes
+  useEffect(() => {
+    const applyFilters = async () => {
+      let filtered = [...campaigns];
+      if (filterActive === "myCampaigns") {
+        try {
+          const myCampaigns = await getMyCampaigns(); // Fetch user's campaigns
+          filtered = myCampaigns;
+          console.log("Filtered my campaigns:", myCampaigns); // Debugging
+        } catch (error) {
+          console.error("Error fetching my campaigns:", error);
+        }
+      } else if (filterActive === "active") {
+        filtered = filtered.filter((campaign) => campaign.isActive);
+        console.log("Filtered active campaigns:", filtered); // Debugging
+      } else if (filterActive === "inactive") {
+        filtered = filtered.filter((campaign) => !campaign.isActive);
+        console.log("Filtered inactive campaigns:", filtered); // Debugging
+      } else if (filterActive === "all") {
+        filtered = [...campaigns]; // Show all campaigns
+        console.log("Filtered all campaigns:", filtered); // Debugging
+      }
+
+      setFilteredCampaigns(filtered); // Update the filtered campaigns
+      console.log("Updated filtered campaigns:", filtered); // Debugging
+    };
+
+    applyFilters();
+  }, [filterActive, campaigns]);
 
   // Filter and sort campaigns when search term, filter, or sort key changes
   useEffect(() => {
@@ -85,13 +146,16 @@ const ExploreCampaigns = () => {
           <select
             value={filterActive}
             onChange={(e) =>
-              setFilterActive(e.target.value as "all" | "active" | "inactive")
+              setFilterActive(
+                e.target.value as "all" | "active" | "inactive" | "myCampaigns",
+              )
             }
             className="border border-gray-300 rounded p-2"
           >
             <option value="all">All Campaigns</option>
             <option value="active">Active Campaigns</option>
             <option value="inactive">Inactive Campaigns</option>
+            <option value="myCampaigns">My Campaigns</option>
           </select>
           <select
             value={sortKey}
@@ -120,9 +184,6 @@ const ExploreCampaigns = () => {
           <Card
             key={campaign.address}
             className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
-            onClick={() => {
-              if (campaign.isActive) setSelectedCampaign(campaign);
-            }}
           >
             <h2 className="font-semibold text-lg">{campaign.name}</h2>
             <p className="text-sm text-gray-500">{campaign.description}</p>
@@ -141,7 +202,7 @@ const ExploreCampaigns = () => {
               className="mt-2"
             />
             <p className="text-sm text-gray-500">
-              Deadline: {new Date(campaign.deadline).toDateString()}
+              Deadline: {new Date(campaign.deadline * 1000).toDateString()}
             </p>
             <p
               className={`text-sm font-semibold mt-2 ${
@@ -150,13 +211,79 @@ const ExploreCampaigns = () => {
             >
               {campaign.isActive ? "Active" : "Inactive"}
             </p>
+            {campaign.isActive && (
+              <button
+                className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                onClick={() => setDonateCampaign(campaign)}
+              >
+                Donate
+              </button>
+            )}
+
+            {myCampaignAddresses.has(campaign.address) && (
+              <button
+                className={`mt-4 px-4 py-2 rounded ${
+                  isDeadlinePassed(campaign.deadline * 1000) &&
+                  campaign.isActive
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+                title={
+                  !campaign.isActive
+                    ? "You can't finalize as the campaign is not active."
+                    : !isDeadlinePassed(campaign.deadline * 1000)
+                      ? "You can't finalize as the campaign's deadline has not passed."
+                      : "Ready to finalize the campaign."
+                }
+                disabled={
+                  !campaign.isActive ||
+                  !isDeadlinePassed(campaign.deadline * 1000)
+                } // Disable button if the campaign is inactive or deadline hasn't passed
+                onClick={() => {
+                  if (
+                    isDeadlinePassed(campaign.deadline * 1000) &&
+                    campaign.isActive
+                  ) {
+                    setCampaignToFinalize(campaign);
+                  }
+                }}
+              >
+                Finalize Campaign
+              </button>
+            )}
           </Card>
         ))}
       </div>
-      <SelectedCampaignDialog
-        selectedCampaign={selectedCampaign}
-        setSelectedCampaign={setSelectedCampaign}
+      <DonateCampaignDialog
+        donateCampaign={donateCampaign}
+        setDonateCampaign={setDonateCampaign}
         onDonationSuccess={() => {}}
+      />
+      <FinalizeCampaignDialog
+        campaignToFinalize={campaignToFinalize}
+        setCampaignToFinalize={setCampaignToFinalize}
+        onCampaignToFinalize={async () => {
+          if (!campaignToFinalize) return;
+
+          try {
+            console.log("Frontend Raw Deadline:", campaignToFinalize.deadline);
+            console.log(
+              "Frontend Deadline Type:",
+              typeof campaignToFinalize.deadline,
+            );
+            console.log("System Time:", new Date(Date.now()));
+            setIsLoading(true); // Set loading state
+            await finalizeCampaign(campaignToFinalize.address); // Call the finalize function
+            alert("Campaign finalized successfully!");
+            setCampaignToFinalize(null); // Close the dialog after success
+          } catch (error) {
+            console.error("Error finalizing campaign:", error);
+            alert("Failed to finalize the campaign. Please try again.");
+          } finally {
+            setIsLoading(false); // Reset loading state
+          }
+        }}
+        isLoading={false} // Replace with real loading state
       />
     </div>
   );

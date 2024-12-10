@@ -18,6 +18,7 @@ const CreateCampaignPage = () => {
     }
 
     try {
+      console.log("Deadline being sent to createCampaign (seconds):", deadline); // Debug log
       setIsSubmitting(true);
       await createCampaign(name, description, fundingGoal, deadline!);
       alert("Campaign created successfully!");
@@ -122,17 +123,30 @@ const CreateCampaignPage = () => {
                 </label>
                 <input
                   id="deadline"
-                  type="date"
+                  type="datetime-local"
                   value={
                     deadline === null
                       ? ""
-                      : new Date(deadline).toISOString().split("T")[0]
+                      : new Date(deadline * 1000) // Convert Unix timestamp to JavaScript Date
+                          .toLocaleString("sv-SE", {
+                            timeZone: "Asia/Singapore",
+                            hour12: false,
+                          }) // Convert to Singapore Time (SGT)
+                          .replace(" ", "T") // Replace space with "T" to match the input format
+                          .slice(0, 16) // Keep only "YYYY-MM-DDTHH:MM" format
                   }
                   onChange={(e) => {
-                    const deadlineTimestamp = new Date(
-                      e.target.value,
-                    ).valueOf();
-                    setDeadline(deadlineTimestamp);
+                    const localDateTime = new Date(e.target.value); // Get the local time the user entered
+                    console.log("Raw input value (local time):", localDateTime);
+
+                    const deadlineTimestampInSeconds = Math.floor(
+                      localDateTime.getTime() / 1000,
+                    ); // Convert to Unix timestamp (in seconds)
+                    setDeadline(deadlineTimestampInSeconds); // Store the deadline in seconds (Unix timestamp)
+                    console.log(
+                      "Set deadline in seconds is: ",
+                      deadlineTimestampInSeconds,
+                    ); // Log the timestamp
                   }}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   placeholder="Enter funding deadline in mm/dd/yyyy"

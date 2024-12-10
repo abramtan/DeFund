@@ -20,6 +20,7 @@
     "postgres": "^3.4.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.4.1",
     "web3": "^4.15.0"
   },
   "devDependencies": {
