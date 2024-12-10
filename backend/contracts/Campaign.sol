@@ -183,8 +183,6 @@ contract Campaign {
                 }
             }
 
-            delete donors; // no longer needed, as this state variable is used to keep track of donor addresses
-
             emit CampaignFinalized(
                 address(this),
                 beneficiary,
