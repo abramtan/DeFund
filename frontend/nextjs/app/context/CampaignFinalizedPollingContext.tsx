@@ -9,7 +9,11 @@ import {
   getInactiveCampaigns,
   pollCampaignFinalizedEvents,
 } from "../web3/functions";
-import { getAccount } from "../web3/utils";
+import {
+  convertToLocalStorageKey,
+  getAccount,
+  LocalStorageKeys,
+} from "../web3/utils";
 
 // Define the context type for storing finalized campaign data
 interface CampaignFinalizedContextType {
@@ -67,7 +71,10 @@ export const CampaignFinalizedPollingProvider: React.FC<{
     inactiveCampaignAddresses.forEach((inactiveCampaignAddress) => {
       let latestBlock = Number(
         localStorage.getItem(
-          `campaignFinalized_latestBlock_${inactiveCampaignAddress}`,
+          convertToLocalStorageKey(
+            LocalStorageKeys.CampaignFinalized,
+            inactiveCampaignAddress,
+          ),
         ) || CAMPAIGN_FACTORY_BLOCK_NUMBER,
       ); // Get the latest processed block from localStorage
 

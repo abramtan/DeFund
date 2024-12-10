@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button, DeFundLogo } from "./index";
 import WalletButton from "./WalletButton";
+import { LocalStorageKeys } from "../web3/utils";
 
 const Header: React.FC = () => {
   const pathname = usePathname();
@@ -21,7 +22,7 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     // Restore the connected account from localStorage on initial render
-    const savedAccount = localStorage.getItem("account");
+    const savedAccount = localStorage.getItem(LocalStorageKeys.Account);
     if (savedAccount) setAccount(savedAccount);
 
     if (typeof window.ethereum !== "undefined") {
@@ -29,10 +30,10 @@ const Header: React.FC = () => {
       window.ethereum.on("accountsChanged", (accounts: string[]) => {
         if (accounts.length > 0) {
           setAccount(accounts[0]);
-          localStorage.setItem("account", accounts[0]);
+          localStorage.setItem(LocalStorageKeys.Account, accounts[0]);
         } else {
           setAccount(null);
-          localStorage.removeItem("account");
+          localStorage.removeItem(LocalStorageKeys.Account);
         }
       });
     }

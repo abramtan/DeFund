@@ -9,7 +9,11 @@ import {
   getMyActiveCampaigns,
   pollDonationMadeEvents,
 } from "../web3/functions";
-import { getAccount } from "../web3/utils";
+import {
+  convertToLocalStorageKey,
+  getAccount,
+  LocalStorageKeys,
+} from "../web3/utils";
 
 // Define the context type for storing donation data
 interface DonationMadeContextType {
@@ -57,7 +61,10 @@ export const DonationMadePollingProvider: React.FC<{
     myActiveCampaignAddresses.forEach((myActiveCampaignAddress) => {
       let latestBlock = Number(
         localStorage.getItem(
-          `donationMade_latestBlock_${myActiveCampaignAddress}`,
+          convertToLocalStorageKey(
+            LocalStorageKeys.DonationMade,
+            myActiveCampaignAddress,
+          ),
         ) || CAMPAIGN_FACTORY_BLOCK_NUMBER,
       ); // Get the latest processed block from localStorage
 

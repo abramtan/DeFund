@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import Button from "./Button";
+import { LocalStorageKeys } from "../web3/utils";
 
 const WalletButton = ({
   account,
@@ -29,7 +30,7 @@ const WalletButton = ({
     const connectedAccount = await connectWallet();
     if (connectedAccount) {
       setAccount(connectedAccount);
-      localStorage.setItem("account", connectedAccount);
+      localStorage.setItem(LocalStorageKeys.Account, connectedAccount);
     }
   };
 
