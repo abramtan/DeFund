@@ -8,6 +8,7 @@ import { CampaignFinalizedPollingProvider } from "./context/CampaignFinalizedPol
 
 let title = "DeFund: Decentralized Crowdfunding";
 let description = "The decentralized crowdfunding platform.";
+const toastDuration = 5000;
 
 export const metadata = {
   title,
@@ -33,7 +34,7 @@ export default function RootLayout({
             <Header />
             <Toaster
               position="bottom-right"
-              toastOptions={{ duration: 10000 }}
+              toastOptions={{ duration: toastDuration }}
             />
             {children}
             <Footer />
