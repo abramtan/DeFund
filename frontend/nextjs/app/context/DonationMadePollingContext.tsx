@@ -45,7 +45,9 @@ export const DonationMadePollingProvider: React.FC<{
 
     myActiveCampaignAddresses.forEach((myActiveCampaignAddress) => {
       let latestBlock = Number(
-        localStorage.getItem(`donationMade_latestBlock_${myActiveCampaignAddress}`) || 0,
+        localStorage.getItem(
+          `donationMade_latestBlock_${myActiveCampaignAddress}`,
+        ) || 0,
       ); // Get the latest processed block from localStorage
 
       const setupPolling = async () => {

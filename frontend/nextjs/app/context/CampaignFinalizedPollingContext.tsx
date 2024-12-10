@@ -54,7 +54,9 @@ export const CampaignFinalizedPollingProvider: React.FC<{
 
     inactiveCampaignAddresses.forEach((inactiveCampaignAddress) => {
       let latestBlock = Number(
-        localStorage.getItem(`campaignFinalized_latestBlock_${inactiveCampaignAddress}`) || 0,
+        localStorage.getItem(
+          `campaignFinalized_latestBlock_${inactiveCampaignAddress}`,
+        ) || 0,
       ); // Get the latest processed block from localStorage
 
       const setupPolling = async () => {
