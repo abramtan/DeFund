@@ -69,8 +69,11 @@ contract Campaign {
         _;
     }
 
-    modifier deadlineExceeded() {
-        require(block.timestamp > deadline, "Deadline not exceeded");
+    modifier readyToFinalize() {
+        require(
+            block.timestamp > deadline || totalFunds >= fundingGoal,
+            "Cannot finalize"
+        );
         _;
     }
 
@@ -125,13 +128,13 @@ contract Campaign {
     function finalizeCampaign()
         external
         isActiveCampaign
-        deadlineExceeded
+        readyToFinalize
         onlyBeneficiary
     {
         if (totalFunds >= fundingGoal) {
             releaseFunds();
         } else {
-            isActive = false; // Called here and not before if statement because releaseFunds() has isActive = False as well.
+            isActive = false; // Called here and not before if statement because releaseFunds() has isActive = false as well.
             emit CampaignFinalized(beneficiary, false, totalFunds);
         }
     }
@@ -166,7 +169,7 @@ contract Campaign {
             uint256 donationAmount = donations[donor];
 
             if (donationAmount > 0) {
-                delete donations[donor]; // reset the donation amount
+                delete donations[donor]; // reset the donation amount, more gas efficient that donations[donor] = 0
                 payable(donor).transfer(donationAmount);
 
                 emit RefundIssued(donor, donationAmount);
