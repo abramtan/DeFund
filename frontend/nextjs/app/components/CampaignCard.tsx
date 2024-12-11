@@ -98,7 +98,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
 
       {/* Buttons */}
       <div className="flex items-center gap-2 mt-4">
-        {campaign.isActive && (
+        {campaign.isActive && campaign.totalFunds < campaign.fundingGoal && (
           <button
             className={`px-4 py-2 rounded-lg ${
               !isDeadlinePassed(campaign.deadline * 1000) && campaign.isActive
@@ -106,7 +106,9 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
             disabled={
-              !campaign.isActive || isDeadlinePassed(campaign.deadline * 1000)
+              !campaign.isActive ||
+              isDeadlinePassed(campaign.deadline * 1000) ||
+              campaign.totalFunds >= campaign.fundingGoal
             }
             onClick={() => setDonateCampaign(campaign)}
           >
@@ -116,23 +118,29 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
         {isMyCampaign && (
           <button
             className={`px-4 py-2 rounded-lg ${
-              isDeadlinePassed(campaign.deadline * 1000) && campaign.isActive
+              (isDeadlinePassed(campaign.deadline * 1000) ||
+                campaign.totalFunds >= campaign.fundingGoal) &&
+              campaign.isActive
                 ? "bg-indigo-600 text-white hover:bg-indigo-700"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
             title={
-              !campaign.isActive
-                ? "You can't finalize as the campaign is not active."
-                : !isDeadlinePassed(campaign.deadline * 1000)
-                  ? "You can't finalize as the campaign's deadline has not passed."
-                  : "Ready to finalize the campaign."
+              campaign.isActive
+                ? isDeadlinePassed(campaign.deadline * 1000) ||
+                  campaign.totalFunds >= campaign.fundingGoal
+                  ? "Ready to finalize this campaign."
+                  : "You can't finalize as the campaign's deadline has not passed or funding goal not met"
+                : "You can't finalize as the campaign is not active."
             }
             disabled={
-              !campaign.isActive || !isDeadlinePassed(campaign.deadline * 1000)
+              !campaign.isActive &&
+              (!isDeadlinePassed(campaign.deadline * 1000) ||
+                campaign.totalFunds < campaign.fundingGoal)
             }
             onClick={() => {
               if (
-                isDeadlinePassed(campaign.deadline * 1000) &&
+                (isDeadlinePassed(campaign.deadline * 1000) ||
+                  campaign.totalFunds >= campaign.fundingGoal) &&
                 campaign.isActive
               ) {
                 setCampaignToFinalize(campaign);

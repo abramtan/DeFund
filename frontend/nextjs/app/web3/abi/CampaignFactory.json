@@ -1,43 +1,43 @@
 [
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "campaignAddress",
-				"type": "address"
-			}
-		],
-		"name": "CampaignCreated",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_name",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "bytes32",
-				"name": "_description",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_fundingGoal",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint48",
-				"name": "_deadline",
-				"type": "uint48"
-			}
-		],
-		"name": "createCampaign",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	}
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "campaignAddress",
+        "type": "address"
+      }
+    ],
+    "name": "CampaignCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_name",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_description",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_fundingGoal",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint48",
+        "name": "_deadline",
+        "type": "uint48"
+      }
+    ],
+    "name": "createCampaign",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
 ]

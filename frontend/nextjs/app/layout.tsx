@@ -5,6 +5,7 @@ import { GeistSans } from "geist/font/sans";
 import { Toaster } from "react-hot-toast";
 import { CampaignFinalizedPollingProvider } from "./context/CampaignFinalizedPollingContext";
 import { DonationMadePollingProvider } from "./context/DonationMadePollingContext";
+import { FundingGoalMetPollingProvider } from "./context/FundingGoalMetPollingContext";
 
 let title = "DeFund: Decentralized Crowdfunding";
 let description = "The decentralized crowdfunding platform.";
@@ -31,13 +32,15 @@ export default function RootLayout({
       <body className={GeistSans.variable}>
         <DonationMadePollingProvider>
           <CampaignFinalizedPollingProvider>
-            <Header />
-            <Toaster
-              position="bottom-right"
-              toastOptions={{ duration: toastDuration }}
-            />
-            {children}
-            <Footer />
+            <FundingGoalMetPollingProvider>
+              <Header />
+              <Toaster
+                position="bottom-right"
+                toastOptions={{ duration: toastDuration }}
+              />
+              {children}
+              <Footer />
+            </FundingGoalMetPollingProvider>
           </CampaignFinalizedPollingProvider>
         </DonationMadePollingProvider>
       </body>
