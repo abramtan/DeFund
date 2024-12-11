@@ -21,14 +21,14 @@
 			{
 				"inputs": [
 					{
-						"internalType": "string",
+						"internalType": "bytes32",
 						"name": "_name",
-						"type": "string"
+						"type": "bytes32"
 					},
 					{
-						"internalType": "string",
+						"internalType": "bytes32",
 						"name": "_description",
-						"type": "string"
+						"type": "bytes32"
 					},
 					{
 						"internalType": "uint256",
@@ -51,7 +51,7 @@
 			"details": "Creates and deploy a new Campaign smart contract whenever any beneficiary creates a campaign",
 			"kind": "dev",
 			"methods": {
-				"createCampaign(string,string,uint256,uint48)": {
+				"createCampaign(bytes32,bytes32,uint256,uint48)": {
 					"details": "Allows beneficiaries to create a Campaign with the required details",
 					"params": {
 						"_deadline": "Timestamp of when the Campaign should be fully funded before it becomes inactive",
@@ -87,19 +87,19 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x8432d3a05ed952c915e93f0985476c1612ea4f2d5252184f3bea86c95667e00e",
+			"keccak256": "0x1df5ed0238a94cefbec451f8a2602c9cf0117d9bc6613127b553c12cbe9eaf3e",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://c424c53dcfcb22f1e4cc2ce0675712601123b79710be86ef1b3fecf11205cfac",
-				"dweb:/ipfs/QmRfmgDsWJDc1DWyoJaS2bdoMab2Mm7BYihHZUGsLEp9D5"
+				"bzz-raw://20b34dd0280a0ea203dc33f947fd7ad3102373e33c6158d78e9cdc1c337eee85",
+				"dweb:/ipfs/QmStEYzXRXtTNhqShtsiescBy2gR4iToXgt9hm6dJwBukL"
 			]
 		},
 		"backend/contracts/CampaignFactory.sol": {
-			"keccak256": "0x6f4d8c3816f3f77a9c4899b767954a2c94075631ea4534cc7d1d925cfbe8fac3",
+			"keccak256": "0x45f465cfb19f9bddbe45cfbf6b0ccf6830b8ed2f6f587435583c653a45dcad55",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://a06018d0481d9e304fb9d185463fabd84f96daff58c809be2acb87ff00c885ad",
-				"dweb:/ipfs/Qma1cqL4hygKAthu5sZfmQ3YnehpVmEVhKnNPfZTbMAA16"
+				"bzz-raw://350b33c0a4e6f09b071d4f1edf781c654790f281eb75e49fc7dcd9f816513e2e",
+				"dweb:/ipfs/QmeWpauQmagVmD1XrDE7gjX8F8tN2ptuTY4vAzQnou6GiH"
 			]
 		}
 	},

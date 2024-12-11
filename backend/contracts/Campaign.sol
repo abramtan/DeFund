@@ -79,12 +79,23 @@ contract Campaign {
         _;
     }
 
+    modifier fundingGoalNotMet() {
+        require(totalFunds < fundingGoal, "Funding goal met");
+        _;
+    }
+
     // functions
     /**
      * @dev Allows donors to donate to the Campaign
      * @dev To be called from the frontend by the donor
      */
-    function donate() external payable beforeDeadline isActiveCampaign {
+    function donate()
+        external
+        payable
+        beforeDeadline
+        isActiveCampaign
+        fundingGoalNotMet
+    {
         address donor = msg.sender;
         uint256 amount = uint256(msg.value);
 
@@ -103,7 +114,6 @@ contract Campaign {
 
         // if the Campaign has been fully funded, notify the benefiary to release the funds, so that they incur the gas fees to do so, instead of making the donors unknowingly spend gas fees releasing funds to the beneficiary
         if (newTotalFunds >= fundingGoal) {
-            isActive = false; // so that even if the Campaign haven't reached its deadline, donors cannot donate to this Campaign anymore
             emit FundingGoalMet();
         }
     }
@@ -156,7 +166,7 @@ contract Campaign {
             uint256 donationAmount = donations[donor];
 
             if (donationAmount > 0) {
-                donations[donor] = 0; // Reset the donation amount
+                delete donations[donor]; // reset the donation amount
                 payable(donor).transfer(donationAmount);
 
                 emit RefundIssued(donor, donationAmount);
