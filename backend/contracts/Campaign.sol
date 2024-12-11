@@ -76,8 +76,8 @@ contract Campaign {
         _;
     }
 
-    modifier deadlineExceeded() {
-        require(block.timestamp > deadline, "Deadline not exceeded");
+    modifier canFinalize() {
+        require(block.timestamp > deadline || totalFunds >= fundingGoal, "Cannof finalize");
         _;
     }
 
@@ -140,7 +140,7 @@ contract Campaign {
     function finalizeCampaign()
         external
         isActiveCampaign
-        deadlineExceeded
+        canFinalize
         onlyBeneficiary
     {
         if (totalFunds >= fundingGoal) {
