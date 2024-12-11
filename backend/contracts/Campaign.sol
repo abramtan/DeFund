@@ -6,7 +6,9 @@ pragma solidity >=0.8.2 <0.9.0;
  * @title Campaign
  * @dev The smart contract for the created Campaign. It handles everything related to a specific Campaign that has been deployed
  */
-contract Campaign {
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+contract Campaign is ReentrancyGuard {
     // state variables; each storage slot is 32 bytes
     address public immutable beneficiary; // 20 bytes
     uint48 public immutable deadline; // 6 bytes
@@ -32,6 +34,8 @@ contract Campaign {
         uint256 _fundingGoal,
         uint48 _deadline
     ) {
+        require(_fundingGoal > 0, "Funding goal must be greater than zero"); //Input validation 
+        require(_deadline > block.timestamp, "Deadline must be in the future"); //Input validation 
         beneficiary = _beneficiary;
         name = _name;
         description = _description;
@@ -63,17 +67,17 @@ contract Campaign {
         require(msg.sender == beneficiary, "Beneficiary only");
         _;
     }
-
+    modifier notBeneficiary() {
+    require(msg.sender != beneficiary, "Beneficiary cannot perform this action");
+    _;
+}
     modifier isActiveCampaign() {
         require(isActive, "Inactive Campaign");
         _;
     }
 
-    modifier readyToFinalize() {
-        require(
-            block.timestamp > deadline || totalFunds >= fundingGoal,
-            "Cannot finalize"
-        );
+    modifier deadlineExceeded() {
+        require(block.timestamp > deadline, "Deadline not exceeded");
         _;
     }
 
@@ -98,6 +102,8 @@ contract Campaign {
         beforeDeadline
         isActiveCampaign
         fundingGoalNotMet
+        notBeneficiary
+        nonReentrant // Protect against re-entrancy attacks
     {
         address donor = msg.sender;
         uint256 amount = uint256(msg.value);
@@ -128,13 +134,15 @@ contract Campaign {
     function finalizeCampaign()
         external
         isActiveCampaign
-        readyToFinalize
+        deadlineExceeded
         onlyBeneficiary
+        nonReentrant 
+
     {
         if (totalFunds >= fundingGoal) {
             releaseFunds();
         } else {
-            isActive = false; // Called here and not before if statement because releaseFunds() has isActive = false as well.
+            isActive = false; // Called here and not before if statement because releaseFunds() has isActive = False as well.
             emit CampaignFinalized(beneficiary, false, totalFunds);
         }
     }
@@ -144,7 +152,7 @@ contract Campaign {
      * @dev It is called whenever the beneficiary releases the funds (to themselves) from the frontend, only if the totalFunds exceed the fundingGoal, or if they trigger the finalizeCampaign() from the frontend due to the deadline being met
      * @dev It is some sort of a helper function
      */
-    function releaseFunds() private {
+    function releaseFunds() private nonReentrant {
         uint256 fundsToRelease = totalFunds;
         isActive = false;
         delete totalFunds; // more gas efficient than totalFunds = 0
@@ -163,13 +171,15 @@ contract Campaign {
     function processRefundsBatch(uint256 start, uint256 end)
         external
         onlyBeneficiary
+        fundingGoalNotMet
+        nonReentrant 
     {
         for (uint256 i = start; i < end; i++) {
             address donor = donors[i];
             uint256 donationAmount = donations[donor];
 
             if (donationAmount > 0) {
-                delete donations[donor]; // reset the donation amount, more gas efficient that donations[donor] = 0
+                delete donations[donor]; // reset the donation amount
                 payable(donor).transfer(donationAmount);
 
                 emit RefundIssued(donor, donationAmount);
@@ -181,7 +191,7 @@ contract Campaign {
      * @dev Get all the donors of this Campaign
      * @dev Likely to be used by the frontend to notify just donors on events such as FundsWithdrawn and CampaignFinalized
      */
-    function getDonors() external view returns (address[] memory) {
+    function getDonors() external view returns (address[] memory) { 
         return donors;
     }
 
