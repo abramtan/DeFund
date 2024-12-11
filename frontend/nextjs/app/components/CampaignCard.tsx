@@ -1,7 +1,7 @@
 import { Campaign } from "@/app/web3/campaign";
 import { finalizeCampaign } from "@/app/web3/functions";
 import React, { useState } from "react";
-import { convertWeiToEth } from "../web3/utils";
+import { bytes32ToString, convertWeiToEth } from "../web3/utils";
 import DonateCampaignDialog from "./DonateCampaignDialog"; // Import your dialog components
 import FinalizeCampaignDialog from "./FinalizeCampaignDialogue";
 import Notification from "./Notification";
@@ -56,7 +56,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
     <div className="p-4 shadow-md border border-gray-200 rounded-lg hover:shadow-lg transition-shadow duration-200">
       {/* Campaign Name */}
       <h2 className="font-semibold text-lg text-gray-800 mb-2">
-        {campaign.name}
+        {bytes32ToString(campaign.name)}
       </h2>
 
       {/* Campaign Goal */}

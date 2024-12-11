@@ -12,6 +12,7 @@ import {
   getGasEstimate,
   getWeb3,
   LocalStorageKeys,
+  stringToBytes32,
 } from "./utils";
 import { REFUND_BATCH_SIZE } from "./const";
 
@@ -29,8 +30,8 @@ export const createCampaign = async (
   console.log("Deadline received by createCampaign (seconds):", deadline);
 
   const method = contract.methods.createCampaign(
-    name,
-    description,
+    stringToBytes32(name),
+    stringToBytes32(description),
     fundingGoalInWei,
     deadline,
   );

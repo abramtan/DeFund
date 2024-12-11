@@ -3,7 +3,7 @@ import { SetStateAction, useState } from "react";
 import { donateToCampaign } from "../web3/functions";
 import Button from "./Button";
 import Dialog from "./Dialog";
-import { convertWeiToEth } from "../web3/utils";
+import { bytes32ToString, convertWeiToEth } from "../web3/utils";
 
 const DonateCampaignDialog = ({
   donateCampaign,
@@ -43,11 +43,11 @@ const DonateCampaignDialog = ({
       {donateCampaign && (
         <div>
           <h2 className="text-xl font-bold mb-4 text-indigo-600">
-            Donate to {donateCampaign.name}
+            Donate to {bytes32ToString(donateCampaign.name)}
           </h2>
           <p className="text-sm text-gray-600 mb-1">
             <span className="font-semibold text-gray-700">Description:</span>{" "}
-            {donateCampaign.description}
+            {bytes32ToString(donateCampaign.description)}
           </p>
           <p className="text-sm text-gray-600 mb-1">
             <span className="font-semibold text-gray-700">Deadline:</span>{" "}
