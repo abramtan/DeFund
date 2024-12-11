@@ -1,22 +1,24 @@
-import React, { useState } from "react";
-import Progress from "./Progress"; // Assuming you have a progress bar component
-import { convertWeiToEth } from "../web3/utils";
 import { Campaign } from "@/app/web3/campaign";
+import { finalizeCampaign } from "@/app/web3/functions";
+import React, { useState } from "react";
+import { convertWeiToEth } from "../web3/utils";
 import DonateCampaignDialog from "./DonateCampaignDialog"; // Import your dialog components
 import FinalizeCampaignDialog from "./FinalizeCampaignDialogue";
-import { finalizeCampaign } from "@/app/web3/functions";
 import Notification from "./Notification";
+import Progress from "./Progress"; // Assuming you have a progress bar component
+
 interface CampaignCardProps {
   campaign: Campaign; // You can define a `Campaign` interface for your campaign object
   isMyCampaign: boolean;
-
   isDeadlinePassed: (timestamp: number) => boolean;
+  reRenderCampaignGrid: () => void;
 }
 
 export const CampaignCard: React.FC<CampaignCardProps> = ({
   campaign,
   isMyCampaign,
   isDeadlinePassed,
+  reRenderCampaignGrid,
 }) => {
   const [donateCampaign, setDonateCampaign] = useState<Campaign | null>(null);
   const [campaignToFinalize, setCampaignToFinalize] = useState<Campaign | null>(
@@ -30,6 +32,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
     setNotificationMessage("Donation successful!");
     setIsNotificationOpen(true);
     setDonateCampaign(null); // Close the dialog
+    reRenderCampaignGrid(); // Re-renders the Campaign Grid
   };
 
   const handleCampaignFinalization = async () => {

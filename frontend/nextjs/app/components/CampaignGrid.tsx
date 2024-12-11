@@ -1,18 +1,20 @@
 import { Campaign } from "@/app/web3/campaign";
 import Link from "next/link";
-import React from "react";
+import React, { useReducer } from "react";
 import { CampaignCard } from "./CampaignCard";
 
 interface CampaignGridProps {
   campaigns: Campaign[];
   myCampaignAddresses: Set<string>;
   isDeadlinePassed: (timestamp: number) => boolean;
+  refetchCampaigns: () => void;
 }
 
 export const CampaignGrid: React.FC<CampaignGridProps> = ({
   campaigns,
   myCampaignAddresses,
   isDeadlinePassed,
+  refetchCampaigns,
 }) => {
   // Sort campaigns so that active ones appear at the top
   const sortedCampaigns = [...campaigns].sort((a, b) => {
@@ -47,6 +49,7 @@ export const CampaignGrid: React.FC<CampaignGridProps> = ({
               campaign={campaign}
               isMyCampaign={myCampaignAddresses.has(campaign.address)}
               isDeadlinePassed={isDeadlinePassed}
+              reRenderCampaignGrid={refetchCampaigns}
             />
           ))}
         </div>

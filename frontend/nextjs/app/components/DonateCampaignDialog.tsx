@@ -50,7 +50,7 @@ const DonateCampaignDialog = ({
             {donateCampaign.description}
           </p>
           <p className="text-sm text-gray-600 mb-1">
-            <span className="font-semibold text-gray-700">Description:</span>{" "}
+            <span className="font-semibold text-gray-700">Deadline:</span>{" "}
             {new Date(donateCampaign.deadline * 1000).toDateString()}
           </p>
           <p className="text-sm text-gray-600 mb-1">

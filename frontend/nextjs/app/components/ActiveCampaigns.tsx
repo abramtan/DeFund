@@ -1,43 +1,41 @@
-import React from "react";
-import { CampaignGrid } from "./CampaignGrid";
-import { useEffect, useState } from "react";
-import { getMyCampaigns } from "@/app/web3/functions";
 import { Campaign } from "@/app/web3/campaign";
+import { getMyCampaigns } from "@/app/web3/functions";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { CampaignGrid } from "./CampaignGrid";
 
-const ActiveCampaigns2 = ({
+const ActiveCampaigns = ({
   activeCampaigns,
-  fetchActiveCampaigns,
 }: {
   activeCampaigns: Campaign[];
-  fetchActiveCampaigns: () => Promise<void>;
 }) => {
   const [myCampaignAddresses, setMyCampaignAddresses] = useState<Set<string>>(
     new Set(),
   );
-
   const [loading, setLoading] = useState<boolean>(false);
 
   // Utility function to check if the deadline has passed
   const isDeadlinePassed = (deadline: number): boolean => {
     return Date.now() >= deadline;
   };
-  useEffect(() => {
-    const fetchMyCampaigns = async () => {
-      setLoading(true); // Start loading
-      try {
-        const myCampaigns = await getMyCampaigns();
-        const myCampaignAddresses = new Set(myCampaigns.map((c) => c.address));
-        setMyCampaignAddresses(myCampaignAddresses);
-      } catch (error) {
-        console.error("Error fetching my campaigns:", error);
-      } finally {
-        setLoading(false); // End loading
-      }
-    };
 
+  const fetchMyCampaigns = async () => {
+    setLoading(true); // Start loading
+    try {
+      const myCampaigns = await getMyCampaigns();
+      const myCampaignAddresses = new Set(myCampaigns.map((c) => c.address));
+      setMyCampaignAddresses(myCampaignAddresses);
+    } catch (error) {
+      console.error("Error fetching my campaigns:", error);
+    } finally {
+      setLoading(false); // End loading
+    }
+  };
+
+  useEffect(() => {
     fetchMyCampaigns();
   }, []);
+
   return (
     <div>
       {activeCampaigns.length === 0 ? (
@@ -63,13 +61,14 @@ const ActiveCampaigns2 = ({
           <h1 className="text-2xl font-bold mb-6">Active Campaigns</h1>
           {loading ? (
             <div className="text-center py-10">
-              <p className="text-gray-600">Loading your campaigns...</p>
+              <p className="text-gray-600">Loading active campaigns...</p>
             </div>
           ) : (
             <CampaignGrid
               campaigns={activeCampaigns}
               myCampaignAddresses={myCampaignAddresses}
               isDeadlinePassed={isDeadlinePassed}
+              refetchCampaigns={fetchMyCampaigns}
             />
           )}
         </div>
@@ -77,4 +76,4 @@ const ActiveCampaigns2 = ({
     </div>
   );
 };
-export default ActiveCampaigns2;
+export default ActiveCampaigns;

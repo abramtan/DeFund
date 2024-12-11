@@ -22,22 +22,22 @@ const ExploreCampaigns = () => {
     return Date.now() >= deadline;
   };
 
+  const fetchCampaigns = async () => {
+    try {
+      const allCampaigns = await getAllDeployedCampaigns();
+      const myCampaigns = await getMyCampaigns();
+      const myAddresses = new Set(myCampaigns.map((c) => c.address));
+
+      setCampaigns(allCampaigns);
+      setFilteredCampaigns(allCampaigns); // Initialize filtered campaigns
+      setMyCampaignAddresses(myAddresses);
+    } catch (error) {
+      console.error("Error fetching campaigns:", error);
+    }
+  };
+
   // Fetch campaigns on mount
   useEffect(() => {
-    const fetchCampaigns = async () => {
-      try {
-        const allCampaigns = await getAllDeployedCampaigns();
-        const myCampaigns = await getMyCampaigns();
-        const myAddresses = new Set(myCampaigns.map((c) => c.address));
-
-        setCampaigns(allCampaigns);
-        setFilteredCampaigns(allCampaigns); // Initialize filtered campaigns
-        setMyCampaignAddresses(myAddresses);
-      } catch (error) {
-        console.error("Error fetching campaigns:", error);
-      }
-    };
-
     fetchCampaigns();
   }, []);
 
@@ -133,6 +133,7 @@ const ExploreCampaigns = () => {
         campaigns={filteredCampaigns}
         myCampaignAddresses={myCampaignAddresses}
         isDeadlinePassed={isDeadlinePassed}
+        refetchCampaigns={fetchCampaigns}
       />
     </div>
   );

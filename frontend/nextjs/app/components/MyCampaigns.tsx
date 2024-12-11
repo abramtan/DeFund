@@ -16,21 +16,22 @@ const MyCampaigns = () => {
   const isDeadlinePassed = (deadline: number): boolean => {
     return Date.now() >= deadline;
   };
-  useEffect(() => {
-    const fetchMyCampaigns = async () => {
-      setLoading(true); // Start loading
-      try {
-        const myCampaigns = await getMyCampaigns();
-        const myCampaignAddresses = new Set(myCampaigns.map((c) => c.address));
-        setMyCampaigns(myCampaigns); // Store campaigns
-        setMyCampaignAddresses(myCampaignAddresses);
-      } catch (error) {
-        console.error("Error fetching my campaigns:", error);
-      } finally {
-        setLoading(false); // End loading
-      }
-    };
 
+  const fetchMyCampaigns = async () => {
+    setLoading(true); // Start loading
+    try {
+      const myCampaigns = await getMyCampaigns();
+      const myCampaignAddresses = new Set(myCampaigns.map((c) => c.address));
+      setMyCampaigns(myCampaigns); // Store campaigns
+      setMyCampaignAddresses(myCampaignAddresses);
+    } catch (error) {
+      console.error("Error fetching my campaigns:", error);
+    } finally {
+      setLoading(false); // End loading
+    }
+  };
+
+  useEffect(() => {
     fetchMyCampaigns();
   }, []);
   return (
@@ -61,6 +62,7 @@ const MyCampaigns = () => {
             campaigns={myCampaigns}
             myCampaignAddresses={myCampaignAddresses}
             isDeadlinePassed={isDeadlinePassed}
+            refetchCampaigns={fetchMyCampaigns}
           />
         </div>
       )}
