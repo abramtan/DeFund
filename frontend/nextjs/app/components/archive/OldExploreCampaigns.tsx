@@ -11,7 +11,7 @@ import DonateCampaignDialog from "../DonateCampaignDialog";
 import FinalizeCampaignDialog from "../FinalizeCampaignDialogue";
 import Progress from "../Progress";
 
-const ExploreCampaigns = () => {
+const OldExploreCampaigns = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [myCampaignAddresses, setMyCampaignAddresses] = useState<Set<string>>(
     new Set(),
@@ -295,4 +295,4 @@ const ExploreCampaigns = () => {
   );
 };
 
-export default ExploreCampaigns;
+export default OldExploreCampaigns;

@@ -7,14 +7,14 @@
 				"type": "address"
 			},
 			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "_name",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "_description",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
 				"internalType": "uint256",
@@ -124,9 +124,9 @@
 		"name": "description",
 		"outputs": [
 			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "",
-				"type": "string"
+				"type": "bytes32"
 			}
 		],
 		"stateMutability": "view",
@@ -169,14 +169,14 @@
 				"type": "address"
 			},
 			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "campaignName",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "campaignDescription",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
 				"internalType": "uint48",
@@ -217,19 +217,6 @@
 	},
 	{
 		"inputs": [],
-		"name": "getMyDonations",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
 		"name": "isActive",
 		"outputs": [
 			{
@@ -246,9 +233,9 @@
 		"name": "name",
 		"outputs": [
 			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "",
-				"type": "string"
+				"type": "bytes32"
 			}
 		],
 		"stateMutability": "view",

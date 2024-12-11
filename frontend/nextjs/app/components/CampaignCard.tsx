@@ -1,34 +1,62 @@
-import React, { useState } from "react";
-import Progress from "./Progress"; // Assuming you have a progress bar component
-import { convertWeiToEth } from "../web3/utils";
 import { Campaign } from "@/app/web3/campaign";
+import { finalizeCampaign } from "@/app/web3/functions";
+import React, { useState } from "react";
+import { bytes32ToString, convertWeiToEth } from "../web3/utils";
 import DonateCampaignDialog from "./DonateCampaignDialog"; // Import your dialog components
 import FinalizeCampaignDialog from "./FinalizeCampaignDialogue";
-import { finalizeCampaign } from "@/app/web3/functions";
+import Notification from "./Notification";
+import Progress from "./Progress"; // Assuming you have a progress bar component
 
 interface CampaignCardProps {
   campaign: Campaign; // You can define a `Campaign` interface for your campaign object
   isMyCampaign: boolean;
-
   isDeadlinePassed: (timestamp: number) => boolean;
+  reRenderCampaignGrid: () => void;
 }
 
 export const CampaignCard: React.FC<CampaignCardProps> = ({
   campaign,
   isMyCampaign,
   isDeadlinePassed,
+  reRenderCampaignGrid,
 }) => {
   const [donateCampaign, setDonateCampaign] = useState<Campaign | null>(null);
   const [campaignToFinalize, setCampaignToFinalize] = useState<Campaign | null>(
     null,
   );
   const [isLoading, setIsLoading] = useState(false); // Loading state for finalizing campaigns
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState(""); // Store the notification message
 
+  const handleDonationSuccess = () => {
+    setNotificationMessage("Donation successful!");
+    setIsNotificationOpen(true);
+    setDonateCampaign(null); // Close the dialog
+    reRenderCampaignGrid(); // Re-renders the Campaign Grid
+  };
+
+  const handleCampaignFinalization = async () => {
+    if (!campaignToFinalize) return;
+
+    try {
+      setIsLoading(true); // Set loading state
+      await finalizeCampaign(campaignToFinalize.address); // Call the finalize function
+      setNotificationMessage("Campaign successfully finalized!");
+      setIsNotificationOpen(true);
+      setCampaignToFinalize(null); // Close the dialog after success
+    } catch (error) {
+      console.error("Error finalizing campaign:", error);
+      setNotificationMessage("Failed to finalize the campaign.");
+      setIsNotificationOpen(true);
+    } finally {
+      setIsLoading(false); // Reset loading state
+    }
+  };
   return (
     <div className="p-4 shadow-md border border-gray-200 rounded-lg hover:shadow-lg transition-shadow duration-200">
       {/* Campaign Name */}
       <h2 className="font-semibold text-lg text-gray-800 mb-2">
-        {campaign.name}
+        {bytes32ToString(campaign.name)}
       </h2>
 
       {/* Campaign Goal */}
@@ -121,10 +149,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
         <DonateCampaignDialog
           donateCampaign={donateCampaign}
           setDonateCampaign={setDonateCampaign}
-          onDonationSuccess={() => {
-            alert("Donation successful!");
-            setDonateCampaign(null);
-          }}
+          onDonationSuccess={handleDonationSuccess}
         />
       )}
 
@@ -133,33 +158,16 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
         <FinalizeCampaignDialog
           campaignToFinalize={campaignToFinalize}
           setCampaignToFinalize={setCampaignToFinalize}
-          onCampaignToFinalize={async () => {
-            if (!campaignToFinalize) return;
-
-            try {
-              console.log(
-                "Frontend Raw Deadline:",
-                campaignToFinalize.deadline,
-              );
-              console.log(
-                "Frontend Deadline Type:",
-                typeof campaignToFinalize.deadline,
-              );
-              console.log("System Time:", new Date(Date.now()));
-              setIsLoading(true); // Set loading state
-              await finalizeCampaign(campaignToFinalize.address); // Call the finalize function
-              alert("Campaign finalized successfully!");
-              setCampaignToFinalize(null); // Close the dialog after success
-            } catch (error) {
-              console.error("Error finalizing campaign:", error);
-              alert("Failed to finalize the campaign. Please try again.");
-            } finally {
-              setIsLoading(false); // Reset loading state
-            }
-          }}
+          onCampaignToFinalize={handleCampaignFinalization}
           isLoading={isLoading} // Pass real loading state
         />
       )}
+      {/* Notification Component */}
+      <Notification
+        isOpen={isNotificationOpen}
+        message={notificationMessage}
+        onClose={() => setIsNotificationOpen(false)}
+      />
     </div>
   );
 };

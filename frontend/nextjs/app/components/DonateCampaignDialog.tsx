@@ -3,7 +3,7 @@ import { SetStateAction, useState } from "react";
 import { donateToCampaign } from "../web3/functions";
 import Button from "./Button";
 import Dialog from "./Dialog";
-import { convertWeiToEth } from "../web3/utils";
+import { bytes32ToString, convertWeiToEth } from "../web3/utils";
 
 const DonateCampaignDialog = ({
   donateCampaign,
@@ -27,9 +27,7 @@ const DonateCampaignDialog = ({
       setIsLoading(true);
       await donateToCampaign(donateCampaign.address, Number(donationAmount));
 
-      alert("Donation successful!");
       setDonateCampaign(null); // Close the dialog
-
       // Trigger the refresh of active campaigns
       onDonationSuccess();
     } catch (error) {
@@ -44,13 +42,21 @@ const DonateCampaignDialog = ({
     <Dialog isOpen={!!donateCampaign} onClose={() => setDonateCampaign(null)}>
       {donateCampaign && (
         <div>
-          <h2 className="text-lg font-bold">{donateCampaign.name}</h2>
-          <p className="mt-4">{donateCampaign.description}</p>
-          <p className="mt-4">{`Deadline: ${new Date(
-            donateCampaign.deadline * 1000,
-          ).toDateString()}`}</p>
-          <p className="mt-4">{`Beneficiary: ${donateCampaign.beneficiary}`}</p>
-          <p className="mt-4">{`Campaign Address: ${donateCampaign.address}`}</p>
+          <h2 className="text-xl font-bold mb-4 text-indigo-600">
+            Donate to {bytes32ToString(donateCampaign.name)}
+          </h2>
+          <p className="text-sm text-gray-600 mb-1">
+            <span className="font-semibold text-gray-700">Description:</span>{" "}
+            {bytes32ToString(donateCampaign.description)}
+          </p>
+          <p className="text-sm text-gray-600 mb-1">
+            <span className="font-semibold text-gray-700">Deadline:</span>{" "}
+            {new Date(donateCampaign.deadline * 1000).toDateString()}
+          </p>
+          <p className="text-sm text-gray-600 mb-1">
+            <span className="font-semibold text-gray-700">Beneficiary:</span>{" "}
+            {donateCampaign.beneficiary}
+          </p>
           <div className="mt-4">
             <input
               type="number"

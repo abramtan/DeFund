@@ -12,6 +12,7 @@ import {
   getGasEstimate,
   getWeb3,
   LocalStorageKeys,
+  stringToBytes32,
 } from "./utils";
 import { REFUND_BATCH_SIZE } from "./const";
 
@@ -29,8 +30,8 @@ export const createCampaign = async (
   console.log("Deadline received by createCampaign (seconds):", deadline);
 
   const method = contract.methods.createCampaign(
-    name,
-    description,
+    stringToBytes32(name),
+    stringToBytes32(description),
     fundingGoalInWei,
     deadline,
   );
@@ -64,9 +65,6 @@ export const getActiveDeployedCampaigns = async (): Promise<Campaign[]> => {
   const activeCampaigns: Campaign[] = await Promise.all(
     campaignAddresses.map(async (campaignAddress) => {
       const campaignContract = getCampaignContract(campaignAddress);
-      console.log("Contract Address:", campaignContract.options.address);
-      console.log("ABI Used:", campaignContract.options.jsonInterface);
-
       const details = await campaignContract.methods
         .getCampaignDetails()
         .call({ from: account! });
@@ -158,9 +156,6 @@ export const getInactiveCampaigns = async (): Promise<Campaign[]> => {
   const inactiveCampaigns: Campaign[] = await Promise.all(
     campaignAddresses.map(async (campaignAddress) => {
       const campaignContract = getCampaignContract(campaignAddress);
-      console.log("Contract Address:", campaignContract.options.address);
-      console.log("ABI Used:", campaignContract.options.jsonInterface);
-
       const details = await campaignContract.methods
         .getCampaignDetails()
         .call({ from: account! });
@@ -365,7 +360,7 @@ export const pollDonationMadeEvents = async (
         // Create a toast to notify the beneficiary that a donor has donated to their campaign
         toast.success(
           //@ts-ignore
-          `Bneneficiary: Donation of ${donationAmount} ETH made to your Campaign "${details.campaignName}"`,
+          `Beneficiary: Donation of ${donationAmount} ETH made to your Campaign "${details.campaignName}"`,
         );
 
         setDonations((prevDonations) => [

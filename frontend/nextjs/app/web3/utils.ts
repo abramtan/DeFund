@@ -1,4 +1,4 @@
-import Web3 from "web3";
+import Web3, { HexString } from "web3";
 import {
   CAMPAIGN_ABI,
   CAMPAIGN_FACTORY_ABI,
@@ -41,6 +41,16 @@ export const convertEthToWei = (amountInEth: number) => {
 export const convertWeiToEth = (amountInWei: number) => {
   const web3 = getWeb3();
   return Number(web3.utils.fromWei(amountInWei, "ether"));
+};
+
+export const stringToBytes32 = (string: string): HexString => {
+  const web3 = getWeb3();
+  return web3.utils.utf8ToHex(string).padEnd(66, "0");
+};
+
+export const bytes32ToString = (bytes32: HexString): string => {
+  const web3 = getWeb3();
+  return web3.utils.toAscii(bytes32);
 };
 
 export const convertToLocalStorageKey = (

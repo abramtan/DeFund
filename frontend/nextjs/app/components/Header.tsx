@@ -4,17 +4,17 @@ import { Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { LocalStorageKeys } from "../web3/utils";
 import { Button, DeFundLogo } from "./index";
 import WalletButton from "./WalletButton";
-import { LocalStorageKeys } from "../web3/utils";
 
 const Header: React.FC = () => {
   const pathname = usePathname();
 
   const navItems = [
     { name: "Explore", href: "/explore" },
-    { name: "Create Campaign", href: "/create" },
     { name: "My Campaigns", href: "/mycampaigns" },
+    { name: "Create Campaign", href: "/create" },
     { name: "How To Use", href: "/howtouse" },
   ];
 
