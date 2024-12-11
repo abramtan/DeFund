@@ -2,10 +2,10 @@ import CAMPAIGN_ABI from "./abi/Campaign.json";
 import CAMPAIGN_FACTORY_ABI from "./abi/CampaignFactory.json";
 
 const DEFAULT_CAMPAIGN_ADDRESS = "0x18964273CA201F71Ac2a3Aa8eE807B652419E345";
-const CAMPAIGN_FACTORY_ADDRESS = "0x28e8a780e8a29044b2207c3ea773e22652260a8d";
+const CAMPAIGN_FACTORY_ADDRESS = "0x06412b42ca7eafb1f3b2cd7fcd69f8337efc2725";
 
 const EVENT_POLLING_INTERVAL = 2000; // In miliseconds
-const CAMPAIGN_FACTORY_BLOCK_NUMBER = 7257822; // The block number of the block in which the CampaignFactory contract is deployed
+const CAMPAIGN_FACTORY_BLOCK_NUMBER = 7257911; // The block number of the block in which the CampaignFactory contract is deployed
 
 const MAX_NUM_DONORS = 50;
 
