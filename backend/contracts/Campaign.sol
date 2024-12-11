@@ -6,9 +6,7 @@ pragma solidity >=0.8.2 <0.9.0;
  * @title Campaign
  * @dev The smart contract for the created Campaign. It handles everything related to a specific Campaign that has been deployed
  */
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
-contract Campaign is ReentrancyGuard {
+contract Campaign {
     // state variables; each storage slot is 32 bytes
     address public immutable beneficiary; // 20 bytes
     uint48 public immutable deadline; // 6 bytes
@@ -16,7 +14,7 @@ contract Campaign is ReentrancyGuard {
     uint256 public immutable fundingGoal; // stored in wei, 32 bytes
     uint256 public totalFunds; // the amount raised in wei, 32 bytes
     bytes32 public immutable name; // 32 bytes
-    bytes32 public immutable description; // 32 bytes
+    string public description; // variable storage
     mapping(address => uint256) private donations; // the value is stored in wei, variable storage
     address[] private donors; // array to store donor addresses for refunds, variable storage
 
@@ -30,12 +28,12 @@ contract Campaign is ReentrancyGuard {
     constructor(
         address _beneficiary,
         bytes32 _name,
-        bytes32 _description,
+        string memory _description,
         uint256 _fundingGoal,
         uint48 _deadline
     ) {
-        require(_fundingGoal > 0, "Funding goal must be greater than zero"); //Input validation 
-        require(_deadline > block.timestamp, "Deadline must be in the future"); //Input validation 
+        require(_fundingGoal > 0, "Funding goal must be > 0"); // input validation
+        require(_deadline > block.timestamp, "Deadline passed"); // input validation
         beneficiary = _beneficiary;
         name = _name;
         description = _description;
@@ -64,13 +62,15 @@ contract Campaign is ReentrancyGuard {
 
     // modifiers
     modifier onlyBeneficiary() {
-        require(msg.sender == beneficiary, "Beneficiary only");
+        require(msg.sender == beneficiary, "Not beneficiary");
         _;
     }
+
     modifier notBeneficiary() {
-    require(msg.sender != beneficiary, "Beneficiary cannot perform this action");
-    _;
-}
+        require(msg.sender != beneficiary, "Beneficiary only");
+        _;
+    }
+
     modifier isActiveCampaign() {
         require(isActive, "Inactive Campaign");
         _;
@@ -91,6 +91,12 @@ contract Campaign is ReentrancyGuard {
         _;
     }
 
+    // only allow a maximum of 50 donors to limit the gas fee for the refunding to donors
+    modifier notMaxDonors() {
+        require(donors.length < 50, "Too many donors");
+        _;
+    }
+
     // functions
     /**
      * @dev Allows donors to donate to the Campaign
@@ -102,8 +108,8 @@ contract Campaign is ReentrancyGuard {
         beforeDeadline
         isActiveCampaign
         fundingGoalNotMet
-        notBeneficiary
-        nonReentrant // Protect against re-entrancy attacks
+        notBeneficiary // to ensure that beneficiaries can't donate to their own Campaign; especially crucial for situations when the fundingGoal is almost met then no donors donate, then they purpose donate to their own campaign so that they can release the funds
+        notMaxDonors
     {
         address donor = msg.sender;
         uint256 amount = uint256(msg.value);
@@ -136,13 +142,24 @@ contract Campaign is ReentrancyGuard {
         isActiveCampaign
         deadlineExceeded
         onlyBeneficiary
-        nonReentrant 
-
     {
         if (totalFunds >= fundingGoal) {
             releaseFunds();
         } else {
             isActive = false; // Called here and not before if statement because releaseFunds() has isActive = False as well.
+
+            for (uint256 i = 0; i < donors.length; i++) {
+                address donor = donors[i];
+                uint256 donationAmount = donations[donor];
+
+                if (donationAmount > 0) {
+                    delete donations[donor]; // reset the donation amount
+                    payable(donor).transfer(donationAmount);
+
+                    emit RefundIssued(donor, donationAmount);
+                }
+            }
+
             emit CampaignFinalized(beneficiary, false, totalFunds);
         }
     }
@@ -152,7 +169,7 @@ contract Campaign is ReentrancyGuard {
      * @dev It is called whenever the beneficiary releases the funds (to themselves) from the frontend, only if the totalFunds exceed the fundingGoal, or if they trigger the finalizeCampaign() from the frontend due to the deadline being met
      * @dev It is some sort of a helper function
      */
-    function releaseFunds() private nonReentrant {
+    function releaseFunds() private {
         uint256 fundsToRelease = totalFunds;
         isActive = false;
         delete totalFunds; // more gas efficient than totalFunds = 0
@@ -164,34 +181,10 @@ contract Campaign is ReentrancyGuard {
     }
 
     /**
-     * @dev Called when the Campaign is finalized but did not meet its fundingGoal
-     * @dev Refunds all the donors in batches
-     * @dev To be called from the frontend by the beneficiary
-     */
-    function processRefundsBatch(uint256 start, uint256 end)
-        external
-        onlyBeneficiary
-        fundingGoalNotMet
-        nonReentrant 
-    {
-        for (uint256 i = start; i < end; i++) {
-            address donor = donors[i];
-            uint256 donationAmount = donations[donor];
-
-            if (donationAmount > 0) {
-                delete donations[donor]; // reset the donation amount
-                payable(donor).transfer(donationAmount);
-
-                emit RefundIssued(donor, donationAmount);
-            }
-        }
-    }
-
-    /**
      * @dev Get all the donors of this Campaign
      * @dev Likely to be used by the frontend to notify just donors on events such as FundsWithdrawn and CampaignFinalized
      */
-    function getDonors() external view returns (address[] memory) { 
+    function getDonors() external view returns (address[] memory) {
         return donors;
     }
 
@@ -204,7 +197,7 @@ contract Campaign is ReentrancyGuard {
         returns (
             address campaignBeneficiary,
             bytes32 campaignName,
-            bytes32 campaignDescription,
+            string memory campaignDescription,
             uint48 campaignDeadline,
             uint256 campaignFundingGoal,
             uint256 campaignTotalFunds,

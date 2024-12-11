@@ -26,9 +26,9 @@
 						"type": "bytes32"
 					},
 					{
-						"internalType": "bytes32",
+						"internalType": "string",
 						"name": "_description",
-						"type": "bytes32"
+						"type": "string"
 					},
 					{
 						"internalType": "uint256",
@@ -51,7 +51,7 @@
 			"details": "Creates and deploy a new Campaign smart contract whenever any beneficiary creates a campaign",
 			"kind": "dev",
 			"methods": {
-				"createCampaign(bytes32,bytes32,uint256,uint48)": {
+				"createCampaign(bytes32,string,uint256,uint48)": {
 					"details": "Allows beneficiaries to create a Campaign with the required details",
 					"params": {
 						"_deadline": "Timestamp of when the Campaign should be fully funded before it becomes inactive",
@@ -87,19 +87,19 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0xc97055d15602122df1e3abc49910e46e109374444d9de647de5dc370b2ecc880",
+			"keccak256": "0xc0f30c44dade441513c26a85c42e120fa67ffe447924c80d22e43bba63797012",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://63ea17325c7a8b7d556eb900d1411c4dd35502151e4a4b360d6846dfd62da5cf",
-				"dweb:/ipfs/QmXb57PAjTHwBvcFQLvFczBRy1SzociUvQ7Teptxn8CZqX"
+				"bzz-raw://c15a481e9abfbecaa466cc9de8a6793441f65cb7f9ea9ab544ac41bbf9945b1d",
+				"dweb:/ipfs/QmcGSTTuPvgWb7aJEatjWEt1d5Rc3BPGtzHuUVNC8Fz6pN"
 			]
 		},
 		"backend/contracts/CampaignFactory.sol": {
-			"keccak256": "0x45f465cfb19f9bddbe45cfbf6b0ccf6830b8ed2f6f587435583c653a45dcad55",
+			"keccak256": "0xf33c521e96d6c92d5f2a106e10749497e7dbbcb002dccec9c675c14b752e2287",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://350b33c0a4e6f09b071d4f1edf781c654790f281eb75e49fc7dcd9f816513e2e",
-				"dweb:/ipfs/QmeWpauQmagVmD1XrDE7gjX8F8tN2ptuTY4vAzQnou6GiH"
+				"bzz-raw://18643e75c8e7c5dcfd4940b8258102f6e6886f69901380f9ac5b60345d4fdc40",
+				"dweb:/ipfs/QmPptWvti6ZYRLqyeEF6usBVKnn2WegBYGXWbTNLSYHLEq"
 			]
 		}
 	},

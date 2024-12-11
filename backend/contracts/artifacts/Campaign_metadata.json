@@ -18,9 +18,9 @@
 						"type": "bytes32"
 					},
 					{
-						"internalType": "bytes32",
+						"internalType": "string",
 						"name": "_description",
-						"type": "bytes32"
+						"type": "string"
 					},
 					{
 						"internalType": "uint256",
@@ -130,9 +130,9 @@
 				"name": "description",
 				"outputs": [
 					{
-						"internalType": "bytes32",
+						"internalType": "string",
 						"name": "",
-						"type": "bytes32"
+						"type": "string"
 					}
 				],
 				"stateMutability": "view",
@@ -180,9 +180,9 @@
 						"type": "bytes32"
 					},
 					{
-						"internalType": "bytes32",
+						"internalType": "string",
 						"name": "campaignDescription",
-						"type": "bytes32"
+						"type": "string"
 					},
 					{
 						"internalType": "uint48",
@@ -248,24 +248,6 @@
 				"type": "function"
 			},
 			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "start",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "end",
-						"type": "uint256"
-					}
-				],
-				"name": "processRefundsBatch",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
 				"inputs": [],
 				"name": "totalFunds",
 				"outputs": [
@@ -303,9 +285,6 @@
 				},
 				"getDonors()": {
 					"details": "Get all the donors of this CampaignLikely to be used by the frontend to notify just donors on events such as FundsWithdrawn and CampaignFinalized"
-				},
-				"processRefundsBatch(uint256,uint256)": {
-					"details": "Called when the Campaign is finalized but did not meet its fundingGoalRefunds all the donors in batchesTo be called from the frontend by the beneficiary"
 				}
 			},
 			"title": "Campaign",
@@ -334,11 +313,11 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0xc97055d15602122df1e3abc49910e46e109374444d9de647de5dc370b2ecc880",
+			"keccak256": "0x993bbf86b8b6799e76531c97f27f19c406735e98209c56165bb43fc96da08713",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://63ea17325c7a8b7d556eb900d1411c4dd35502151e4a4b360d6846dfd62da5cf",
-				"dweb:/ipfs/QmXb57PAjTHwBvcFQLvFczBRy1SzociUvQ7Teptxn8CZqX"
+				"bzz-raw://ef520435859fb517ea933f6453e76d552907ef4a0d2160706b5bc61b4283b457",
+				"dweb:/ipfs/QmdayF3jaFn2HmhKN9oWY6CCGdGNQ3noJQg7Rft6jMaBJL"
 			]
 		}
 	},
