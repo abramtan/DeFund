@@ -6,7 +6,6 @@ import {
   EVENT_POLLING_INTERVAL,
 } from "../web3/const";
 import {
-  getInactiveCampaigns,
   getMyActiveCampaigns,
   pollFundingGoalMetEvents,
 } from "../web3/functions";

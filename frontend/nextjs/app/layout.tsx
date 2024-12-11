@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 import { CampaignFinalizedPollingProvider } from "./context/CampaignFinalizedPollingContext";
 import { DonationMadePollingProvider } from "./context/DonationMadePollingContext";
 import { FundingGoalMetPollingProvider } from "./context/FundingGoalMetPollingContext";
+import { RefundIssuedPollingProvider } from "./context/RefundIssuedPollingContext";
 
 let title = "DeFund: Decentralized Crowdfunding";
 let description = "The decentralized crowdfunding platform.";
@@ -33,13 +34,15 @@ export default function RootLayout({
         <DonationMadePollingProvider>
           <CampaignFinalizedPollingProvider>
             <FundingGoalMetPollingProvider>
-              <Header />
-              <Toaster
-                position="bottom-right"
-                toastOptions={{ duration: toastDuration }}
-              />
-              {children}
-              <Footer />
+              <RefundIssuedPollingProvider>
+                <Header />
+                <Toaster
+                  position="bottom-right"
+                  toastOptions={{ duration: toastDuration }}
+                />
+                {children}
+                <Footer />
+              </RefundIssuedPollingProvider>
             </FundingGoalMetPollingProvider>
           </CampaignFinalizedPollingProvider>
         </DonationMadePollingProvider>

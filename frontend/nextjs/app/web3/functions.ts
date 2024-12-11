@@ -281,13 +281,29 @@ export const getBlockchainTime = async (): Promise<number> => {
 export const finalizeCampaign = async (campaignAddress: string) => {
   const account = getAccount(); // Get the user's wallet address
   const contract = getCampaignContract(campaignAddress); // Get the campaign contract instance
+  const details = await contract.methods
+    .getCampaignDetails()
+    .call({ from: account! });
 
   try {
     // Check if the campaign can be finalized
     const blockchainTime = await getBlockchainTime();
     const campaignDeadline = await contract.methods.deadline().call();
-    if (BigInt(blockchainTime) <= BigInt(campaignDeadline)) {
-      alert("The campaign deadline has not passed yet!");
+
+    // if (BigInt(blockchainTime) <= BigInt(campaignDeadline)) {
+    //   alert("The campaign deadline has not passed yet!");
+    //   return;
+    // } else if (details.totalFunds < details.fundingGoal) {
+    //   return;
+    // }
+
+    if (
+      BigInt(blockchainTime) > BigInt(campaignDeadline) ||
+      details.campaignTotalFunds >= details.campaignFundingGoal
+    ) {
+      // continue;
+    } else {
+      alert("Campaign cannot be finalised yet");
       return;
     }
 
@@ -548,6 +564,62 @@ export const pollFundingGoalMetEvents = async (
     return currentBlock; // Return the updated block number
   } catch (error) {
     console.error("Error polling FundingGoalMet events:", error);
+    return latestBlock; // Return the previous block number if an error occurs
+  }
+};
+
+/**
+ * Polls RefundIssued events for a given campaign contract and notifies the respective donors.
+ * @param campaignAddress - The contract address of the campaign to poll.
+ * @param latestBlock - The latest block number already processed.
+ * @returns The latest block number processed.
+ */
+export const pollRefundIssuedEvents = async (
+  campaignAddress: string,
+  latestBlock: number,
+): Promise<number> => {
+  try {
+    const web3 = getWeb3(); // Initialize web3 instance
+    const account = getAccount(); // Get the current user's account
+    const campaignContract = getCampaignContract(campaignAddress); // Get the campaign contract instance
+    const currentBlock = Number(await web3.eth.getBlockNumber()); // Get the current block number
+
+    // Fetch RefundIssued events from the blockchain starting from the latest processed block
+    const events = await campaignContract.getPastEvents(Events.RefundIssued, {
+      fromBlock: latestBlock + 1,
+      toBlock: "latest",
+    });
+
+    const details = await campaignContract.methods
+      .getCampaignDetails()
+      .call({ from: account! });
+
+    if (events.length > 0) {
+      // Update the latest block number in localStorage
+      localStorage.setItem(
+        convertToLocalStorageKey(
+          LocalStorageKeys.RefundIssued,
+          campaignAddress,
+        ),
+        String(currentBlock),
+      );
+
+      // Process each event and trigger refund notification to each donor
+      events.forEach(async (event, index) => {
+        const { donor, amount } = event.returnValues;
+        if (donor.toLowerCase() === account) {
+          if (success) {
+            toast.success(
+              `Donor: You have been refunded ${amount} ETH from campaign "${bytes32ToString(details.campaignName)}".`,
+            );
+          }
+        }
+      });
+    }
+
+    return currentBlock; // Return the updated block number
+  } catch (error) {
+    console.error("Error polling RefundIssued events:", error);
     return latestBlock; // Return the previous block number if an error occurs
   }
 };
