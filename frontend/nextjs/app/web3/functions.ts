@@ -455,7 +455,7 @@ export const pollCampaignFinalizedEvents = async (
               `Beneficiary: Campaign "${bytes32ToString(details.campaignName)}" is successful and finalized! Total Funds Released to you: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
             );
           } else {
-            await processRefundsInBatches(
+            processRefundsInBatches(
               campaignContract,
               donors.length,
               REFUND_BATCH_SIZE,
@@ -607,12 +607,11 @@ export const pollRefundIssuedEvents = async (
       // Process each event and trigger refund notification to each donor
       events.forEach(async (event, index) => {
         const { donor, amount } = event.returnValues;
+        const donationAmount = web3.utils.fromWei(amount, "ether"); // Convert donation amount from Wei to Ether
         if (donor.toLowerCase() === account) {
-          if (success) {
-            toast.success(
-              `Donor: You have been refunded ${amount} ETH from campaign "${bytes32ToString(details.campaignName)}".`,
-            );
-          }
+          toast.success(
+            `Donor: You have been refunded ${donationAmount} ETH from campaign "${bytes32ToString(details.campaignName)}".`,
+          );
         }
       });
     }
