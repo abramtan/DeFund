@@ -117,24 +117,25 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
 
       {/* Buttons */}
       <div className="flex items-center gap-2 mt-4">
-        {campaign.isActive && campaign.totalFunds < campaign.fundingGoal && (
-          <button
-            className={`px-4 py-2 rounded-lg ${
-              !isDeadlinePassed(campaign.deadline * 1000) && campaign.isActive
-                ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-            disabled={
-              !campaign.isActive ||
-              isDeadlinePassed(campaign.deadline * 1000) ||
-              campaign.totalFunds >= campaign.fundingGoal ||
-              numDonors >= MAX_NUM_DONORS
-            }
-            onClick={() => setDonateCampaign(campaign)}
-          >
-            Donate
-          </button>
-        )}
+        {campaign.isActive &&
+          campaign.totalFunds < campaign.fundingGoal &&
+          numDonors < MAX_NUM_DONORS && (
+            <button
+              className={`px-4 py-2 rounded-lg ${
+                !isDeadlinePassed(campaign.deadline * 1000) && campaign.isActive
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+              disabled={
+                !campaign.isActive ||
+                isDeadlinePassed(campaign.deadline * 1000) ||
+                campaign.totalFunds >= campaign.fundingGoal
+              }
+              onClick={() => setDonateCampaign(campaign)}
+            >
+              Donate
+            </button>
+          )}
         {isMyCampaign && (
           <button
             className={`px-4 py-2 rounded-lg ${

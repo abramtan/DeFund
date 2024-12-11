@@ -15,7 +15,6 @@ import {
   LocalStorageKeys,
   stringToBytes32,
 } from "./utils";
-import { REFUND_BATCH_SIZE } from "./const";
 
 // Create a new campaign
 export const createCampaign = async (
