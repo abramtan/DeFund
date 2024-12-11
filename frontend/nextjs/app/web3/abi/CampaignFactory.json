@@ -15,14 +15,14 @@
 	{
 		"inputs": [
 			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "_name",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "_description",
-				"type": "string"
+				"type": "bytes32"
 			},
 			{
 				"internalType": "uint256",
