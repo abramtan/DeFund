@@ -77,7 +77,7 @@ contract Campaign {
     }
 
     modifier canFinalize() {
-        require(block.timestamp > deadline || totalFunds >= fundingGoal, "Cannof finalize");
+        require(block.timestamp > deadline || totalFunds >= fundingGoal, "Cannot finalize");
         _;
     }
 
