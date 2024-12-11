@@ -26,8 +26,8 @@ contract CampaignFactory {
      * @param _deadline Timestamp of when the Campaign should be fully funded before it becomes inactive
      */
     function createCampaign(
-        string calldata _name,
-        string calldata _description,
+        bytes32 _name,
+        bytes32 _description,
         uint256 _fundingGoal,
         uint48 _deadline
     ) external {

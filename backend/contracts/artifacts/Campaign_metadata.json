@@ -13,14 +13,14 @@
 						"type": "address"
 					},
 					{
-						"internalType": "string",
+						"internalType": "bytes32",
 						"name": "_name",
-						"type": "string"
+						"type": "bytes32"
 					},
 					{
-						"internalType": "string",
+						"internalType": "bytes32",
 						"name": "_description",
-						"type": "string"
+						"type": "bytes32"
 					},
 					{
 						"internalType": "uint256",
@@ -130,9 +130,9 @@
 				"name": "description",
 				"outputs": [
 					{
-						"internalType": "string",
+						"internalType": "bytes32",
 						"name": "",
-						"type": "string"
+						"type": "bytes32"
 					}
 				],
 				"stateMutability": "view",
@@ -175,14 +175,14 @@
 						"type": "address"
 					},
 					{
-						"internalType": "string",
+						"internalType": "bytes32",
 						"name": "campaignName",
-						"type": "string"
+						"type": "bytes32"
 					},
 					{
-						"internalType": "string",
+						"internalType": "bytes32",
 						"name": "campaignDescription",
-						"type": "string"
+						"type": "bytes32"
 					},
 					{
 						"internalType": "uint48",
@@ -223,19 +223,6 @@
 			},
 			{
 				"inputs": [],
-				"name": "getMyDonations",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
 				"name": "isActive",
 				"outputs": [
 					{
@@ -252,9 +239,9 @@
 				"name": "name",
 				"outputs": [
 					{
-						"internalType": "string",
+						"internalType": "bytes32",
 						"name": "",
-						"type": "string"
+						"type": "bytes32"
 					}
 				],
 				"stateMutability": "view",
@@ -306,10 +293,10 @@
 					}
 				},
 				"donate()": {
-					"details": "Allows donors to donate to the Campaign"
+					"details": "Allows donors to donate to the CampaignTo be called from the frontend by the donor"
 				},
 				"finalizeCampaign()": {
-					"details": "Called when the Campaign's deadline has passed, and also handles the refund to all donors if the fundingGoal is not met by thenLikely needs to be called from the frontend"
+					"details": "Called when the Campaign's deadline has passed, and also handles the refund to all donors if the fundingGoal is not met by thenTo be called from the frontend by the beneficiary"
 				},
 				"getCampaignDetails()": {
 					"details": "Get all the Campaign details from its state variables"
@@ -317,14 +304,8 @@
 				"getDonors()": {
 					"details": "Get all the donors of this CampaignLikely to be used by the frontend to notify just donors on events such as FundsWithdrawn and CampaignFinalized"
 				},
-				"getMyDonations()": {
-					"details": "Get the total donation amount contributed by the caller to this CampaignThis function allows donors to privately check how much they have donated to the Campaign",
-					"returns": {
-						"_0": "The total donation amount (in cryptocurrency) contributed by the caller"
-					}
-				},
 				"processRefundsBatch(uint256,uint256)": {
-					"details": "Called by the beneficiary from the frontend when the Campaign is finalized but did not meet its fundingGoalRefunds all the donors in batches"
+					"details": "Called when the Campaign is finalized but did not meet its fundingGoalRefunds all the donors in batchesTo be called from the frontend by the beneficiary"
 				}
 			},
 			"title": "Campaign",
@@ -353,11 +334,11 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x8432d3a05ed952c915e93f0985476c1612ea4f2d5252184f3bea86c95667e00e",
+			"keccak256": "0xef44f5aecd39e19018361b222bd4ddbf37a0f256f18c3a5f879056f6a263c3bc",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://c424c53dcfcb22f1e4cc2ce0675712601123b79710be86ef1b3fecf11205cfac",
-				"dweb:/ipfs/QmRfmgDsWJDc1DWyoJaS2bdoMab2Mm7BYihHZUGsLEp9D5"
+				"bzz-raw://4a951d7d8096e4ad2daae0235ae8b2b906003ff1dbaadb5814674497dd7e0e9c",
+				"dweb:/ipfs/QmcMhrQVXbGR6E3gRKo6DTJGykoozS56PNMVh4ymzCQYeV"
 			]
 		}
 	},
