@@ -4,6 +4,7 @@ import Web3 from "web3";
 import { Campaign } from "./campaign";
 import { Events } from "./events";
 import {
+  bytes32ToString,
   convertEthToWei,
   convertToLocalStorageKey,
   getAccount,
@@ -360,7 +361,7 @@ export const pollDonationMadeEvents = async (
         // Create a toast to notify the beneficiary that a donor has donated to their campaign
         toast.success(
           //@ts-ignore
-          `Beneficiary: Donation of ${donationAmount} ETH made to your Campaign "${details.campaignName}"`,
+          `Beneficiary: Donation of ${donationAmount} ETH made to your Campaign "${bytes32ToString(details.campaignName)}"`,
         );
 
         setDonations((prevDonations) => [
@@ -435,7 +436,7 @@ export const pollCampaignFinalizedEvents = async (
           // Notify the beneficiary about the outcome
           if (success) {
             toast.success(
-              `Beneficiary: Campaign "${details.campaignName}" is successful and finalized! Total Funds Released to you: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
+              `Beneficiary: Campaign "${bytes32ToString(details.campaignName)}" is successful and finalized! Total Funds Released to you: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
             );
           } else {
             await processRefundsInBatches(
@@ -444,7 +445,7 @@ export const pollCampaignFinalizedEvents = async (
               REFUND_BATCH_SIZE,
             );
             toast.error(
-              `Beneficiary: Campaign "${details.campaignName}" is unsuccessful and all donors have been refunded.`,
+              `Beneficiary: Campaign "${bytes32ToString(details.campaignName)}" is unsuccessful and all donors have been refunded.`,
             );
           }
         }
@@ -454,11 +455,11 @@ export const pollCampaignFinalizedEvents = async (
           if (donor.toLowerCase() === account) {
             if (success) {
               toast.success(
-                `Donor: Campaign "${details.campaignName}" is successful and finalized!`,
+                `Donor: Campaign "${bytes32ToString(details.campaignName)}" is successful and finalized!`,
               );
             } else {
               toast.error(
-                `Donor: Campaign "${details.campaignName}" is unsuccessful. Refund in progress.`,
+                `Donor: Campaign "${bytes32ToString(details.campaignName)}" is unsuccessful. Refund in progress.`,
               );
             }
           }
