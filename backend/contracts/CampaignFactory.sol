@@ -27,7 +27,7 @@ contract CampaignFactory {
      */
     function createCampaign(
         bytes32 _name,
-        bytes32 _description,
+        string calldata _description,
         uint256 _fundingGoal,
         uint48 _deadline
     ) external {
