@@ -288,15 +288,15 @@ export const finalizeCampaign = async (campaignAddress: string) => {
   try {
     // Check if the campaign can be finalized
     const blockchainTime = await getBlockchainTime();
-    const campaignDeadline = await contract.methods.deadline().call();
+    // const campaignDeadline = await contract.methods.deadline().call();
 
     if (
-      BigInt(blockchainTime) > BigInt(campaignDeadline) ||
+      BigInt(blockchainTime) > BigInt(details.campaignDeadline) ||
       details.campaignTotalFunds >= details.campaignFundingGoal
     ) {
       // continue;
     } else {
-      alert("Campaign cannot be finalised yet");
+      alert("Campaign cannot be finalized yet");
       return;
     }
 
@@ -448,11 +448,6 @@ export const pollCampaignFinalizedEvents = async (
               `Beneficiary: Campaign "${bytes32ToString(details.campaignName)}" is successful and finalized! Total Funds Released to you: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
             );
           } else {
-            await processRefundsInBatches(
-              campaignContract,
-              donors.length,
-              REFUND_BATCH_SIZE,
-            );
             toast.error(
               `Beneficiary: Campaign "${bytes32ToString(details.campaignName)}" is unsuccessful and all donors have been refunded.`,
             );
@@ -548,19 +543,19 @@ export const pollCampaignFinalizedEvents = async (
   }
 };
 
-async function processRefundsInBatches(
-  campaignContract,
-  totalDonors,
-  batchSize,
-) {
-  for (let start = 0; start < totalDonors; start += batchSize) {
-    const end = Math.min(start + batchSize, totalDonors);
-    await campaignContract.methods
-      .processRefundsBatch(start, end)
-      .send({ from: getAccount()! });
-    console.log(`Processed refunds for donors ${start} to ${end}`);
-  }
-}
+// async function processRefundsInBatches(
+//   campaignContract,
+//   totalDonors,
+//   batchSize,
+// ) {
+//   for (let start = 0; start < totalDonors; start += batchSize) {
+//     const end = Math.min(start + batchSize, totalDonors);
+//     await campaignContract.methods
+//       .processRefundsBatch(start, end)
+//       .send({ from: getAccount()! });
+//     console.log(`Processed refunds for donors ${start} to ${end}`);
+//   }
+// }
 
 /**
  * Polls FundingGoalMet events for a given campaign contract and notifies the beneficiary.
