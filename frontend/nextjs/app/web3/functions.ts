@@ -498,3 +498,56 @@ async function processRefundsInBatches(
     console.log(`Processed refunds for donors ${start} to ${end}`);
   }
 }
+
+/**
+ * Polls FundingGoalMet events for a given campaign contract and notifies the beneficiary.
+ * @param campaignAddress - The contract address of the campaign to poll.
+ * @param latestBlock - The latest block number already processed.
+ * @returns The latest block number processed.
+ */
+export const pollFundingGoalMetEvents = async (
+  campaignAddress: string,
+  latestBlock: number,
+): Promise<number> => {
+  try {
+    const web3 = getWeb3(); // Initialize web3 instance
+    const account = getAccount(); // Get the current user's account
+    const campaignContract = getCampaignContract(campaignAddress); // Get the campaign contract instance
+    const currentBlock = Number(await web3.eth.getBlockNumber()); // Get the current block number
+
+    // Fetch FundingGoalMet events from the blockchain starting from the latest processed block
+    const events = await campaignContract.getPastEvents(Events.FundingGoalMet, {
+      fromBlock: latestBlock + 1,
+      toBlock: "latest",
+    });
+
+    // Get campaign details
+    const details = await campaignContract.methods
+      .getCampaignDetails()
+      .call({ from: account! });
+
+    if (events.length > 0) {
+      // Update the latest block number in localStorage
+      localStorage.setItem(
+        convertToLocalStorageKey(
+          LocalStorageKeys.FundingGoalMet,
+          campaignAddress,
+        ),
+        String(currentBlock),
+      );
+
+      // Check if the current user is the beneficiary
+      if (details.campaignBeneficiary.toLowerCase() === account) {
+        // Notify the beneficiary
+        toast.success(
+          `Beneficiary: Your campaign "${bytes32ToString(details.campaignName)}" has met its funding goal! Please proceed to finalize the campaign.`,
+        );
+      }
+    }
+
+    return currentBlock; // Return the updated block number
+  } catch (error) {
+    console.error("Error polling FundingGoalMet events:", error);
+    return latestBlock; // Return the previous block number if an error occurs
+  }
+};

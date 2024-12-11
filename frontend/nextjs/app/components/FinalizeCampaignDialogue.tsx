@@ -2,7 +2,7 @@ import { Campaign } from "@/app/web3/campaign";
 import { useEffect, useState, SetStateAction } from "react";
 import Button from "./Button";
 import Dialog from "./Dialog";
-import { convertWeiToEth } from "../web3/utils";
+import { bytes32ToString, convertWeiToEth } from "../web3/utils";
 
 const FinalizeCampaignDialog = ({
   campaignToFinalize,
@@ -41,7 +41,7 @@ const FinalizeCampaignDialog = ({
         <div>
           {/* Campaign Name and Deadline Message */}
           <h2 className="text-xl font-bold mb-4 text-indigo-600">
-            Finalize {campaignToFinalize.name}
+            Finalize "{bytes32ToString(campaignToFinalize.name)}"
           </h2>
           <p className="text-sm text-gray-800 mb-1">
             The deadline{" "}
