@@ -20,9 +20,9 @@
 				"type": "bytes32"
 			},
 			{
-				"internalType": "bytes32",
+				"internalType": "string",
 				"name": "_description",
-				"type": "bytes32"
+				"type": "string"
 			},
 			{
 				"internalType": "uint256",

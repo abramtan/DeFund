@@ -12,9 +12,9 @@
 				"type": "bytes32"
 			},
 			{
-				"internalType": "bytes32",
+				"internalType": "string",
 				"name": "_description",
-				"type": "bytes32"
+				"type": "string"
 			},
 			{
 				"internalType": "uint256",
@@ -124,9 +124,9 @@
 		"name": "description",
 		"outputs": [
 			{
-				"internalType": "bytes32",
+				"internalType": "string",
 				"name": "",
-				"type": "bytes32"
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
@@ -174,9 +174,9 @@
 				"type": "bytes32"
 			},
 			{
-				"internalType": "bytes32",
+				"internalType": "string",
 				"name": "campaignDescription",
-				"type": "bytes32"
+				"type": "string"
 			},
 			{
 				"internalType": "uint48",
@@ -239,24 +239,6 @@
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "start",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "end",
-				"type": "uint256"
-			}
-		],
-		"name": "processRefundsBatch",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{

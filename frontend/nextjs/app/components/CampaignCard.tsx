@@ -1,6 +1,7 @@
 import { Campaign } from "@/app/web3/campaign";
-import { finalizeCampaign } from "@/app/web3/functions";
-import React, { useState } from "react";
+import { finalizeCampaign, getNumDonors } from "@/app/web3/functions";
+import React, { useEffect, useState } from "react";
+import { MAX_NUM_DONORS } from "../web3/const";
 import { bytes32ToString, convertWeiToEth } from "../web3/utils";
 import DonateCampaignDialog from "./DonateCampaignDialog"; // Import your dialog components
 import FinalizeCampaignDialog from "./FinalizeCampaignDialogue";
@@ -27,9 +28,12 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
   const [isLoading, setIsLoading] = useState(false); // Loading state for finalizing campaigns
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState(""); // Store the notification message
+  const [numDonors, setNumDonors] = useState<number>(0);
 
   const handleDonationSuccess = () => {
-    setNotificationMessage("Donation successful!");
+    setNotificationMessage(
+      `Donation successful! You are donor ${numDonors + 1} of ${MAX_NUM_DONORS}`,
+    );
     setIsNotificationOpen(true);
     setDonateCampaign(null); // Close the dialog
     reRenderCampaignGrid(); // Re-renders the Campaign Grid
@@ -52,6 +56,15 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
       setIsLoading(false); // Reset loading state
     }
   };
+
+  useEffect(() => {
+    const doGetDonors = async () => {
+      const numDonorsRaw = await getNumDonors(campaign.address);
+      setNumDonors(numDonorsRaw);
+    };
+    doGetDonors();
+  }, []);
+
   return (
     <div className="p-4 shadow-md border border-gray-200 rounded-lg hover:shadow-lg transition-shadow duration-200">
       {/* Campaign Name */}
@@ -82,9 +95,15 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
       />
 
       {/* Deadline */}
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-gray-500 mb-1">
         <span className="font-semibold text-gray-700">Deadline:</span>{" "}
         {new Date(campaign.deadline * 1000).toDateString()}
+      </p>
+
+      {/* Number of Donors */}
+      <p className="text-sm text-gray-500">
+        <span className="font-semibold text-gray-700">Number of donors:</span>{" "}
+        {numDonors}/{MAX_NUM_DONORS}
       </p>
 
       {/* Campaign Status */}
@@ -108,7 +127,8 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
             disabled={
               !campaign.isActive ||
               isDeadlinePassed(campaign.deadline * 1000) ||
-              campaign.totalFunds >= campaign.fundingGoal
+              campaign.totalFunds >= campaign.fundingGoal ||
+              numDonors >= MAX_NUM_DONORS
             }
             onClick={() => setDonateCampaign(campaign)}
           >
