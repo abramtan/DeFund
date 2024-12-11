@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createCampaign } from "../web3/functions";
 import Button from "./Button";
+import Notification from "./Notification";
 
 const CreateCampaign = () => {
   const [name, setName] = useState("");
@@ -8,6 +9,8 @@ const CreateCampaign = () => {
   const [fundingGoal, setFundingGoal] = useState<number | "">("");
   const [deadline, setDeadline] = useState<number | null>(null); // In seconds
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState<string>(""); // Store the message text
 
   const handleSubmit = async () => {
     if (!name || !description || !fundingGoal || !deadline) {
@@ -17,13 +20,17 @@ const CreateCampaign = () => {
 
     try {
       if (deadline <= new Date().getTime() / 1000) {
-        throw new Error("The deadline has passed! Please set one that is in the future.")
+        throw new Error(
+          "The deadline has passed! Please set one that is in the future.",
+        );
       }
 
       console.log("Deadline being sent to createCampaign (seconds):", deadline); // Debug log
       setIsSubmitting(true);
       await createCampaign(name, description, fundingGoal, deadline!);
-      alert("Campaign created successfully!");
+      // Open the notification with a success message
+      setNotificationMessage("Campaign created successfully!");
+      setIsNotificationOpen(true);
       setName("");
       setDescription("");
       setFundingGoal("");
@@ -151,6 +158,12 @@ const CreateCampaign = () => {
           </Button>
         </div>
       </form>
+      {/* Notification Component */}
+      <Notification
+        isOpen={isNotificationOpen}
+        message={notificationMessage}
+        onClose={() => setIsNotificationOpen(false)} // Close the notification
+      />
     </div>
   );
 };
