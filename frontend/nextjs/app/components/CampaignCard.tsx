@@ -28,11 +28,11 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
   const [isLoading, setIsLoading] = useState(false); // Loading state for finalizing campaigns
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState(""); // Store the notification message
-  const [numDonors, setNumDonors] = useState<number>();
+  const [numDonors, setNumDonors] = useState<number>(0);
 
   const handleDonationSuccess = () => {
     setNotificationMessage(
-      `Donation successful! You are donor ${numDonors} of ${MAX_NUM_DONORS}`,
+      `Donation successful! You are donor ${numDonors + 1} of ${MAX_NUM_DONORS}`,
     );
     setIsNotificationOpen(true);
     setDonateCampaign(null); // Close the dialog
@@ -127,7 +127,8 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({
             disabled={
               !campaign.isActive ||
               isDeadlinePassed(campaign.deadline * 1000) ||
-              campaign.totalFunds >= campaign.fundingGoal
+              campaign.totalFunds >= campaign.fundingGoal ||
+              numDonors >= MAX_NUM_DONORS
             }
             onClick={() => setDonateCampaign(campaign)}
           >
