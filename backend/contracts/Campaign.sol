@@ -7,16 +7,16 @@ pragma solidity >=0.8.2 <0.9.0;
  * @dev The smart contract for the created Campaign. It handles everything related to a specific Campaign that has been deployed
  */
 contract Campaign {
-    // state variables
-    address public immutable beneficiary;
-    string public name;
-    string public description;
-    uint48 public immutable deadline;
-    uint256 public immutable fundingGoal; // stored in wei
-    uint256 public totalFunds; // the amount raised in wei
-    bool public isActive; // if true, then the Campaign is ongoing, donations are allowed, and is not finalized; else, the Campaign has ended, and no further actions are allowed
-    mapping(address => uint256) private donations; // the value is stored in wei
-    address[] private donors; // array to store donor addresses for refunds
+    // state variables; each storage slot is 32 bytes
+    address public immutable beneficiary; // 20 bytes
+    uint48 public immutable deadline; // 6 bytes
+    bool public isActive; // if true, then the Campaign is ongoing, donations are allowed, and is not finalized; else, the Campaign has ended, and no further actions are allowed, 1 byte
+    uint256 public immutable fundingGoal; // stored in wei, 32 bytes
+    uint256 public totalFunds; // the amount raised in wei, 32 bytes
+    bytes32 public immutable name; // 32 bytes
+    bytes32 public immutable description; // 32 bytes
+    mapping(address => uint256) private donations; // the value is stored in wei, variable storage
+    address[] private donors; // array to store donor addresses for refunds, variable storage
 
     /**
      * @dev Creates the Campaign smart contract
@@ -27,8 +27,8 @@ contract Campaign {
      */
     constructor(
         address _beneficiary,
-        string memory _name,
-        string memory _description,
+        bytes32 _name,
+        bytes32 _description,
         uint256 _fundingGoal,
         uint48 _deadline
     ) {
@@ -42,7 +42,6 @@ contract Campaign {
 
     // events
     // to log donations and notify the beneficiary on the frontend that the donation has been successfully made
-    // this event is triggered when a donor donates to this Campaign, so no need to put donor address
     // since frontend is already querying the CampaignCreated events (in CampaignFactory) for the Campaigns that belong to the beneficiary, there is no need to put beneficiary address
     event DonationMade(uint256 amount);
 
@@ -83,6 +82,7 @@ contract Campaign {
     // functions
     /**
      * @dev Allows donors to donate to the Campaign
+     * @dev To be called from the frontend by the donor
      */
     function donate() external payable beforeDeadline isActiveCampaign {
         address donor = msg.sender;
@@ -103,13 +103,14 @@ contract Campaign {
 
         // if the Campaign has been fully funded, notify the benefiary to release the funds, so that they incur the gas fees to do so, instead of making the donors unknowingly spend gas fees releasing funds to the beneficiary
         if (newTotalFunds >= fundingGoal) {
+            isActive = false; // so that even if the Campaign haven't reached its deadline, donors cannot donate to this Campaign anymore
             emit FundingGoalMet();
         }
     }
 
     /**
      * @dev Called when the Campaign's deadline has passed, and also handles the refund to all donors if the fundingGoal is not met by then
-     * @dev Likely needs to be called from the frontend
+     * @dev To be called from the frontend by the beneficiary
      */
     function finalizeCampaign()
         external
@@ -132,8 +133,8 @@ contract Campaign {
      */
     function releaseFunds() private {
         uint256 fundsToRelease = totalFunds;
-        delete totalFunds; // more gas efficient than totalFunds = 0
         isActive = false;
+        delete totalFunds; // more gas efficient than totalFunds = 0
 
         // transfer the totalFunds to beneficiary
         payable(beneficiary).transfer(fundsToRelease);
@@ -142,8 +143,9 @@ contract Campaign {
     }
 
     /**
-     * @dev Called by the beneficiary from the frontend when the Campaign is finalized but did not meet its fundingGoal
+     * @dev Called when the Campaign is finalized but did not meet its fundingGoal
      * @dev Refunds all the donors in batches
+     * @dev To be called from the frontend by the beneficiary
      */
     function processRefundsBatch(uint256 start, uint256 end)
         external
@@ -171,15 +173,6 @@ contract Campaign {
     }
 
     /**
-     * @dev Get the total donation amount contributed by the caller to this Campaign
-     * @dev This function allows donors to privately check how much they have donated to the Campaign
-     * @return The total donation amount (in cryptocurrency) contributed by the caller
-     */
-    function getMyDonations() external view returns (uint256) {
-        return donations[msg.sender];
-    }
-
-    /**
      * @dev Get all the Campaign details from its state variables
      */
     function getCampaignDetails()
@@ -187,8 +180,8 @@ contract Campaign {
         view
         returns (
             address campaignBeneficiary,
-            string memory campaignName,
-            string memory campaignDescription,
+            bytes32 campaignName,
+            bytes32 campaignDescription,
             uint48 campaignDeadline,
             uint256 campaignFundingGoal,
             uint256 campaignTotalFunds,

@@ -87,19 +87,19 @@
 	},
 	"sources": {
 		"backend/contracts/Campaign.sol": {
-			"keccak256": "0x5bc47105ce1e5769172016743c3932cc4b65a337ad9ea7e7faff1a8bb885f1a0",
+			"keccak256": "0x8432d3a05ed952c915e93f0985476c1612ea4f2d5252184f3bea86c95667e00e",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://ae4a6e03a6bffef4f5b5539832204e529cbb36f6e1ef428c59d4969b45256f46",
-				"dweb:/ipfs/QmfC7ofXguvXrVcpmSioYkTvi9TKvaFDdphvDSDDDZS3Bb"
+				"bzz-raw://c424c53dcfcb22f1e4cc2ce0675712601123b79710be86ef1b3fecf11205cfac",
+				"dweb:/ipfs/QmRfmgDsWJDc1DWyoJaS2bdoMab2Mm7BYihHZUGsLEp9D5"
 			]
 		},
 		"backend/contracts/CampaignFactory.sol": {
-			"keccak256": "0x862837c62770a7e6b2f3a4e9a37b7105be893ab7f40c53bc611c814e824961aa",
+			"keccak256": "0x6f4d8c3816f3f77a9c4899b767954a2c94075631ea4534cc7d1d925cfbe8fac3",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://45e29460e5c43e3c4e1b6bddaf3618977b08fd79c95b0aeccfc256e23b7a613d",
-				"dweb:/ipfs/QmQx7UTYsJgab2ptaEZtSjtNwCqFiAnXbnVHLdChjFAYFv"
+				"bzz-raw://a06018d0481d9e304fb9d185463fabd84f96daff58c809be2acb87ff00c885ad",
+				"dweb:/ipfs/Qma1cqL4hygKAthu5sZfmQ3YnehpVmEVhKnNPfZTbMAA16"
 			]
 		}
 	},
