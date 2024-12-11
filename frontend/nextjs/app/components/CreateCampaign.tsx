@@ -64,7 +64,8 @@ const CreateCampaign = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            placeholder="Enter campaign name"
+            placeholder="Enter campaign name in 32 characters or less"
+            maxLength={32}
             required
           />
         </div>
