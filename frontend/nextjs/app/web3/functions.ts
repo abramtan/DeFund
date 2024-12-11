@@ -664,3 +664,10 @@ export const pollRefundIssuedEvents = async (
     return latestBlock; // Return the previous block number if an error occurs
   }
 };
+
+export const getNumDonors = async (campaignAddress: string): number => {
+  const account = getAccount();
+  const contract = getCampaignContract(campaignAddress);
+  const donors = await contract.methods.getDonors().call({ from: account! });
+  return donors.length;
+};

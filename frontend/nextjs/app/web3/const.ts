@@ -7,7 +7,7 @@ const CAMPAIGN_FACTORY_ADDRESS = "0x78c70669401dd63b80d4ee4de039433aad913673";
 const EVENT_POLLING_INTERVAL = 2000; // In miliseconds
 const CAMPAIGN_FACTORY_BLOCK_NUMBER = 7257529; // The block number of the block in which the CampaignFactory contract is deployed
 
-const REFUND_BATCH_SIZE = 50;
+const MAX_NUM_DONORS = 1;
 
 export {
   CAMPAIGN_ABI,
@@ -16,5 +16,5 @@ export {
   CAMPAIGN_FACTORY_BLOCK_NUMBER,
   DEFAULT_CAMPAIGN_ADDRESS,
   EVENT_POLLING_INTERVAL,
-  REFUND_BATCH_SIZE,
+  MAX_NUM_DONORS,
 };
