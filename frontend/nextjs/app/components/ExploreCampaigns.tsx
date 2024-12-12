@@ -1,6 +1,7 @@
 import { Campaign } from "@/app/web3/campaign";
 import { getAllDeployedCampaigns, getMyCampaigns } from "@/app/web3/functions";
 import { useEffect, useState } from "react";
+import { bytes32ToString } from "../web3/utils";
 import { CampaignGrid } from "./CampaignGrid";
 
 const ExploreCampaigns = () => {
@@ -16,11 +17,6 @@ const ExploreCampaigns = () => {
   const [filterActive, setFilterActive] = useState<
     "all" | "active" | "inactive" | "myCampaigns"
   >("all");
-
-  // Utility function to check if the deadline has passed
-  const isDeadlinePassed = (deadline: number): boolean => {
-    return Date.now() >= deadline;
-  };
 
   const fetchCampaigns = async () => {
     try {
@@ -60,18 +56,19 @@ const ExploreCampaigns = () => {
   useEffect(() => {
     let filtered = [...campaigns];
 
-    // Search campaigns by name or description
+    // Search campaigns by name
     if (searchTerm) {
-      filtered = filtered.filter(
-        (c) =>
-          c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          c.description.toLowerCase().includes(searchTerm.toLowerCase()),
+      filtered = filtered.filter((c) =>
+        bytes32ToString(c.name)
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()),
       );
     }
 
     // Sort campaigns
     filtered.sort((a, b) => {
-      if (sortKey === "name") return a.name.localeCompare(b.name);
+      if (sortKey === "name")
+        return bytes32ToString(a.name).localeCompare(bytes32ToString(b.name));
       if (sortKey === "deadline") return a.deadline - b.deadline;
       if (sortKey === "fundingGoal") return b.fundingGoal - a.fundingGoal;
       if (sortKey === "totalFunds") return b.totalFunds - a.totalFunds;
@@ -132,7 +129,6 @@ const ExploreCampaigns = () => {
       <CampaignGrid
         campaigns={filteredCampaigns}
         myCampaignAddresses={myCampaignAddresses}
-        isDeadlinePassed={isDeadlinePassed}
         refetchCampaigns={fetchCampaigns}
       />
     </div>

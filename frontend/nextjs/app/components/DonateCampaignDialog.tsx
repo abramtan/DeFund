@@ -43,7 +43,7 @@ const DonateCampaignDialog = ({
       {donateCampaign && (
         <div>
           <h2 className="text-xl font-bold mb-4 text-indigo-600">
-            Donate to {bytes32ToString(donateCampaign.name)}
+            Donate to "{bytes32ToString(donateCampaign.name)}"
           </h2>
           <p className="text-sm text-gray-600 mb-1">
             <span className="font-semibold text-gray-700">Description:</span>{" "}

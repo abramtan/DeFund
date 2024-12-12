@@ -290,22 +290,21 @@ export const finalizeCampaign = async (campaignAddress: string) => {
     // const campaignDeadline = await contract.methods.deadline().call();
 
     if (
-      BigInt(blockchainTime) > BigInt(details.campaignDeadline) ||
+      BigInt(blockchainTime) >= BigInt(details.campaignDeadline) ||
       details.campaignTotalFunds >= details.campaignFundingGoal
     ) {
       // continue;
     } else {
       alert("Campaign cannot be finalized yet");
-      return;
+      return false; // Failed to finalize campaign
     }
 
     // Estimate gas and send the transaction
     const method = contract.methods.finalizeCampaign();
-    console.log("Estimating gas...");
     const estimatedGas = await getGasEstimate(method);
-    console.log(`Estimated Gas: ${estimatedGas}`);
-    const receipt = await method.send({ from: account });
-    console.log(`Transaction Receipt for finalize campagin function:`, receipt);
+    alert(`Estimated gas: ${estimatedGas}`);
+    await method.send({ from: account });
+    return true; // Suceessfully
   } catch (error) {
     console.error("Error during campaign finalization:", error);
 
@@ -447,9 +446,15 @@ export const pollCampaignFinalizedEvents = async (
               `Beneficiary: Campaign "${bytes32ToString(details.campaignName)}" is successful and finalized! Total Funds Released to you: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
             );
           } else {
-            toast.error(
-              `Beneficiary: Campaign "${bytes32ToString(details.campaignName)}" is unsuccessful and all donors have been refunded.`,
-            );
+            if (donors.length > 0) {
+              toast.error(
+                `Beneficiary: Campaign "${bytes32ToString(details.campaignName)}" is unsuccessful and all donors have been refunded.`,
+              );
+            } else {
+              toast.error(
+                `Beneficiary: Campaign "${bytes32ToString(details.campaignName)}" is unsuccessful and your campaign has been finalized.`,
+              );
+            }
           }
         }
 
@@ -479,60 +484,6 @@ export const pollCampaignFinalizedEvents = async (
           },
         ]);
       }
-
-      // // Process each event and trigger notifications
-      // events.forEach(async (event, index) => {
-      //   const { beneficiary, success, totalFunds } = event.returnValues;
-      //   // Fetch the donor list dynamically
-      //   const donors = await campaignContract.methods
-      //     .getDonors()
-      //     .call({ from: account! });
-
-      //   // This is what is executed by the beneficiary only
-      //   if (beneficiary.toLowerCase() === account) {
-      //     // Notify the beneficiary about the outcome
-      //     if (success) {
-      //       toast.success(
-      //         `Beneficiary: Campaign "${bytes32ToString(details.campaignName)}" is successful and finalized! Total Funds Released to you: ${Web3.utils.fromWei(totalFunds, "ether")} ETH.`,
-      //       );
-      //     } else {
-      //       await processRefundsInBatches(
-      //         campaignContract,
-      //         donors.length,
-      //         REFUND_BATCH_SIZE,
-      //       );
-      //       toast.error(
-      //         `Beneficiary: Campaign "${bytes32ToString(details.campaignName)}" is unsuccessful and all donors have been refunded.`,
-      //       );
-      //     }
-      //   }
-
-      //   // Notify the donors
-      //   donors.forEach((donor: string) => {
-      //     if (donor.toLowerCase() === account) {
-      //       if (success) {
-      //         toast.success(
-      //           `Donor: Campaign "${bytes32ToString(details.campaignName)}" is successful and finalized!`,
-      //         );
-      //       } else {
-      //         toast.error(
-      //           `Donor: Campaign "${bytes32ToString(details.campaignName)}" is unsuccessful. Refund in progress.`,
-      //         );
-      //       }
-      //     }
-      //   });
-
-      //   // Update the state with finalized campaign events
-      //   setCampaignFinalized((prevState) => [
-      //     ...prevState,
-      //     {
-      //       campaignAddress,
-      //       beneficiary,
-      //       success,
-      //       totalFunds: Web3.utils.fromWei(totalFunds, "ether"),
-      //     },
-      //   ]);
-      // });
     }
 
     return currentBlock; // Return the updated block number
@@ -541,20 +492,6 @@ export const pollCampaignFinalizedEvents = async (
     return latestBlock; // Return the previous block number if an error occurs
   }
 };
-
-// async function processRefundsInBatches(
-//   campaignContract,
-//   totalDonors,
-//   batchSize,
-// ) {
-//   for (let start = 0; start < totalDonors; start += batchSize) {
-//     const end = Math.min(start + batchSize, totalDonors);
-//     await campaignContract.methods
-//       .processRefundsBatch(start, end)
-//       .send({ from: getAccount()! });
-//     console.log(`Processed refunds for donors ${start} to ${end}`);
-//   }
-// }
 
 /**
  * Polls FundingGoalMet events for a given campaign contract and notifies the beneficiary.

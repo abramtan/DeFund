@@ -54,7 +54,7 @@ const Home = () => {
           </div>
           <ActiveCampaigns
             activeCampaigns={activeCampaigns}
-            fetchActiveCampaigns={fetchActiveCampaigns}
+            // fetchActiveCampaigns={fetchActiveCampaigns}
           />
         </div>
       </main>

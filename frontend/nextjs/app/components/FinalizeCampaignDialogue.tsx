@@ -1,8 +1,9 @@
 import { Campaign } from "@/app/web3/campaign";
-import { useEffect, useState, SetStateAction } from "react";
+import { SetStateAction, useEffect, useState } from "react";
+import { getNumDonors } from "../web3/functions";
+import { bytes32ToString, convertWeiToEth } from "../web3/utils";
 import Button from "./Button";
 import Dialog from "./Dialog";
-import { bytes32ToString, convertWeiToEth } from "../web3/utils";
 
 const FinalizeCampaignDialog = ({
   campaignToFinalize,
@@ -16,6 +17,8 @@ const FinalizeCampaignDialog = ({
   isLoading: boolean; // Loading state for the finalize process
 }) => {
   const [outcome, setOutcome] = useState("");
+  const [numDonors, setNumDonors] = useState<number>(0);
+
   // Use `useEffect` to set the outcome when `campaignToFinalize` changes
   useEffect(() => {
     if (campaignToFinalize) {
@@ -24,6 +27,12 @@ const FinalizeCampaignDialog = ({
       } else {
         setOutcome("refunded");
       }
+
+      const doGetDonors = async () => {
+        const numDonorsRaw = await getNumDonors(campaignToFinalize.address);
+        setNumDonors(numDonorsRaw);
+      };
+      doGetDonors();
     }
   }, [campaignToFinalize]); // Dependency array ensures this runs only when `campaignToFinalize` changes
 
@@ -66,9 +75,9 @@ const FinalizeCampaignDialog = ({
             <p className="text-sm text-gray-700 mb-1">
               <span className="font-semibold text-gray-700"></span>
               <span className="font-semibold text-gray-700">Outcome: </span>
-              You did not reach the goal, and the funds will be {
-                outcome
-              } to the donors.
+              {numDonors > 0
+                ? `You did not reach the goal, and the funds will be ${outcome} to the donors.`
+                : "You did not reach the goal. Your campaign will be finalized."}
             </p>
           )}
 
@@ -83,7 +92,9 @@ const FinalizeCampaignDialog = ({
                 ? "Processing..."
                 : outcome === "withdraw"
                   ? "Withdraw Funds"
-                  : "Refund to Donors"}
+                  : numDonors > 0
+                    ? "Refund to Donors"
+                    : "Finalize Campaign"}
             </button>
             <Button
               onClick={() => setCampaignToFinalize(null)}

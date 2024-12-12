@@ -6,14 +6,12 @@ import { CampaignCard } from "./CampaignCard";
 interface CampaignGridProps {
   campaigns: Campaign[];
   myCampaignAddresses: Set<string>;
-  isDeadlinePassed: (timestamp: number) => boolean;
   refetchCampaigns: () => void;
 }
 
 export const CampaignGrid: React.FC<CampaignGridProps> = ({
   campaigns,
   myCampaignAddresses,
-  isDeadlinePassed,
   refetchCampaigns,
 }) => {
   // Sort campaigns so that active ones appear at the top
@@ -48,7 +46,6 @@ export const CampaignGrid: React.FC<CampaignGridProps> = ({
               key={campaign.address}
               campaign={campaign}
               isMyCampaign={myCampaignAddresses.has(campaign.address)}
-              isDeadlinePassed={isDeadlinePassed}
               reRenderCampaignGrid={refetchCampaigns}
             />
           ))}

@@ -12,11 +12,6 @@ const MyCampaigns = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [myCampaigns, setMyCampaigns] = useState<Campaign[]>([]);
 
-  // Utility function to check if the deadline has passed
-  const isDeadlinePassed = (deadline: number): boolean => {
-    return Date.now() >= deadline;
-  };
-
   const fetchMyCampaigns = async () => {
     setLoading(true); // Start loading
     try {
@@ -34,6 +29,7 @@ const MyCampaigns = () => {
   useEffect(() => {
     fetchMyCampaigns();
   }, []);
+
   return (
     <div>
       {loading ? (
@@ -61,7 +57,6 @@ const MyCampaigns = () => {
           <CampaignGrid
             campaigns={myCampaigns}
             myCampaignAddresses={myCampaignAddresses}
-            isDeadlinePassed={isDeadlinePassed}
             refetchCampaigns={fetchMyCampaigns}
           />
         </div>

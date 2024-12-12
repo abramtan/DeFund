@@ -14,11 +14,6 @@ const ActiveCampaigns = ({
   );
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Utility function to check if the deadline has passed
-  const isDeadlinePassed = (deadline: number): boolean => {
-    return Date.now() >= deadline;
-  };
-
   const fetchMyCampaigns = async () => {
     setLoading(true); // Start loading
     try {
@@ -67,7 +62,6 @@ const ActiveCampaigns = ({
             <CampaignGrid
               campaigns={activeCampaigns}
               myCampaignAddresses={myCampaignAddresses}
-              isDeadlinePassed={isDeadlinePassed}
               refetchCampaigns={fetchMyCampaigns}
             />
           )}
