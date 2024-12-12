@@ -369,5 +369,363 @@ describe("DeFund", function () {
       const lowercaseDonors = donors.map((donor: string) => donor.toLowerCase());
       expect(lowercaseDonors).to.include(otherAccount.account.address.toLowerCase());
     });
+
+    // -------------------------------------------------------------------------
+
+    // Zero or negative fundingGoal
+    it("Should revert if funding goal is 0", async function() {
+      const { factory, owner, publicClient } = await loadFixture(deployCampaignFactoryFixture);
+      const NAME = stringToBytes32("Invalid Goal");
+      const DESCRIPTION = "A campaign with invalid goal";
+      const FUNDING_GOAL = 0n;
+      const DEADLINE = Number((await time.latest()) + 24 * 3600);
+    
+      await expect(factory.write.createCampaign([NAME, DESCRIPTION, FUNDING_GOAL, DEADLINE], { account: owner.account.address }))
+        .to.be.rejectedWith("Funding goal must be > 0");
+    });
+
+    // Deadline in the past    
+    it("Should revert if deadline is in the past", async function() {
+      const { factory, owner } = await loadFixture(deployCampaignFactoryFixture);
+      const NAME = stringToBytes32("Past Deadline");
+      const DESCRIPTION = "A campaign with past deadline";
+      const FUNDING_GOAL = parseUnits("1", "ether");
+      const DEADLINE = Number((await time.latest()) - 1); // past deadline
+    
+      await expect(factory.write.createCampaign([NAME, DESCRIPTION, FUNDING_GOAL, DEADLINE], { account: owner.account.address }))
+        .to.be.rejectedWith("Deadline passed");
+    });
+
+    // Donation by beneficiary
+    it("Should revert if beneficiary tries to donate", async function() {
+      const { campaign, owner } = await loadFixture(createCampaignFixture);
+    
+      await expect(campaign.write.donate({
+        value: parseUnits("0.5", "ether"),
+        account: owner.account.address, // owner is beneficiary
+      })).to.be.rejectedWith("Beneficiary only");
+    });
+
+    // Donation after funding goal met but before deadline
+    it("Should revert donations after funding goal is reached (but before deadline)", async function() {
+      const { campaign, otherAccount, FUNDING_GOAL } = await loadFixture(createCampaignFixture);
+    
+      // Donate exactly the funding goal
+      await campaign.write.donate({
+        value: FUNDING_GOAL,
+        account: otherAccount.account.address,
+      });
+    
+      // Attempt another donation
+      await expect(campaign.write.donate({
+        value: parseUnits("0.1", "ether"),
+        account: otherAccount.account.address,
+      })).to.be.rejectedWith("Funding goal met");
+    });
+
+    // Donation after campaign is finalized
+    it("Should revert if donating after the campaign is finalized", async function () {
+      const { campaign, owner, otherAccount, FUNDING_GOAL } = await loadFixture(createCampaignFixture);
+    
+      // Reach funding goal
+      await campaign.write.donate({
+        value: FUNDING_GOAL,
+        account: otherAccount.account.address,
+      });
+    
+      // Finalize campaign
+      await campaign.write.finalizeCampaign({ account: owner.account.address });
+    
+      // Attempt to donate after finalization
+      await expect(
+        campaign.write.donate({
+          account: owner.account.address,
+          value: parseUnits("0.1", "ether"),
+        })
+      ).to.be.rejectedWith("Inactive Campaign");
+    });
+
+    // // More than 50 donations
+    // it("Should revert if donating when there are already 50 donors", async function () {
+    //   const { campaign, publicClient } = await loadFixture(createCampaignFixture);
+    //   const donationAmount = parseUnits("0.1", "ether");
+    
+    //   // Create 50 unique donors using predefined private keys
+    //   for (let i = 0; i < 50; i++) {
+    //     const privateKey = `0x${(i + 1).toString(16).padStart(64, "0")}`; // Generate unique private keys
+    //     const wallet = new Wallet(privateKey);
+    
+    //     // Fund the wallet using Hardhat's setBalance method
+    //     await publicClient.request({
+    //       method: "hardhat_setBalance",
+    //       params: [wallet.address, "0xDE0B6B3A7640000"], // 1 ETH in wei
+    //     });
+    
+    //     // Use the wallet's private key to interact with the campaign contract
+    //     const tx = await campaign.write.donate({
+    //       account: wallet.address,
+    //       value: donationAmount,
+    //       signer: wallet, // Explicitly provide the signer
+    //     });
+    
+    //     await publicClient.waitForTransactionReceipt({ hash: tx });
+    //   }
+    
+    //   // Attempt the 51st donor
+    //   const privateKey51 = `0x${(51).toString(16).padStart(64, "0")}`;
+    //   const donor51Wallet = new Wallet(privateKey51);
+    
+    //   // Fund the 51st wallet
+    //   await publicClient.request({
+    //     method: "hardhat_setBalance",
+    //     params: [donor51Wallet.address, "0xDE0B6B3A7640000"], // 1 ETH in wei
+    //   });
+    
+    //   // Attempt donation with the 51st donor
+    //   await expect(
+    //     campaign.write.donate({
+    //       account: donor51Wallet.address,
+    //       value: donationAmount,
+    //       signer: donor51Wallet,
+    //     })
+    //   ).to.be.rejectedWith("Too many donors");
+    // });
+
+    // Finalize campaign too early
+    it("Should revert if beneficiary tries to finalize before deadline and funding goal not met", async function() {
+      const { campaign, owner } = await loadFixture(createCampaignFixture);
+    
+      // No donations, not at or past deadline
+      await expect(campaign.write.finalizeCampaign({
+        account: owner.account.address,
+      })).to.be.rejectedWith("Cannot finalize");
+    });
+
+    // Finalize by non-beneficiary
+    it("Should revert if non-beneficiary tries to finalize the campaign", async function () {
+      const { campaign, owner, otherAccount, FUNDING_GOAL } = await loadFixture(createCampaignFixture);
+    
+      // Reach funding goal
+      await campaign.write.donate({
+        value: FUNDING_GOAL,
+        account: otherAccount.account.address,
+      });
+    
+      await expect(
+        campaign.write.finalizeCampaign({ account: otherAccount.account.address })
+      ).to.be.rejectedWith("Not beneficiary");
+    });
+
+    // Finalize twice
+    it("Should revert if trying to finalize an already finalized campaign", async function() {
+      const { campaign, owner, otherAccount, FUNDING_GOAL } = await loadFixture(createCampaignFixture);
+    
+      // Reach funding goal
+      await campaign.write.donate({
+        value: FUNDING_GOAL,
+        account: otherAccount.account.address,
+      });
+    
+      // Finalize once
+      await campaign.write.finalizeCampaign({ account: owner.account.address });
+    
+      // Try finalizing again
+      await expect(campaign.write.finalizeCampaign({ account: owner.account.address }))
+        .to.be.rejectedWith("Inactive Campaign");
+    });
+
+    // // Finalize campaign with zero donors
+    it("Should finalize the campaign with zero donors", async function () {
+      const {
+        campaign,
+        factory,
+        owner,
+        otherAccount,
+        publicClient,
+        NAME,
+        DESCRIPTION,
+        FUNDING_GOAL,
+        DEADLINE,
+        hash,
+      } = await loadFixture(createCampaignFixture);
+
+      // Move time past the deadline
+      await time.increaseTo(DEADLINE + 1);
+
+      // Finalize the campaign
+      await campaign.write.finalizeCampaign({
+        account: owner.account.address,
+      });
+
+      const campaignDetails = await campaign.read.getCampaignDetails();
+
+      // Validate the campaign is inactive
+      expect(campaignDetails[6]).to.be.false;
+    });
+
+    // Get donors before any donations
+    it("Should return an empty donor list if no donations were made", async function() {
+      const { campaign } = await loadFixture(createCampaignFixture);
+      const donors = await campaign.read.getDonors();
+      expect(donors).to.be.empty;
+    });
+
+    // // Multiple donors
+    // it("Should allow multiple donors and track donors correctly with getDonors()", async function () {
+    //   const { campaign, publicClient } = await loadFixture(createCampaignFixture);
+    
+    //   const donationAmount = parseUnits("0.1", "ether");
+    //   const donorWallets = [];
+    //   const donorAddresses = [];
+    
+    //   // Create multiple donors
+    //   for (let i = 0; i < 5; i++) {
+    //     const wallet = Wallet.createRandom();
+    //     const address = wallet.address;
+    //     donorWallets.push(wallet);
+    //     donorAddresses.push(address);
+    
+    //     // Fund the wallet
+    //     await publicClient.request({
+    //       method: "hardhat_setBalance",
+    //       params: [address, "0xDE0B6B3A7640000"], // 1 ETH in wei
+    //     });
+    
+    //     // Donate from this wallet
+    //     await campaign.write.donate({
+    //       account: address,
+    //       value: donationAmount,
+    //     });
+    //   }
+    
+    //   // Validate donors returned by getDonors()
+    //   const donorsFromContract = await campaign.read.getDonors();
+    //   const donorsFromContractLowercase = donorsFromContract.map((d: string) => d.toLowerCase());
+    //   const expectedDonorsLowercase = donorAddresses.map((d: string) => d.toLowerCase());
+    
+    //   // Check if all donors match
+    //   expect(donorsFromContractLowercase).to.have.members(expectedDonorsLowercase);
+    // });
+
+    // Test campaign creation with invalid parameters
+    it("Should revert campaign creation with invalid parameters", async function () {
+      const { factory, owner } = await loadFixture(deployCampaignFactoryFixture);
+    
+      // Zero funding goal
+      await expect(
+        factory.write.createCampaign([
+          stringToBytes32("Invalid Campaign"),
+          "Zero funding goal",
+          0n, // Zero funding goal
+          Number(await time.latest()) + 3600, // Future deadline
+        ])
+      ).to.be.rejectedWith("Funding goal must be > 0");
+    
+      // Deadline in the past
+      await expect(
+        factory.write.createCampaign([
+          stringToBytes32("Invalid Campaign"),
+          "Past deadline",
+          parseUnits("1", "ether"),
+          Number(await time.latest()) - 3600, // Past deadline
+        ])
+      ).to.be.rejectedWith("Deadline passed");
+    });
+
+    it("Should allow donations exceeding the funding goal if the goal is not yet met", async function () {
+      const { campaign, otherAccount, FUNDING_GOAL } = await loadFixture(createCampaignFixture);
+    
+      // First donation to exceed the funding goal
+      await campaign.write.donate({
+        value: parseUnits("100", "ether"),
+        account: otherAccount.account.address,
+      });
+    
+      const campaignDetails = await campaign.read.getCampaignDetails();
+    
+      // Total funds should not exceed the funding goal
+      expect(campaignDetails[5]).to.equal(parseUnits("100", "ether"));
+    });
+
+    it("Should refund donors correctly when funding goal is not met", async function () {
+      const { owner, campaign, otherAccount, DEADLINE } = await loadFixture(createCampaignFixture);
+    
+      const donation1 = parseUnits("0.3", "ether");
+      const donation2 = parseUnits("0.4", "ether");
+    
+      // Two donations
+      await campaign.write.donate({
+        value: donation1,
+        account: otherAccount.account.address,
+      });
+      await campaign.write.donate({
+        value: donation2,
+        account: otherAccount.account.address,
+      });
+    
+      // Move time past the deadline
+      await time.increaseTo(DEADLINE + 1);
+    
+      // Finalize the campaign
+      await campaign.write.finalizeCampaign({
+        account: owner.account.address,
+      });
+    
+      // Check refunds are issued
+      const refundEvents = await campaign.getEvents.RefundIssued();
+      // console.log("refundEvents: ", refundEvents);
+      expect(refundEvents[0].args.amount).to.equal(parseUnits("0.7", "ether"));
+    });
+
+    // it("Should transfer all funds to beneficiary when the campaign is successful", async function () {
+    //   const { campaign, owner, otherAccount, FUNDING_GOAL } = await loadFixture(createCampaignFixture);
+    
+    //   // Donate full funding goal
+    //   await campaign.write.donate({
+    //     value: FUNDING_GOAL,
+    //     account: otherAccount.account.address,
+    //   });
+    
+    //   // Finalize the campaign
+    //   await campaign.write.finalizeCampaign({
+    //     account: owner.account.address,
+    //   });
+    
+    //   // Validate total funds are transferred to the beneficiary
+    //   const beneficiaryBalance = await hre.viem.getBalance({ address: owner.account.address });
+    //   expect(beneficiaryBalance).to.be.greaterThan(FUNDING_GOAL);
+    // });
+
+    it("Should transfer all funds to beneficiary when the campaign is successful", async function () {
+      const { campaign, owner, otherAccount, FUNDING_GOAL, publicClient } = await loadFixture(createCampaignFixture);
+    
+      // Donate full funding goal
+      await campaign.write.donate({
+        value: FUNDING_GOAL,
+        account: otherAccount.account.address,
+      });
+    
+      // Get the beneficiary's balance before finalization
+      const balanceBefore = await publicClient.getBalance({ address: owner.account.address });
+    
+      // Finalize the campaign and retrieve the transaction receipt
+      const txHash = await campaign.write.finalizeCampaign({
+        account: owner.account.address,
+      });
+    
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+    
+      // Calculate the actual gas cost from the receipt
+      const gasUsed = receipt.gasUsed;
+      const gasPrice = receipt.effectiveGasPrice;
+      const actualGasCost = gasUsed * gasPrice;
+    
+      // Get the beneficiary's balance after finalization
+      const balanceAfter = await publicClient.getBalance({ address: owner.account.address });
+    
+      // Validate total funds are transferred to the beneficiary, accounting for actual gas fees
+      const expectedBalance = BigInt(balanceBefore) + FUNDING_GOAL - BigInt(actualGasCost);
+      expect(balanceAfter).to.equal(expectedBalance);
+    });
   })
 });
