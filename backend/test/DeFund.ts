@@ -4,11 +4,8 @@ import {
 } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { getAddress } from "viem";
 import { AbiCoder, toUtf8Bytes } from "ethers";
 import { parseUnits } from "ethers";
-import { Wallet } from "ethers";
-import { parseEther } from "viem"; // Use viem for Ether parsing
 
 // Utility to convert a string to bytes32
 function stringToBytes32(input: string): `0x${string}` {
@@ -96,6 +93,8 @@ describe("DeFund", function () {
       });
 
       const createEvents = await factory.getEvents.CampaignCreated();
+      console.log("Gas used for create campaign: ", createReceipt.gasUsed);
+
       const campaignAddress = createEvents[0].args.campaignAddress;
       expect(createEvents).to.have.lengthOf(1);
       expect(createEvents[0].eventName).to.equal("CampaignCreated");
@@ -112,6 +111,12 @@ describe("DeFund", function () {
         DEADLINE,
         hash,
       } = await loadFixture(createCampaignFixture);
+
+      const createReceipt = await publicClient.waitForTransactionReceipt({
+        hash: hash,
+      });
+
+      console.log("Gas used for create campaign: ", createReceipt.gasUsed);
   
       // Interact with the newly created Campaign
       const createEvents = await factory.getEvents.CampaignCreated();
@@ -148,14 +153,23 @@ describe("DeFund", function () {
 
       // console.log("Owner address:", owner.account.address);
       // console.log("OtherAccount address:", otherAccount.account.address);
+
+      const createReceipt = await publicClient.waitForTransactionReceipt({
+        hash: hash,
+      });
+
+      console.log("Gas used for create campaign: ", createReceipt.gasUsed);
   
       // Donate 0.5 ETH
       const donationAmount = parseUnits("0.5", "ether");
-      await campaign.write.donate({
+      const donateTxHash = await campaign.write.donate({
         value: donationAmount,
         account: otherAccount.account.address,
       });
-  
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: donateTxHash});
+      console.log("Gas used for donation: ", receipt.gasUsed);
+
       const campaignDetails = await campaign.read.getCampaignDetails();
       
       // Validate total funds
@@ -163,14 +177,28 @@ describe("DeFund", function () {
     });
 
     it("Should allow multiple donations and update total funds correctly", async function () {
-      const { campaign, otherAccount, FUNDING_GOAL } = await loadFixture(createCampaignFixture);
+      const {
+        campaign,
+        factory,
+        owner,
+        otherAccount,
+        publicClient,
+        NAME,
+        DESCRIPTION,
+        FUNDING_GOAL,
+        DEADLINE,
+        hash,
+      } = await loadFixture(createCampaignFixture);
 
       // First donation of 0.5 ETH
       const donation1 = parseUnits("0.5", "ether");
-      await campaign.write.donate({
+      const donateTxHash = await campaign.write.donate({
         value: donation1,
         account: otherAccount.account.address,
       });
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: donateTxHash});
+      console.log("Gas used for donation: ", receipt.gasUsed);
 
       // Second donation of 0.3 ETH
       const donation2 = parseUnits("0.3", "ether");
@@ -199,14 +227,13 @@ describe("DeFund", function () {
       } = await loadFixture(createCampaignFixture);
 
       const donationAmount = parseUnits("0.5", "ether");
-      const tx = await campaign.write.donate({
+      const donateTxHash = await campaign.write.donate({
         value: donationAmount,
         account: otherAccount.account.address,
       });
 
-      const receipt = await publicClient.waitForTransactionReceipt({
-        hash: hash,
-      });
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: donateTxHash});
+      console.log("Gas used for donation: ", receipt.gasUsed);
 
       // Validate DonationMade event
       const createEvents = await campaign.getEvents.DonationMade();
@@ -291,9 +318,12 @@ describe("DeFund", function () {
       });
 
       // Finalize the campaign
-      await campaign.write.finalizeCampaign({
+      const finalizeHash = await campaign.write.finalizeCampaign({
         account: owner.account.address,
       });
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: finalizeHash});
+      console.log("Gas used for finalize: ", receipt.gasUsed);
 
       const campaignDetails = await campaign.read.getCampaignDetails();
 
@@ -325,9 +355,12 @@ describe("DeFund", function () {
       await time.increaseTo(DEADLINE + 1);
 
       // Finalize the campaign
-      await campaign.write.finalizeCampaign({
+      const finalizeHash = await campaign.write.finalizeCampaign({
         account: owner.account.address,
       });
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: finalizeHash});
+      console.log("Gas used for finalize: ", receipt.gasUsed);
 
       const createEvents = await campaign.getEvents.RefundIssued();
       // console.log("refund: ", createEvents[0].eventName);
@@ -352,7 +385,7 @@ describe("DeFund", function () {
     });
 
     it("Should allow querying the list of donors", async function () {
-      const { campaign, otherAccount } = await loadFixture(createCampaignFixture);
+      const { campaign, otherAccount, publicClient } = await loadFixture(createCampaignFixture);
 
       const donationAmount = parseUnits("0.5", "ether");
       await campaign.write.donate({
@@ -365,12 +398,9 @@ describe("DeFund", function () {
       // console.log("donors: ", donors);
 
       // Validate donor list contains the donor
-      // expect(donors).to.include(otherAccount.account.address);
       const lowercaseDonors = donors.map((donor: string) => donor.toLowerCase());
       expect(lowercaseDonors).to.include(otherAccount.account.address.toLowerCase());
     });
-
-    // -------------------------------------------------------------------------
 
     // Zero or negative fundingGoal
     it("Should revert if funding goal is 0", async function() {
@@ -425,7 +455,7 @@ describe("DeFund", function () {
 
     // Donation after campaign is finalized
     it("Should revert if donating after the campaign is finalized", async function () {
-      const { campaign, owner, otherAccount, FUNDING_GOAL } = await loadFixture(createCampaignFixture);
+      const { campaign, owner, otherAccount, publicClient, FUNDING_GOAL } = await loadFixture(createCampaignFixture);
     
       // Reach funding goal
       await campaign.write.donate({
@@ -434,7 +464,10 @@ describe("DeFund", function () {
       });
     
       // Finalize campaign
-      await campaign.write.finalizeCampaign({ account: owner.account.address });
+      const finalizeHash = await campaign.write.finalizeCampaign({ account: owner.account.address });
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: finalizeHash});
+      console.log("Gas used for finalize: ", receipt.gasUsed);
     
       // Attempt to donate after finalization
       await expect(
@@ -444,52 +477,6 @@ describe("DeFund", function () {
         })
       ).to.be.rejectedWith("Inactive Campaign");
     });
-
-    // // More than 50 donations
-    // it("Should revert if donating when there are already 50 donors", async function () {
-    //   const { campaign, publicClient } = await loadFixture(createCampaignFixture);
-    //   const donationAmount = parseUnits("0.1", "ether");
-    
-    //   // Create 50 unique donors using predefined private keys
-    //   for (let i = 0; i < 50; i++) {
-    //     const privateKey = `0x${(i + 1).toString(16).padStart(64, "0")}`; // Generate unique private keys
-    //     const wallet = new Wallet(privateKey);
-    
-    //     // Fund the wallet using Hardhat's setBalance method
-    //     await publicClient.request({
-    //       method: "hardhat_setBalance",
-    //       params: [wallet.address, "0xDE0B6B3A7640000"], // 1 ETH in wei
-    //     });
-    
-    //     // Use the wallet's private key to interact with the campaign contract
-    //     const tx = await campaign.write.donate({
-    //       account: wallet.address,
-    //       value: donationAmount,
-    //       signer: wallet, // Explicitly provide the signer
-    //     });
-    
-    //     await publicClient.waitForTransactionReceipt({ hash: tx });
-    //   }
-    
-    //   // Attempt the 51st donor
-    //   const privateKey51 = `0x${(51).toString(16).padStart(64, "0")}`;
-    //   const donor51Wallet = new Wallet(privateKey51);
-    
-    //   // Fund the 51st wallet
-    //   await publicClient.request({
-    //     method: "hardhat_setBalance",
-    //     params: [donor51Wallet.address, "0xDE0B6B3A7640000"], // 1 ETH in wei
-    //   });
-    
-    //   // Attempt donation with the 51st donor
-    //   await expect(
-    //     campaign.write.donate({
-    //       account: donor51Wallet.address,
-    //       value: donationAmount,
-    //       signer: donor51Wallet,
-    //     })
-    //   ).to.be.rejectedWith("Too many donors");
-    // });
 
     // Finalize campaign too early
     it("Should revert if beneficiary tries to finalize before deadline and funding goal not met", async function() {
@@ -518,7 +505,7 @@ describe("DeFund", function () {
 
     // Finalize twice
     it("Should revert if trying to finalize an already finalized campaign", async function() {
-      const { campaign, owner, otherAccount, FUNDING_GOAL } = await loadFixture(createCampaignFixture);
+      const { campaign, owner, otherAccount, publicClient, FUNDING_GOAL } = await loadFixture(createCampaignFixture);
     
       // Reach funding goal
       await campaign.write.donate({
@@ -527,7 +514,10 @@ describe("DeFund", function () {
       });
     
       // Finalize once
-      await campaign.write.finalizeCampaign({ account: owner.account.address });
+      const finalizeHash = await campaign.write.finalizeCampaign({ account: owner.account.address });
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: finalizeHash});
+      console.log("Gas used for finalize: ", receipt.gasUsed);
     
       // Try finalizing again
       await expect(campaign.write.finalizeCampaign({ account: owner.account.address }))
@@ -553,9 +543,12 @@ describe("DeFund", function () {
       await time.increaseTo(DEADLINE + 1);
 
       // Finalize the campaign
-      await campaign.write.finalizeCampaign({
+      const finalizeHash = await campaign.write.finalizeCampaign({
         account: owner.account.address,
       });
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: finalizeHash});
+      console.log("Gas used for finalize: ", receipt.gasUsed);
 
       const campaignDetails = await campaign.read.getCampaignDetails();
 
@@ -569,43 +562,6 @@ describe("DeFund", function () {
       const donors = await campaign.read.getDonors();
       expect(donors).to.be.empty;
     });
-
-    // // Multiple donors
-    // it("Should allow multiple donors and track donors correctly with getDonors()", async function () {
-    //   const { campaign, publicClient } = await loadFixture(createCampaignFixture);
-    
-    //   const donationAmount = parseUnits("0.1", "ether");
-    //   const donorWallets = [];
-    //   const donorAddresses = [];
-    
-    //   // Create multiple donors
-    //   for (let i = 0; i < 5; i++) {
-    //     const wallet = Wallet.createRandom();
-    //     const address = wallet.address;
-    //     donorWallets.push(wallet);
-    //     donorAddresses.push(address);
-    
-    //     // Fund the wallet
-    //     await publicClient.request({
-    //       method: "hardhat_setBalance",
-    //       params: [address, "0xDE0B6B3A7640000"], // 1 ETH in wei
-    //     });
-    
-    //     // Donate from this wallet
-    //     await campaign.write.donate({
-    //       account: address,
-    //       value: donationAmount,
-    //     });
-    //   }
-    
-    //   // Validate donors returned by getDonors()
-    //   const donorsFromContract = await campaign.read.getDonors();
-    //   const donorsFromContractLowercase = donorsFromContract.map((d: string) => d.toLowerCase());
-    //   const expectedDonorsLowercase = donorAddresses.map((d: string) => d.toLowerCase());
-    
-    //   // Check if all donors match
-    //   expect(donorsFromContractLowercase).to.have.members(expectedDonorsLowercase);
-    // });
 
     // Test campaign creation with invalid parameters
     it("Should revert campaign creation with invalid parameters", async function () {
@@ -643,12 +599,12 @@ describe("DeFund", function () {
     
       const campaignDetails = await campaign.read.getCampaignDetails();
     
-      // Total funds should not exceed the funding goal
+      // Total funds should exceed the funding goal
       expect(campaignDetails[5]).to.equal(parseUnits("100", "ether"));
     });
 
     it("Should refund donors correctly when funding goal is not met", async function () {
-      const { owner, campaign, otherAccount, DEADLINE } = await loadFixture(createCampaignFixture);
+      const { owner, campaign, otherAccount, publicClient, DEADLINE } = await loadFixture(createCampaignFixture);
     
       const donation1 = parseUnits("0.3", "ether");
       const donation2 = parseUnits("0.4", "ether");
@@ -667,34 +623,18 @@ describe("DeFund", function () {
       await time.increaseTo(DEADLINE + 1);
     
       // Finalize the campaign
-      await campaign.write.finalizeCampaign({
+      const finalizeHash = await campaign.write.finalizeCampaign({
         account: owner.account.address,
       });
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: finalizeHash});
+      console.log("Gas used for finalize: ", receipt.gasUsed);
     
       // Check refunds are issued
       const refundEvents = await campaign.getEvents.RefundIssued();
       // console.log("refundEvents: ", refundEvents);
       expect(refundEvents[0].args.amount).to.equal(parseUnits("0.7", "ether"));
     });
-
-    // it("Should transfer all funds to beneficiary when the campaign is successful", async function () {
-    //   const { campaign, owner, otherAccount, FUNDING_GOAL } = await loadFixture(createCampaignFixture);
-    
-    //   // Donate full funding goal
-    //   await campaign.write.donate({
-    //     value: FUNDING_GOAL,
-    //     account: otherAccount.account.address,
-    //   });
-    
-    //   // Finalize the campaign
-    //   await campaign.write.finalizeCampaign({
-    //     account: owner.account.address,
-    //   });
-    
-    //   // Validate total funds are transferred to the beneficiary
-    //   const beneficiaryBalance = await hre.viem.getBalance({ address: owner.account.address });
-    //   expect(beneficiaryBalance).to.be.greaterThan(FUNDING_GOAL);
-    // });
 
     it("Should transfer all funds to beneficiary when the campaign is successful", async function () {
       const { campaign, owner, otherAccount, FUNDING_GOAL, publicClient } = await loadFixture(createCampaignFixture);
@@ -714,6 +654,8 @@ describe("DeFund", function () {
       });
     
       const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+      console.log("Gas used for finalize: ", receipt.gasUsed);
     
       // Calculate the actual gas cost from the receipt
       const gasUsed = receipt.gasUsed;
