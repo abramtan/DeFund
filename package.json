@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "@openzeppelin/contracts": "^5.1.0",
-    "lucide-react": "^0.462.0",
-    "web3": "^4.15.0"
-  }
-}
