@@ -122,20 +122,13 @@ const HowToUsePage = () => {
 
             <div>
               <h2 className="text-lg font-bold text-gray-900">
-                7. Monitor Progress
+                7. Monitor Progress & Finalize Campaign
               </h2>
               <p className="mt-2 text-gray-700">
                 Check the progress of campaigns you&apos;ve donated to or
-                created. Funds are released automatically if the funding goal is
-                met.
-              </p>
-            </div>
-
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">8. Need Help?</h2>
-              <p className="mt-2 text-gray-700">
-                If you encounter any issues, feel free to contact our support
-                team or consult the FAQ section for common questions.
+                created. You'll be notified if your campaign was successful or not and 
+                you will be able to finalize the campaign if the funding goal is
+                met or if the funding deadline has passed.
               </p>
             </div>
           </div>
